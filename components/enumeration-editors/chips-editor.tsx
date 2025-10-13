@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,11 +14,34 @@ interface EnumerationChipsEditorProps {
 
 export function EnumerationChipsEditor({ values, onChange }: EnumerationChipsEditorProps) {
     const [newValue, setNewValue] = useState("")
+    const [containerWidth, setContainerWidth] = useState(0)
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                setContainerWidth(containerRef.current.offsetWidth)
+            }
+        }
+
+        updateWidth()
+
+        // Use ResizeObserver for more accurate width tracking
+        const resizeObserver = new ResizeObserver(updateWidth)
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current)
+        }
+
+        window.addEventListener('resize', updateWidth)
+        return () => {
+            window.removeEventListener('resize', updateWidth)
+            resizeObserver.disconnect()
+        }
+    }, [])
 
     const handleAddValue = () => {
         if (newValue.trim() && !values.includes(newValue.trim())) {
             const newValues = [...values, newValue.trim()]
-            console.log('ChipsEditor handleAddValue:', { oldValues: values, newValues })
             onChange(newValues)
             setNewValue("")
         }
@@ -36,14 +59,26 @@ export function EnumerationChipsEditor({ values, onChange }: EnumerationChipsEdi
         }
     }
 
-    const truncateText = (text: string, maxLength: number = 20) => {
+    const getTruncationLength = useMemo(() => {
+        // Dynamic truncation for chip badges
+        // Chips wrap so calculate based on reasonable single-chip width
+        // Account for badge padding (~16px) + close button (~24px) = ~40px overhead per chip
+        // Badge text is ~7px per char at text-xs
+        const availableForText = Math.max(containerWidth - 80, 150)
+        const estimatedChars = Math.floor(availableForText / 7)
+        const result = Math.max(15, Math.min(estimatedChars, 100))
+        return result
+    }, [containerWidth])
+
+    const truncateText = (text: string) => {
+        const maxLength = getTruncationLength
         if (text.length <= maxLength) return text
         return text.substring(0, maxLength) + "..."
     }
 
     return (
         <TooltipProvider>
-            <div className="space-y-3 w-full">
+            <div ref={containerRef} className="space-y-3 w-full">
                 <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-sidebar-foreground">
                         Enumeration Values ({values.length})
@@ -54,8 +89,9 @@ export function EnumerationChipsEditor({ values, onChange }: EnumerationChipsEdi
                 {values.length > 0 && (
                     <div className="flex flex-wrap gap-2 min-w-0">
                         {values.map((value, index) => {
-                            const isLong = value.length > 20
-                            const displayText = truncateText(value, 20)
+                            const maxLength = getTruncationLength
+                            const isLong = value.length > maxLength
+                            const displayText = truncateText(value)
 
                             return (
                                 <Tooltip key={index}>
@@ -76,8 +112,8 @@ export function EnumerationChipsEditor({ values, onChange }: EnumerationChipsEdi
                                         </Badge>
                                     </TooltipTrigger>
                                     {isLong && (
-                                        <TooltipContent side="top" className="max-w-xs">
-                                            <p className="font-mono text-sm">{value}</p>
+                                        <TooltipContent side="top" className="max-w-md">
+                                            <p className="font-mono text-sm break-words whitespace-pre-wrap">{value}</p>
                                         </TooltipContent>
                                     )}
                                 </Tooltip>

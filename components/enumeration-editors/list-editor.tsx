@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -17,6 +17,30 @@ export function EnumerationListEditor({ values, onChange }: EnumerationListEdito
     const [searchTerm, setSearchTerm] = useState("")
     const [newValue, setNewValue] = useState("")
     const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set())
+    const [containerWidth, setContainerWidth] = useState(0)
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                setContainerWidth(containerRef.current.offsetWidth)
+            }
+        }
+
+        updateWidth()
+
+        // Use ResizeObserver for more accurate width tracking
+        const resizeObserver = new ResizeObserver(updateWidth)
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current)
+        }
+
+        window.addEventListener('resize', updateWidth)
+        return () => {
+            window.removeEventListener('resize', updateWidth)
+            resizeObserver.disconnect()
+        }
+    }, [])
 
     const filteredValues = useMemo(() => {
         if (!searchTerm) return values
@@ -72,14 +96,26 @@ export function EnumerationListEditor({ values, onChange }: EnumerationListEdito
         }
     }
 
-    const truncateText = (text: string, maxLength: number = 50) => {
+    const getTruncationLength = useMemo(() => {
+        // Dynamic truncation based on available text space
+        // Account for checkbox (40px) + button (40px) + gaps (24px) + padding (40px) + scrollbar (20px) = ~164px
+        // Monospace font is ~7px per char at text-sm
+        const controlsWidth = 164
+        const availableWidth = Math.max(containerWidth - controlsWidth, 100)
+        const estimatedChars = Math.floor(availableWidth / 7)
+        const result = Math.max(10, Math.min(estimatedChars, 120))
+        return result
+    }, [containerWidth])
+
+    const truncateText = (text: string) => {
+        const maxLength = getTruncationLength
         if (text.length <= maxLength) return text
         return text.substring(0, maxLength) + "..."
     }
 
     return (
         <TooltipProvider>
-            <div className="space-y-3 w-full">
+            <div ref={containerRef} className="space-y-3 w-full">
                 <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-sidebar-foreground">
                         Enumeration Values ({values.length})
@@ -129,8 +165,9 @@ export function EnumerationListEditor({ values, onChange }: EnumerationListEdito
                             filteredValues.map((value, index) => {
                                 const originalIndex = values.indexOf(value)
                                 const isSelected = selectedItems.has(originalIndex)
-                                const isLong = value.length > 50
-                                const displayText = truncateText(value, 50)
+                                const maxLength = getTruncationLength
+                                const isLong = value.length > maxLength
+                                const displayText = truncateText(value)
 
                                 return (
                                     <Tooltip key={originalIndex}>
@@ -141,7 +178,7 @@ export function EnumerationListEditor({ values, onChange }: EnumerationListEdito
                                                     onCheckedChange={() => handleItemSelect(originalIndex)}
                                                     className="flex-shrink-0"
                                                 />
-                                                <span className="flex-1 text-sm font-mono overflow-hidden text-ellipsis whitespace-nowrap pr-2">{displayText}</span>
+                                                <span className="flex-1 text-sm font-mono whitespace-nowrap overflow-hidden pr-2 min-w-0">{displayText}</span>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -153,8 +190,8 @@ export function EnumerationListEditor({ values, onChange }: EnumerationListEdito
                                             </div>
                                         </TooltipTrigger>
                                         {isLong && (
-                                            <TooltipContent side="right" className="max-w-xs">
-                                                <p className="font-mono text-sm">{value}</p>
+                                            <TooltipContent side="top" className="max-w-md">
+                                                <p className="font-mono text-sm break-words whitespace-pre-wrap">{value}</p>
                                             </TooltipContent>
                                         )}
                                     </Tooltip>

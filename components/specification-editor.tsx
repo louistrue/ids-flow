@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
+import { Panel, PanelGroup } from "react-resizable-panels"
+import { CustomPanelResizeHandle } from "@/components/ui/panel-resize-handle"
 import { NodePalette } from "./node-palette"
 import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
@@ -23,14 +25,6 @@ export function SpecificationEditor() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
-  const [inspectorWidth, setInspectorWidth] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('inspectorWidthPx')
-      return saved ? Number(saved) : 320
-    }
-    return 320
-  })
-
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     console.log('SpecificationEditor updateNodeData:', { nodeId, data })
     setNodes((nds) => {
@@ -53,15 +47,6 @@ export function SpecificationEditor() {
       return updatedNodes
     })
   }, [selectedNode])
-
-  // Persist inspector width to localStorage
-  useEffect(() => {
-    localStorage.setItem('inspectorWidthPx', String(inspectorWidth))
-  }, [inspectorWidth])
-
-  const handleInspectorWidthChange = useCallback((width: number) => {
-    setInspectorWidth(width)
-  }, [])
 
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
     const smartPosition = calculateSmartPositionForNewNode(type, nodes, edges, position)
@@ -424,22 +409,25 @@ export function SpecificationEditor() {
       {/* Content row */}
       <div className="flex flex-1 min-h-0">
         <NodePalette onAddNode={addNode} />
-        <div className="flex-1 relative">
-          <GraphCanvas
-            nodes={nodes}
-            edges={edges}
-            selectedNode={selectedNode}
-            onNodeSelect={setSelectedNode}
-            onNodeMove={handleNodeMove}
-            onConnect={handleConnect}
-          />
-        </div>
-        <InspectorPanel
-          selectedNode={selectedNode}
-          onUpdateNode={updateNodeData}
-          width={inspectorWidth}
-          onWidthChange={handleInspectorWidthChange}
-        />
+        <PanelGroup direction="horizontal" className="flex-1">
+          <Panel defaultSize={70} minSize={30} className="relative">
+            <GraphCanvas
+              nodes={nodes}
+              edges={edges}
+              selectedNode={selectedNode}
+              onNodeSelect={setSelectedNode}
+              onNodeMove={handleNodeMove}
+              onConnect={handleConnect}
+            />
+          </Panel>
+          <CustomPanelResizeHandle />
+          <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0">
+            <InspectorPanel
+              selectedNode={selectedNode}
+              onUpdateNode={updateNodeData}
+            />
+          </Panel>
+        </PanelGroup>
       </div>
     </div>
   )

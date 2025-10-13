@@ -32,7 +32,7 @@ interface InspectorPanelProps {
 export function InspectorPanel({ selectedNode, onUpdateNode }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
-      <Card className="w-80 h-full rounded-none border-l border-border bg-sidebar">
+      <Card className="h-full rounded-none border-l border-border bg-sidebar">
         <div className="p-4 border-b border-sidebar-border">
           <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
         </div>
@@ -48,13 +48,13 @@ export function InspectorPanel({ selectedNode, onUpdateNode }: InspectorPanelPro
   }
 
   return (
-    <Card className="w-80 h-full rounded-none border-l border-border bg-sidebar">
+    <Card className="h-full rounded-none border-l border-border bg-sidebar">
       <div className="p-4 border-b border-sidebar-border">
         <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
         <p className="text-xs text-muted-foreground mt-1 capitalize">{selectedNode.type} Node</p>
       </div>
       <ScrollArea className="h-[calc(100vh-80px)]">
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 min-w-0">
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} />}
           {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} />}
           {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} />}
