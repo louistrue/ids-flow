@@ -36,13 +36,15 @@ export function SpecificationNode({ data, selected }: NodeProps) {
         type="target"
         position={Position.Left}
         id="applicability"
-        style={{ top: "70%", background: "oklch(0.45 0.15 180)" }}
+        style={{ top: "70%" }}
+        className="bg-accent"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="requirements"
-        style={{ top: "85%", background: "oklch(0.65 0.15 140)" }}
+        style={{ top: "85%" }}
+        className="bg-chart-3"
       />
     </Card>
   )

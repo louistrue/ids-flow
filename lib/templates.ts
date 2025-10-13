@@ -446,7 +446,225 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 300, y: 220 },
         data: {
           restrictionType: "enumeration",
-          values: ["REI30", "REI60", "REI90", "REI120"],
+          values: [
+            "-", "E30", "E60", "E90", "E120", "E180",
+            "EI30", "EI60", "EI90", "EI120", "EI180",
+            "REI30", "REI60", "REI90", "REI120", "REI180", "REI240",
+            "EW30", "EW60", "S", "K30", "K60"
+          ],
+        },
+      },
+    ],
+    edges: [
+      { targetHandle: "applicability" },
+      { targetHandle: "requirements" },
+      { source: "property", target: "restriction" },
+      { source: "restriction", target: "spec" },
+    ],
+  },
+  {
+    id: "door-types-enumeration",
+    name: "Door types enumeration",
+    description: "Door types must be from approved list",
+    category: "Restriction",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 500, y: 100 },
+        data: {
+          name: "DoorTypes-Enumeration",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Door types must be from approved enumeration",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCDOOR",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "property",
+        position: { x: 100, y: 220 },
+        data: {
+          propertySet: "Pset_DoorCommon",
+          baseName: "DoorType",
+          dataType: "IFCLABEL",
+          value: "",
+        },
+      },
+      {
+        type: "restriction",
+        position: { x: 300, y: 220 },
+        data: {
+          restrictionType: "enumeration",
+          values: [
+            "Single leaf", "Double leaf", "Sliding", "Folding", "Revolving",
+            "Swing", "Automatic", "Manual", "Fire door", "Security door",
+            "Accessible door", "Emergency exit", "Garage door", "Roller shutter",
+            "Glass door", "Wooden door", "Metal door", "Composite door"
+          ],
+        },
+      },
+    ],
+    edges: [
+      { targetHandle: "applicability" },
+      { targetHandle: "requirements" },
+      { source: "property", target: "restriction" },
+      { source: "restriction", target: "spec" },
+    ],
+  },
+  {
+    id: "window-types-enumeration",
+    name: "Window types enumeration",
+    description: "Window types must be from approved list",
+    category: "Restriction",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 500, y: 100 },
+        data: {
+          name: "WindowTypes-Enumeration",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Window types must be from approved enumeration",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCWINDOW",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "property",
+        position: { x: 100, y: 220 },
+        data: {
+          propertySet: "Pset_WindowCommon",
+          baseName: "WindowType",
+          dataType: "IFCLABEL",
+          value: "",
+        },
+      },
+      {
+        type: "restriction",
+        position: { x: 300, y: 220 },
+        data: {
+          restrictionType: "enumeration",
+          values: [
+            "Fixed", "Casement", "Tilt and turn", "Sliding", "Pivot",
+            "Awning", "Hopper", "Double hung", "Single hung", "Bay window",
+            "Bow window", "Skylight", "Roof window", "French window",
+            "Patio door", "Picture window", "Transom window"
+          ],
+        },
+      },
+    ],
+    edges: [
+      { targetHandle: "applicability" },
+      { targetHandle: "requirements" },
+      { source: "property", target: "restriction" },
+      { source: "restriction", target: "spec" },
+    ],
+  },
+  {
+    id: "material-types-enumeration",
+    name: "Material types enumeration",
+    description: "Material types must be from approved list",
+    category: "Restriction",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 500, y: 100 },
+        data: {
+          name: "MaterialTypes-Enumeration",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Material types must be from approved enumeration",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCWALL",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "material",
+        position: { x: 100, y: 220 },
+        data: {
+          value: "",
+          uri: "",
+        },
+      },
+      {
+        type: "restriction",
+        position: { x: 300, y: 220 },
+        data: {
+          restrictionType: "enumeration",
+          values: [
+            "Concrete", "Steel", "Wood", "Brick", "Stone", "Glass",
+            "Aluminum", "Plastic", "Composite", "Ceramic", "Gypsum",
+            "Insulation", "Masonry", "Timber", "Metal", "Fiber cement"
+          ],
+        },
+      },
+    ],
+    edges: [
+      { targetHandle: "applicability" },
+      { targetHandle: "requirements" },
+      { source: "material", target: "restriction" },
+      { source: "restriction", target: "spec" },
+    ],
+  },
+  {
+    id: "space-types-enumeration",
+    name: "Space types enumeration",
+    description: "Space types must be from approved list",
+    category: "Restriction",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 500, y: 100 },
+        data: {
+          name: "SpaceTypes-Enumeration",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Space types must be from approved enumeration",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCSPACE",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "property",
+        position: { x: 100, y: 220 },
+        data: {
+          propertySet: "Pset_SpaceCommon",
+          baseName: "SpaceType",
+          dataType: "IFCLABEL",
+          value: "",
+        },
+      },
+      {
+        type: "restriction",
+        position: { x: 300, y: 220 },
+        data: {
+          restrictionType: "enumeration",
+          values: [
+            "Office", "Meeting room", "Conference room", "Reception",
+            "Kitchen", "Break room", "Storage", "Server room", "Toilet",
+            "Corridor", "Lobby", "Atrium", "Stairwell", "Elevator shaft",
+            "Mechanical room", "Electrical room", "Parking", "Loading dock"
+          ],
         },
       },
     ],

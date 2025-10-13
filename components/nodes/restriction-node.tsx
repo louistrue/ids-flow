@@ -8,7 +8,11 @@ export function RestrictionNode({ data, selected }: NodeProps) {
     const getRestrictionSummary = () => {
         switch (data.restrictionType) {
             case "enumeration":
-                return `${data.values?.length || 0} values`
+                const count = data.values?.length || 0
+                if (count === 0) return "No values"
+                if (count === 1) return `1 value: ${data.values[0]}`
+                if (count <= 3) return `${count} values: ${data.values.join(", ")}`
+                return `${count} values`
             case "pattern":
                 return `Pattern: ${data.pattern || "regex"}`
             case "bounds":
@@ -40,8 +44,8 @@ export function RestrictionNode({ data, selected }: NodeProps) {
                     </p>
                 </div>
             </div>
-            <Handle type="target" position={Position.Left} style={{ background: "oklch(0.45 0.15 180)" }} />
-            <Handle type="source" position={Position.Right} style={{ background: "oklch(0.65 0.15 140)" }} />
+            <Handle type="target" position={Position.Left} className="bg-accent" />
+            <Handle type="source" position={Position.Right} className="bg-chart-3" />
         </Card>
     )
 }

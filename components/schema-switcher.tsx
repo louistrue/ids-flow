@@ -14,7 +14,7 @@ export function SchemaSwitcher({ version, onVersionChange }: SchemaSwitcherProps
     <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-lg flex items-center gap-3">
       <span className="text-sm text-muted-foreground">Schema:</span>
       <Select value={version} onValueChange={(value) => onVersionChange(value as IFCVersion)}>
-        <SelectTrigger className="w-[160px] bg-input border-border text-foreground">
+        <SelectTrigger className="w-[200px] bg-input border-border text-foreground">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

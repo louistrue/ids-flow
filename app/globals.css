@@ -5,6 +5,43 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Professional light neutrals */
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.17 0 0);
+  --card: oklch(0.99 0 0);
+  --card-foreground: oklch(0.17 0 0);
+  --popover: oklch(0.99 0 0);
+  --popover-foreground: oklch(0.17 0 0);
+  --primary: oklch(0.35 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.52 0 0);
+  --accent: oklch(0.92 0 0);
+  --accent-foreground: oklch(0.22 0 0);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.005 265);
+  --border: oklch(0.90 0 0);
+  --input: oklch(0.90 0 0);
+  --ring: oklch(0.55 0 0);
+  --chart-1: oklch(0.55 0.18 265);
+  --chart-2: oklch(0.45 0.15 180);
+  --chart-3: oklch(0.65 0.15 140);
+  --chart-4: oklch(0.6 0.2 40);
+  --chart-5: oklch(0.55 0.18 320);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.17 0 0);
+  --sidebar-primary: oklch(0.35 0 0);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.22 0 0);
+  --sidebar-border: oklch(0.90 0 0);
+  --sidebar-ring: oklch(0.55 0 0);
+}
+
+.dark {
   /* Updated theme for professional dark IFC editor */
   --background: oklch(0.12 0.01 265);
   --foreground: oklch(0.95 0.005 265);
@@ -30,7 +67,6 @@
   --chart-3: oklch(0.65 0.15 140);
   --chart-4: oklch(0.6 0.2 40);
   --chart-5: oklch(0.55 0.18 320);
-  --radius: 0.5rem;
   --sidebar: oklch(0.14 0.01 265);
   --sidebar-foreground: oklch(0.95 0.005 265);
   --sidebar-primary: oklch(0.55 0.18 265);
@@ -83,6 +119,14 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -92,52 +136,60 @@
   }
 }
 
-/* ReactFlow custom styles for dark theme */
+/* ReactFlow custom styles for both themes */
 .react-flow {
-  @apply bg-background;
+  background: var(--background);
 }
 
 .react-flow__node {
-  @apply font-sans;
+  font-family: var(--font-sans);
 }
 
 .react-flow__edge-path {
-  stroke: oklch(0.55 0.18 265);
+  stroke: var(--ring);
   stroke-width: 2;
 }
 
 .react-flow__handle {
-  @apply bg-primary border-2 border-primary-foreground;
+  background: var(--primary);
+  border: 2px solid var(--primary-foreground);
   width: 10px;
   height: 10px;
 }
 
 .react-flow__handle-connecting {
-  @apply bg-accent;
+  background: var(--accent);
 }
 
 .react-flow__handle-valid {
-  @apply bg-accent;
+  background: var(--accent);
 }
 
 .react-flow__controls {
-  @apply bg-card border border-border rounded-lg shadow-lg;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .react-flow__controls-button {
-  @apply bg-card border-border text-foreground;
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--foreground);
 }
 
 .react-flow__controls-button:hover {
-  @apply bg-secondary;
+  background: var(--secondary);
 }
 
 .react-flow__minimap {
-  @apply bg-card border border-border rounded-lg;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
 }
 
 .react-flow__background {
-  @apply bg-background;
+  background: var(--background);
 }
 
 /* Smooth dragging optimizations */

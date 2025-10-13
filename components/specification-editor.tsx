@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { NodePalette } from "./node-palette"
 import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
 import { Copy, Download, Upload, FileText, Workflow, Layout } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
@@ -22,16 +23,44 @@ export function SpecificationEditor() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
+  const [inspectorWidth, setInspectorWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('inspectorWidthPx')
+      return saved ? Number(saved) : 320
+    }
+    return 320
+  })
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
-    setNodes((nds) =>
-      nds.map((node) => {
+    console.log('SpecificationEditor updateNodeData:', { nodeId, data })
+    setNodes((nds) => {
+      const updatedNodes = nds.map((node) => {
         if (node.id === nodeId) {
-          return { ...node, data: { ...node.data, ...data } }
+          const updatedNode = { ...node, data: { ...node.data, ...data } }
+          console.log('Updated node:', updatedNode)
+
+          // Update selectedNode if it's the same node
+          if (selectedNode && selectedNode.id === nodeId) {
+            setSelectedNode(updatedNode)
+            console.log('Updated selectedNode:', updatedNode)
+          }
+
+          return updatedNode
         }
         return node
-      }),
-    )
+      })
+      console.log('All nodes after update:', updatedNodes)
+      return updatedNodes
+    })
+  }, [selectedNode])
+
+  // Persist inspector width to localStorage
+  useEffect(() => {
+    localStorage.setItem('inspectorWidthPx', String(inspectorWidth))
+  }, [inspectorWidth])
+
+  const handleInspectorWidthChange = useCallback((width: number) => {
+    setInspectorWidth(width)
   }, [])
 
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
@@ -324,58 +353,63 @@ export function SpecificationEditor() {
   }, [])
 
   return (
-    <div className="flex h-full w-full">
-      <NodePalette onAddNode={addNode} />
-
-      <div className="flex-1 relative">
-        <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
-          <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
-            <h1 className="text-lg font-semibold text-foreground">IFC Specification Editor</h1>
+    <div className="flex flex-col h-full w-full">
+      {/* Header row */}
+      <div className="flex-none border-b border-border bg-background">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
+              <h1 className="text-lg font-semibold text-foreground">IFC Specification Editor</h1>
+            </div>
+            <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
           </div>
-          <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
-          <TemplatesDialog onApplyTemplate={applyTemplate} />
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 bg-card"
-            onClick={arrangeAll}
-          >
-            <Layout className="h-4 w-4" />
-            Arrange All
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 bg-card"
-            onClick={cloneAsProfile}
-            disabled={!selectedNode || selectedNode.type !== "spec"}
-          >
-            <Copy className="h-4 w-4" />
-            Clone as Profile
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 bg-card">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={exportCanvas}>
-                <Workflow className="h-4 w-4 mr-2" />
-                Export Canvas (.json)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportIdsXml}>
-                <FileText className="h-4 w-4 mr-2" />
-                Export IDS (.ids)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-3">
+            <TemplatesDialog onApplyTemplate={applyTemplate} />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 bg-card"
+              onClick={arrangeAll}
+            >
+              <Layout className="h-4 w-4" />
+              Arrange All
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 bg-card"
+              onClick={cloneAsProfile}
+              disabled={!selectedNode || selectedNode.type !== "spec"}
+            >
+              <Copy className="h-4 w-4" />
+              Clone as Profile
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 bg-card">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportCanvas}>
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Export Canvas (.json)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportIdsXml}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export IDS (.ids)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <Button variant="outline" size="sm" className="gap-2 bg-card" onClick={importCanvas}>
-            <Upload className="h-4 w-4" />
-            Import
-          </Button>
+            <Button variant="outline" size="sm" className="gap-2 bg-card" onClick={importCanvas}>
+              <Upload className="h-4 w-4" />
+              Import
+            </Button>
+
+            <ThemeToggle />
+          </div>
 
           <input
             ref={setFileInputRef}
@@ -385,18 +419,28 @@ export function SpecificationEditor() {
             style={{ display: 'none' }}
           />
         </div>
-
-        <GraphCanvas
-          nodes={nodes}
-          edges={edges}
-          selectedNode={selectedNode}
-          onNodeSelect={setSelectedNode}
-          onNodeMove={handleNodeMove}
-          onConnect={handleConnect}
-        />
       </div>
 
-      <InspectorPanel selectedNode={selectedNode} onUpdateNode={updateNodeData} />
+      {/* Content row */}
+      <div className="flex flex-1 min-h-0">
+        <NodePalette onAddNode={addNode} />
+        <div className="flex-1 relative">
+          <GraphCanvas
+            nodes={nodes}
+            edges={edges}
+            selectedNode={selectedNode}
+            onNodeSelect={setSelectedNode}
+            onNodeMove={handleNodeMove}
+            onConnect={handleConnect}
+          />
+        </div>
+        <InspectorPanel
+          selectedNode={selectedNode}
+          onUpdateNode={updateNodeData}
+          width={inspectorWidth}
+          onWidthChange={handleInspectorWidthChange}
+        />
+      </div>
     </div>
   )
 }

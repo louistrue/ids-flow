@@ -71,22 +71,22 @@ function groupNodesBySpecification(
 
 function buildIdsInfo(root: any, specNode: GraphNode, options: ConvertOptions) {
   const info = root.ele("ids:info")
-  
+
   const specData = specNode.data as any
   if (specData.name) {
     info.ele("ids:title").txt(specData.name)
   }
-  
+
   if (specData.description) {
     info.ele("ids:description").txt(specData.description)
   }
-  
+
   // Normalize author to email format
   const author = options.author || specData.author || "ids-flow"
   const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
   const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@ids-flow.com`
   info.ele("ids:author").txt(authorEmail)
-  
+
   // Use provided date or current date
   const date = options.date || new Date().toISOString().split('T')[0]
   info.ele("ids:date").txt(date)
@@ -100,7 +100,7 @@ function buildSpecification(
   edges: GraphEdge[]
 ) {
   const specData = specNode.data as any
-  
+
   const spec = parent.ele("ids:specification", {
     name: specData.name || "Generated Specification",
     ifcVersion: specData.ifcVersion || "IFC4X3_ADD2",
@@ -109,7 +109,7 @@ function buildSpecification(
 
   // Build applicability section
   const appl = spec.ele("ids:applicability")
-  
+
   // Find entity nodes in applicability
   const entityNodes = applicabilityNodes.filter(node => node.type === 'entity')
   if (entityNodes.length > 0) {
@@ -142,7 +142,7 @@ function buildSpecification(
 
   // Build requirements section
   const reqs = spec.ele("ids:requirements")
-  
+
   for (const node of requirementNodes) {
     switch (node.type) {
       case 'property':
@@ -281,9 +281,11 @@ function buildValueRestriction(parent: any, restriction: GraphNode) {
 
   switch (data.restrictionType) {
     case "enumeration":
-      if (data.values) {
-        data.values.forEach((v: string) => {
-          r.ele("xs:enumeration", { value: v })
+      if (data.values && data.values.length > 0) {
+        // Sort for consistent output
+        const sortedValues = [...data.values].sort()
+        sortedValues.forEach((v: string) => {
+          r.ele("xs:enumeration", { value: String(v) })
         })
       }
       break

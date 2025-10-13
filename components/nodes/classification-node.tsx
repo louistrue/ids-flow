@@ -33,7 +33,7 @@ export function ClassificationNode({ data, selected }: NodeProps) {
                     )}
                 </div>
             </div>
-            <Handle type="source" position={Position.Right} style={{ background: "oklch(0.65 0.15 140)" }} />
+            <Handle type="source" position={Position.Right} className="bg-chart-3" />
         </Card>
     )
 }

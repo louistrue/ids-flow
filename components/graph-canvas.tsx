@@ -57,13 +57,40 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   const [reactFlowNodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  // Sync ReactFlow state with parent props when they change
+  // Sync ReactFlow state with parent props, preserving selection and updating data
   useEffect(() => {
-    setNodes(initialNodes)
+    console.log('GraphCanvas sync effect triggered, initialNodes:', initialNodes)
+    setNodes((currentNodes) => {
+      console.log('Current ReactFlow nodes:', currentNodes)
+
+      // Get currently selected node IDs
+      const selectedIds = currentNodes.filter(n => n.selected).map(n => n.id)
+      console.log('Preserving selection for:', selectedIds)
+
+      // Always sync data from parent, but preserve selection
+      const updatedNodes = initialNodes.map(parentNode => {
+        const currentNode = currentNodes.find(n => n.id === parentNode.id)
+        return {
+          ...parentNode,
+          // Preserve selection state
+          selected: selectedIds.includes(parentNode.id)
+        }
+      })
+
+      console.log('Updated ReactFlow nodes:', updatedNodes)
+      return updatedNodes
+    })
   }, [initialNodes, setNodes])
 
   useEffect(() => {
-    setEdges(initialEdges)
+    setEdges((currentEdges) => {
+      // Preserve edge selection similarly
+      const selectedIds = currentEdges.filter(e => e.selected).map(e => e.id)
+      return initialEdges.map(edge => ({
+        ...edge,
+        selected: selectedIds.includes(edge.id)
+      }))
+    })
   }, [initialEdges, setEdges])
 
   const onConnectHandler: OnConnect = useCallback((connection: Connection) => {
@@ -87,6 +114,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       data: selectedNode.data,
     } : null)
   }, [onNodeSelect])
+
 
   return (
     <div className="w-full h-full">

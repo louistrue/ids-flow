@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,7 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Node } from "@xyflow/react"
 import type { NodeData } from "@/lib/graph-types"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Upload, FileText } from "lucide-react"
+import { EnumerationChipsEditor } from "@/components/enumeration-editors/chips-editor"
+import { EnumerationListEditor } from "@/components/enumeration-editors/list-editor"
+import { BulkEditorModal } from "@/components/enumeration-editors/bulk-modal"
+import { EnumerationImportDialog } from "@/components/enumeration-editors/import-dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import {
   getEntitiesForVersion,
   getPredefinedTypesForEntity,
@@ -481,6 +488,10 @@ function PartOfFields({ node, onChange }: { node: Node<any>; onChange: (field: s
 
 function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
   const data = node.data as any // Type assertion for now
+  const [enumerationMode, setEnumerationMode] = useState<"chips" | "list">("chips")
+  const [showImportDialog, setShowImportDialog] = useState(false)
+  const [showBulkModal, setShowBulkModal] = useState(false)
+
   return (
     <>
       <div className="space-y-2">
@@ -502,21 +513,57 @@ function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (fie
           </SelectContent>
         </Select>
       </div>
+
       {data.restrictionType === "enumeration" && (
-        <div className="space-y-2">
-          <Label htmlFor="restriction-values" className="text-sidebar-foreground">
-            Values (comma-separated)
-          </Label>
-          <Textarea
-            id="restriction-values"
-            value={Array.isArray(data.values) ? data.values.join(", ") : ""}
-            onChange={(e) => onChange("values", e.target.value.split(",").map(v => v.trim()).filter(v => v))}
-            placeholder="Value1, Value2, Value3"
-            rows={3}
-            className="bg-input border-border text-foreground"
-          />
+        <div className="space-y-4">
+          {/* View selector */}
+          <Tabs value={enumerationMode} onValueChange={(value) => setEnumerationMode(value as "chips" | "list")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 min-w-0">
+              <TabsTrigger value="chips" className="min-w-0">
+                Chips ({data.values?.length || 0})
+              </TabsTrigger>
+              <TabsTrigger value="list" className="min-w-0">
+                List
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="chips" className="mt-4">
+              <EnumerationChipsEditor
+                values={data.values || []}
+                onChange={(values) => onChange("values", values)}
+              />
+            </TabsContent>
+
+            <TabsContent value="list" className="mt-4">
+              <EnumerationListEditor
+                values={data.values || []}
+                onChange={(values) => onChange("values", values)}
+              />
+            </TabsContent>
+          </Tabs>
+
+          {/* Action buttons */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowImportDialog(true)}
+            >
+              <Upload className="h-4 w-4 mr-1" />
+              Import Values
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowBulkModal(true)}
+            >
+              <FileText className="h-4 w-4 mr-1" />
+              Bulk Edit
+            </Button>
+          </div>
         </div>
       )}
+
       {data.restrictionType === "pattern" && (
         <div className="space-y-2">
           <Label htmlFor="restriction-pattern" className="text-sidebar-foreground">
@@ -531,6 +578,7 @@ function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (fie
           />
         </div>
       )}
+
       {data.restrictionType === "bounds" && (
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-2">
@@ -559,6 +607,7 @@ function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (fie
           </div>
         </div>
       )}
+
       {data.restrictionType === "length" && (
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-2">
@@ -586,6 +635,28 @@ function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (fie
             />
           </div>
         </div>
+      )}
+
+      {/* Import Dialog */}
+      {showImportDialog && (
+        <EnumerationImportDialog
+          onImport={(values) => {
+            onChange("values", values)
+            setShowImportDialog(false)
+          }}
+          onClose={() => setShowImportDialog(false)}
+        />
+      )}
+
+      {/* Bulk Editor Modal */}
+      {showBulkModal && (
+        <BulkEditorModal
+          values={data.values || []}
+          onChange={(values) => onChange("values", values)}
+          onImport={(importedValues) => onChange("values", importedValues)}
+          open={showBulkModal}
+          onOpenChange={setShowBulkModal}
+        />
       )}
     </>
   )

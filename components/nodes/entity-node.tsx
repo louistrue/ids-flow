@@ -21,7 +21,7 @@ export function EntityNode({ data, selected }: NodeProps) {
           </div>
         </div>
       </div>
-      <Handle type="source" position={Position.Right} style={{ background: "oklch(0.45 0.15 180)" }} />
+      <Handle type="source" position={Position.Right} className="bg-accent" />
     </Card>
   )
 }
