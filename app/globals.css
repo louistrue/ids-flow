@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import '@xyflow/react/dist/style.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -85,6 +86,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -136,4 +138,17 @@
 
 .react-flow__background {
   @apply bg-background;
+}
+
+/* Smooth dragging optimizations */
+.react-flow__node {
+  transition: none;
+}
+
+.react-flow__edge {
+  transition: none;
+}
+
+.react-flow__handle {
+  transition: none;
 }

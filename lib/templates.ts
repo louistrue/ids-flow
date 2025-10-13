@@ -1,4 +1,4 @@
-import type { Node, Edge } from "reactflow"
+import type { Node, Edge } from "@xyflow/react"
 
 export interface SpecTemplate {
   id: string
@@ -270,6 +270,192 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [{ targetHandle: "applicability" }, { targetHandle: "applicability" }, { targetHandle: "requirements" }],
+  },
+  {
+    id: "doors-naming-convention",
+    name: "Doors naming convention",
+    description: "Doors must follow naming convention",
+    category: "Naming",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 400, y: 100 },
+        data: {
+          name: "Doors-Naming",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "All doors must follow naming convention",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCDOOR",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "attribute",
+        position: { x: 100, y: 220 },
+        data: {
+          name: "Name",
+          value: "",
+        },
+      },
+    ],
+    edges: [{ targetHandle: "applicability" }, { targetHandle: "requirements" }],
+  },
+  {
+    id: "walls-classification",
+    name: "Walls classification",
+    description: "Walls must have Uniclass classification",
+    category: "Classification",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 400, y: 100 },
+        data: {
+          name: "Walls-Classification",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "All walls must have proper classification",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCWALL",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "classification",
+        position: { x: 100, y: 220 },
+        data: {
+          system: "Uniclass 2015",
+          value: "Pr_20_70_05_05",
+          uri: "",
+        },
+      },
+    ],
+    edges: [{ targetHandle: "applicability" }, { targetHandle: "requirements" }],
+  },
+  {
+    id: "structural-steel-material",
+    name: "Structural steel material",
+    description: "Structural elements must be steel",
+    category: "Material",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 400, y: 100 },
+        data: {
+          name: "Structural-Steel",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Structural elements must use steel material",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCBEAM",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "material",
+        position: { x: 100, y: 220 },
+        data: {
+          value: "steel",
+          uri: "",
+        },
+      },
+    ],
+    edges: [{ targetHandle: "applicability" }, { targetHandle: "requirements" }],
+  },
+  {
+    id: "equipment-in-spaces",
+    name: "Equipment in spaces",
+    description: "Equipment must be contained in spaces",
+    category: "Spatial",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 400, y: 100 },
+        data: {
+          name: "Equipment-Spatial",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Equipment must be properly contained in spaces",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCFLOWTERMINAL",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "partOf",
+        position: { x: 100, y: 220 },
+        data: {
+          entity: "IFCSPACE",
+          relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+        },
+      },
+    ],
+    edges: [{ targetHandle: "applicability" }, { targetHandle: "requirements" }],
+  },
+  {
+    id: "fire-rating-enumeration",
+    name: "Fire rating enumeration",
+    description: "Fire ratings must be from approved list",
+    category: "Restriction",
+    nodes: [
+      {
+        type: "spec",
+        position: { x: 500, y: 100 },
+        data: {
+          name: "FireRating-Enumeration",
+          ifcVersion: "IFC4X3_ADD2",
+          description: "Fire ratings must be from approved enumeration",
+        },
+      },
+      {
+        type: "entity",
+        position: { x: 100, y: 100 },
+        data: {
+          name: "IFCWALL",
+          predefinedType: "",
+        },
+      },
+      {
+        type: "property",
+        position: { x: 100, y: 220 },
+        data: {
+          propertySet: "Pset_WallCommon",
+          baseName: "FireRating",
+          dataType: "IFCLABEL",
+          value: "",
+        },
+      },
+      {
+        type: "restriction",
+        position: { x: 300, y: 220 },
+        data: {
+          restrictionType: "enumeration",
+          values: ["REI30", "REI60", "REI90", "REI120"],
+        },
+      },
+    ],
+    edges: [
+      { targetHandle: "applicability" },
+      { targetHandle: "requirements" },
+      { source: "property", target: "restriction" },
+      { source: "restriction", target: "spec" },
+    ],
   },
 ]
 

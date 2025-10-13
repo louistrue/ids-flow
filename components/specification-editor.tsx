@@ -6,18 +6,21 @@ import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download } from "lucide-react"
+import { Copy, Download, Upload, FileText, Workflow } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
+import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 
 export function SpecificationEditor() {
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
   const [edges, setEdges] = useState<GraphEdge[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
+  const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     setNodes((nds) =>
@@ -110,28 +113,114 @@ export function SpecificationEditor() {
     setEdges((eds) => [...eds, ...clonedEdges])
   }, [selectedNode, nodes, edges])
 
-  const exportSpecification = useCallback(() => {
-    const data = {
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        type: node.type,
-        data: node.data,
-      })),
-      edges: edges.map((edge) => ({
-        source: edge.source,
-        target: edge.target,
-        targetHandle: edge.targetHandle,
-      })),
+  const exportCanvas = useCallback(() => {
+    try {
+      const canvasData = {
+        version: "1.0",
+        metadata: {
+          exportedAt: new Date().toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length,
+          ifcVersion: ifcVersion,
+        },
+        nodes: nodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          position: node.position,
+          data: node.data,
+        })),
+        edges: edges.map((edge) => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          targetHandle: edge.targetHandle,
+        })),
+      }
+
+      const blob = new Blob([JSON.stringify(canvasData, null, 2)], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `canvas-${new Date().toISOString().split('T')[0]}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      alert("Canvas exported successfully!")
+    } catch (error) {
+      console.error("Canvas export failed:", error)
+      alert(`Canvas export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }, [nodes, edges, ifcVersion])
+
+  const exportIdsXml = useCallback(() => {
+    try {
+      const xml = convertGraphToIdsXml(nodes, edges, {
+        pretty: true,
+        author: "IDS Flow Editor",
+        date: new Date().toISOString().split('T')[0]
+      })
+
+      const blob = new Blob([xml], { type: "application/xml" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `specification-${new Date().toISOString().split('T')[0]}.ids`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      alert("IDS XML exported successfully!")
+    } catch (error) {
+      console.error("IDS export failed:", error)
+      alert(`IDS export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }, [nodes, edges])
+
+  const importCanvas = useCallback(() => {
+    if (fileInputRef) {
+      fileInputRef.click()
+    }
+  }, [fileInputRef])
+
+  const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string
+        const canvasData = JSON.parse(content)
+
+        // Validate the imported data structure
+        if (!canvasData.nodes || !Array.isArray(canvasData.nodes)) {
+          throw new Error("Invalid canvas file: missing or invalid nodes array")
+        }
+        if (!canvasData.edges || !Array.isArray(canvasData.edges)) {
+          throw new Error("Invalid canvas file: missing or invalid edges array")
+        }
+
+        // Update the canvas with imported data
+        setNodes(canvasData.nodes)
+        setEdges(canvasData.edges)
+        setSelectedNode(null) // Clear selection
+
+        // Update IFC version if present in metadata
+        if (canvasData.metadata?.ifcVersion) {
+          setIfcVersion(canvasData.metadata.ifcVersion)
+        }
+
+        alert(`Canvas imported successfully! Loaded ${canvasData.nodes.length} nodes and ${canvasData.edges.length} edges.`)
+      } catch (error) {
+        console.error("Import failed:", error)
+        alert(`Import failed: ${error instanceof Error ? error.message : 'Invalid file format'}`)
+      }
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "ifc-specification.json"
-    a.click()
-    URL.revokeObjectURL(url)
-  }, [nodes, edges])
+    reader.readAsText(file)
+
+    // Reset the input so the same file can be imported again
+    event.target.value = ''
+  }, [])
 
   const handleNodeMove = useCallback((nodeId: string, position: { x: number; y: number }) => {
     setNodes((nds) =>
@@ -175,10 +264,37 @@ export function SpecificationEditor() {
             <Copy className="h-4 w-4" />
             Clone as Profile
           </Button>
-          <Button variant="outline" size="sm" className="gap-2 bg-card" onClick={exportSpecification}>
-            <Download className="h-4 w-4" />
-            Export
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 bg-card">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportCanvas}>
+                <Workflow className="h-4 w-4 mr-2" />
+                Export Canvas (.json)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportIdsXml}>
+                <FileText className="h-4 w-4 mr-2" />
+                Export IDS (.ids)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="outline" size="sm" className="gap-2 bg-card" onClick={importCanvas}>
+            <Upload className="h-4 w-4" />
+            Import
           </Button>
+
+          <input
+            ref={setFileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileImport}
+            style={{ display: 'none' }}
+          />
         </div>
 
         <GraphCanvas
@@ -215,6 +331,32 @@ function getDefaultNodeData(type: string) {
         baseName: "FireRating",
         dataType: "IFCLABEL",
         value: "",
+      }
+    case "attribute":
+      return {
+        name: "Name",
+        value: "",
+      }
+    case "classification":
+      return {
+        system: "Uniclass 2015",
+        value: "",
+        uri: "",
+      }
+    case "material":
+      return {
+        value: "concrete",
+        uri: "",
+      }
+    case "partOf":
+      return {
+        entity: "IFCSPACE",
+        relation: "",
+      }
+    case "restriction":
+      return {
+        restrictionType: "enumeration",
+        values: [],
       }
     default:
       return {}

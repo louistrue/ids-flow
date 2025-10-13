@@ -1,15 +1,14 @@
 "use client"
 
-import { Handle, Position, type NodeProps } from "reactflow"
+import { Handle, Position, type NodeProps } from "@xyflow/react"
 import { Card } from "@/components/ui/card"
 import { Box } from "lucide-react"
 
 export function EntityNode({ data, selected }: NodeProps) {
   return (
     <Card
-      className={`min-w-[200px] bg-card border-2 transition-all ${
-        selected ? "border-accent shadow-lg" : "border-border"
-      }`}
+      className={`min-w-[200px] bg-card border-2 transition-all ${selected ? "border-accent shadow-lg" : "border-border"
+        }`}
     >
       <div className="p-3">
         <div className="flex items-center gap-2">

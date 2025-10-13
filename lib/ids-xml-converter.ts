@@ -1,0 +1,312 @@
+import { create } from "xmlbuilder2"
+import type { GraphNode, GraphEdge } from "./graph-types"
+
+export interface ConvertOptions {
+  pretty?: boolean
+  author?: string
+  date?: string
+}
+
+export function convertGraphToIdsXml(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  options: ConvertOptions = {}
+): string {
+  if (!nodes || nodes.length === 0) {
+    throw new Error("No nodes provided for conversion")
+  }
+
+  // Find all specification nodes
+  const specNodes = nodes.filter(node => node.type === 'spec')
+  if (specNodes.length === 0) {
+    throw new Error("No specification nodes found")
+  }
+
+  // Create root XML element
+  const root = create({ version: "1.0", encoding: "UTF-8" }).ele("ids:ids", {
+    "xmlns:ids": "http://standards.buildingsmart.org/IDS",
+    "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+    "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "xsi:schemaLocation": "http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd",
+  })
+
+  // Build info section from first spec node
+  const firstSpec = specNodes[0]
+  buildIdsInfo(root, firstSpec, options)
+
+  // Build specifications section
+  const specs = root.ele("ids:specifications")
+
+  for (const specNode of specNodes) {
+    const { applicabilityNodes, requirementNodes } = groupNodesBySpecification(nodes, edges, specNode)
+    buildSpecification(specs, specNode, applicabilityNodes, requirementNodes, edges)
+  }
+
+  return root.end({ prettyPrint: options.pretty ?? true })
+}
+
+function groupNodesBySpecification(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  specNode: GraphNode
+): { applicabilityNodes: GraphNode[]; requirementNodes: GraphNode[] } {
+  // Find nodes connected to this spec's applicability handle
+  const applicabilityEdges = edges.filter(
+    edge => edge.target === specNode.id && edge.targetHandle === 'applicability'
+  )
+  const applicabilityNodes = applicabilityEdges
+    .map(edge => nodes.find(node => node.id === edge.source))
+    .filter((node): node is GraphNode => node !== undefined)
+
+  // Find nodes connected to this spec's requirements handle
+  const requirementEdges = edges.filter(
+    edge => edge.target === specNode.id && edge.targetHandle === 'requirements'
+  )
+  const requirementNodes = requirementEdges
+    .map(edge => nodes.find(node => node.id === edge.source))
+    .filter((node): node is GraphNode => node !== undefined)
+
+  return { applicabilityNodes, requirementNodes }
+}
+
+function buildIdsInfo(root: any, specNode: GraphNode, options: ConvertOptions) {
+  const info = root.ele("ids:info")
+  
+  const specData = specNode.data as any
+  if (specData.name) {
+    info.ele("ids:title").txt(specData.name)
+  }
+  
+  if (specData.description) {
+    info.ele("ids:description").txt(specData.description)
+  }
+  
+  // Normalize author to email format
+  const author = options.author || specData.author || "ids-flow"
+  const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
+  const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@ids-flow.com`
+  info.ele("ids:author").txt(authorEmail)
+  
+  // Use provided date or current date
+  const date = options.date || new Date().toISOString().split('T')[0]
+  info.ele("ids:date").txt(date)
+}
+
+function buildSpecification(
+  parent: any,
+  specNode: GraphNode,
+  applicabilityNodes: GraphNode[],
+  requirementNodes: GraphNode[],
+  edges: GraphEdge[]
+) {
+  const specData = specNode.data as any
+  
+  const spec = parent.ele("ids:specification", {
+    name: specData.name || "Generated Specification",
+    ifcVersion: specData.ifcVersion || "IFC4X3_ADD2",
+    description: specData.description || "Generated from IDS Flow",
+  })
+
+  // Build applicability section
+  const appl = spec.ele("ids:applicability")
+  
+  // Find entity nodes in applicability
+  const entityNodes = applicabilityNodes.filter(node => node.type === 'entity')
+  if (entityNodes.length > 0) {
+    // Use first entity as primary entity
+    buildEntityFacet(entityNodes[0], appl)
+  }
+
+  // Add other applicability facets
+  for (const node of applicabilityNodes) {
+    switch (node.type) {
+      case 'partOf':
+        buildPartOfFacet(node, appl)
+        break
+      case 'classification':
+        buildClassificationFacet(node, appl)
+        break
+      case 'material':
+        buildMaterialFacet(node, appl)
+        break
+      case 'property':
+        // Properties in applicability are treated as conditions
+        buildPropertyFacet(node, appl, undefined)
+        break
+      case 'attribute':
+        // Attributes in applicability are treated as conditions
+        buildAttributeFacet(node, appl, undefined)
+        break
+    }
+  }
+
+  // Build requirements section
+  const reqs = spec.ele("ids:requirements")
+  
+  for (const node of requirementNodes) {
+    switch (node.type) {
+      case 'property':
+        buildPropertyFacet(node, reqs, "required", edges)
+        break
+      case 'attribute':
+        buildAttributeFacet(node, reqs, "required")
+        break
+      case 'classification':
+        buildClassificationFacet(node, reqs, "required")
+        break
+      case 'material':
+        buildMaterialFacet(node, reqs, "required")
+        break
+      case 'partOf':
+        buildPartOfFacet(node, reqs, "required")
+        break
+    }
+  }
+}
+
+// Helper function to create ids:simpleValue elements
+function idsSimple(parent: any, tag: string, text: string) {
+  parent.ele(tag).ele("ids:simpleValue").txt(text)
+}
+
+// Facet converter functions
+function buildEntityFacet(node: GraphNode, parent: any) {
+  const entity = parent.ele("ids:entity")
+  const data = node.data as any
+  idsSimple(entity, "ids:name", data.name.toUpperCase())
+  if (data.predefinedType) {
+    idsSimple(entity, "ids:predefinedType", data.predefinedType)
+  }
+}
+
+function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[]) {
+  const data = node.data as any
+  const attrs: any = {
+    dataType: data.dataType || "IFCLABEL",
+  }
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+
+  const prop = parent.ele("ids:property", attrs)
+  idsSimple(prop, "ids:propertySet", data.propertySet)
+  idsSimple(prop, "ids:baseName", data.baseName)
+
+  // Handle restrictions by checking for connected restriction nodes
+  if (edges) {
+    const restrictionEdge = edges.find(e => e.source === node.id)
+    if (restrictionEdge) {
+      const restrictionNode = edges.find(e => e.target === restrictionEdge.target)
+      if (restrictionNode) {
+        // This would need the actual restriction node data
+        // For now, handle simple value constraints
+        if (data.value) {
+          idsSimple(prop, "ids:value", data.value)
+        }
+      }
+    }
+  } else if (data.value) {
+    // Simple value constraint
+    idsSimple(prop, "ids:value", data.value)
+  }
+}
+
+function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string) {
+  const data = node.data as any
+  const attrs: any = {}
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+
+  const attr = parent.ele("ids:attribute", attrs)
+  idsSimple(attr, "ids:name", data.name)
+  if (data.value) {
+    idsSimple(attr, "ids:value", data.value)
+  }
+}
+
+function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string) {
+  const data = node.data as any
+  const attrs: any = {}
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+  if (data.uri) {
+    attrs.uri = data.uri
+  }
+
+  const cls = parent.ele("ids:classification", attrs)
+  idsSimple(cls, "ids:system", data.system)
+  if (data.value) {
+    idsSimple(cls, "ids:value", data.value)
+  }
+}
+
+function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string) {
+  const data = node.data as any
+  const attrs: any = {}
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+  if (data.uri) {
+    attrs.uri = data.uri
+  }
+
+  const mat = parent.ele("ids:material", attrs)
+  if (data.value) {
+    idsSimple(mat, "ids:value", data.value)
+  }
+}
+
+function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string) {
+  const data = node.data as any
+  const attrs: any = {}
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+  if (data.relation) {
+    attrs.relation = data.relation
+  }
+
+  const partOf = parent.ele("ids:partOf", attrs)
+  const entity = partOf.ele("ids:entity")
+  idsSimple(entity, "ids:name", data.entity.toUpperCase())
+}
+
+// Restriction handling (for future enhancement)
+function buildValueRestriction(parent: any, restriction: GraphNode) {
+  const data = restriction.data as any
+  const value = parent.ele("ids:value")
+  const r = value.ele("xs:restriction", { base: "xs:string" })
+
+  switch (data.restrictionType) {
+    case "enumeration":
+      if (data.values) {
+        data.values.forEach((v: string) => {
+          r.ele("xs:enumeration", { value: v })
+        })
+      }
+      break
+    case "pattern":
+      if (data.pattern) {
+        r.ele("xs:pattern", { value: data.pattern })
+      }
+      break
+    case "bounds":
+      if (data.minValue) {
+        r.ele("xs:minInclusive", { value: data.minValue })
+      }
+      if (data.maxValue) {
+        r.ele("xs:maxInclusive", { value: data.maxValue })
+      }
+      break
+    case "length":
+      if (data.minLength) {
+        r.ele("xs:minLength", { value: data.minLength })
+      }
+      if (data.maxLength) {
+        r.ele("xs:maxLength", { value: data.maxLength })
+      }
+      break
+  }
+}

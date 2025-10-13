@@ -1,10 +1,16 @@
 "use client"
 
-import type React from "react"
-
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useCallback, useMemo, useEffect } from "react"
+import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, type OnSelectionChange, type OnNodeDragStop, NodeChange, EdgeChange } from "@xyflow/react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
-import { GraphNodeComponent } from "./graph-node"
+import { SpecificationNode } from "./nodes/specification-node"
+import { EntityNode } from "./nodes/entity-node"
+import { PropertyNode } from "./nodes/property-node"
+import { AttributeNode } from "./nodes/attribute-node"
+import { ClassificationNode } from "./nodes/classification-node"
+import { MaterialNode } from "./nodes/material-node"
+import { PartOfNode } from "./nodes/partof-node"
+import { RestrictionNode } from "./nodes/restriction-node"
 
 interface GraphCanvasProps {
   nodes: GraphNode[]
@@ -15,191 +21,112 @@ interface GraphCanvasProps {
   onConnect: (sourceId: string, targetId: string, targetHandle?: string) => void
 }
 
+const nodeTypes = {
+  spec: SpecificationNode,
+  entity: EntityNode,
+  property: PropertyNode,
+  attribute: AttributeNode,
+  classification: ClassificationNode,
+  material: MaterialNode,
+  partOf: PartOfNode,
+  restriction: RestrictionNode,
+}
+
 export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onConnect }: GraphCanvasProps) {
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const [draggingNode, setDraggingNode] = useState<string | null>(null)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [isPanning, setIsPanning] = useState(false)
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
-
-  const handleNodeMouseDown = useCallback(
-    (nodeId: string, e: React.MouseEvent) => {
-      e.stopPropagation()
-      const node = nodes.find((n) => n.id === nodeId)
-      if (node) {
-        setDraggingNode(nodeId)
-        setDragOffset({
-          x: e.clientX - node.position.x * zoom - pan.x,
-          y: e.clientY - node.position.y * zoom - pan.y,
-        })
-        onNodeSelect(node)
-      }
-    },
-    [nodes, onNodeSelect, zoom, pan],
+  // Convert GraphNode/GraphEdge to ReactFlow format
+  const initialNodes: Node[] = useMemo(() =>
+    nodes.map(node => ({
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: node.data,
+    })), [nodes]
   )
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (draggingNode) {
-        const newX = (e.clientX - dragOffset.x - pan.x) / zoom
-        const newY = (e.clientY - dragOffset.y - pan.y) / zoom
-        onNodeMove(draggingNode, { x: newX, y: newY })
-      } else if (isPanning) {
-        setPan({
-          x: e.clientX - panStart.x,
-          y: e.clientY - panStart.y,
-        })
-      }
-    },
-    [draggingNode, dragOffset, onNodeMove, isPanning, panStart, zoom, pan],
+  const initialEdges: Edge[] = useMemo(() =>
+    edges.map(edge => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      targetHandle: edge.targetHandle,
+      style: { stroke: "oklch(0.55 0.18 265)", strokeWidth: 2 },
+    })), [edges]
   )
 
-  const handleMouseUp = useCallback(() => {
-    setDraggingNode(null)
-    setIsPanning(false)
-  }, [])
+  // Use ReactFlow's built-in state management
+  const [reactFlowNodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  const handleCanvasMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains("graph-background")) {
-        setIsPanning(true)
-        setPanStart({
-          x: e.clientX - pan.x,
-          y: e.clientY - pan.y,
-        })
-        onNodeSelect(null)
-      }
-    },
-    [pan, onNodeSelect],
-  )
-
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault()
-      const delta = e.deltaY * -0.001
-      const newZoom = Math.min(Math.max(0.5, zoom + delta), 2)
-      setZoom(newZoom)
-    },
-    [zoom],
-  )
+  // Sync ReactFlow state with parent props when they change
+  useEffect(() => {
+    setNodes(initialNodes)
+  }, [initialNodes, setNodes])
 
   useEffect(() => {
-    document.addEventListener("mousemove", handleMouseMove)
-    document.addEventListener("mouseup", handleMouseUp)
-    const canvas = canvasRef.current
-    if (canvas) {
-      canvas.addEventListener("wheel", handleWheel, { passive: false })
-    }
+    setEdges(initialEdges)
+  }, [initialEdges, setEdges])
 
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("mouseup", handleMouseUp)
-      if (canvas) {
-        canvas.removeEventListener("wheel", handleWheel)
-      }
+  const onConnectHandler: OnConnect = useCallback((connection: Connection) => {
+    if (connection.source && connection.target) {
+      onConnect(connection.source, connection.target, connection.targetHandle || undefined)
     }
-  }, [handleMouseMove, handleMouseUp, handleWheel])
+  }, [onConnect])
+
+  const onNodeDragStop: OnNodeDragStop = useCallback((_event, node) => {
+    // Only update parent state when drag ends to prevent flicker
+    onNodeMove(node.id, node.position)
+  }, [onNodeMove])
+
+  const onSelectionChange: OnSelectionChange = useCallback(({ nodes: selectedNodes }) => {
+    const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null
+    onNodeSelect(selectedNode ? {
+      id: selectedNode.id,
+      type: selectedNode.type || 'spec',
+      position: selectedNode.position,
+      data: selectedNode.data,
+    } : null)
+  }, [onNodeSelect])
 
   return (
-    <div
-      ref={canvasRef}
-      className="w-full h-full bg-background overflow-hidden relative cursor-grab active:cursor-grabbing"
-      onMouseDown={handleCanvasMouseDown}
-    >
-      {/* Background pattern */}
-      <div
-        className="graph-background absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle, oklch(0.25 0.01 265) 1px, transparent 1px)`,
-          backgroundSize: `${16 * zoom}px ${16 * zoom}px`,
-          backgroundPosition: `${pan.x}px ${pan.y}px`,
-        }}
-      />
-
-      {/* Edges */}
-      <svg className="absolute inset-0 pointer-events-none" style={{ overflow: "visible" }}>
-        {edges.map((edge) => {
-          const sourceNode = nodes.find((n) => n.id === edge.source)
-          const targetNode = nodes.find((n) => n.id === edge.target)
-          if (!sourceNode || !targetNode) return null
-
-          const sourceX = sourceNode.position.x * zoom + pan.x + 220
-          const sourceY = sourceNode.position.y * zoom + pan.y + 40
-          const targetX = targetNode.position.x * zoom + pan.x
-          const targetY =
-            targetNode.position.y * zoom +
-            pan.y +
-            (edge.targetHandle === "requirements" ? 100 : edge.targetHandle === "applicability" ? 70 : 40)
-
-          const midX = (sourceX + targetX) / 2
-
-          return (
-            <g key={edge.id}>
-              <path
-                d={`M ${sourceX} ${sourceY} C ${midX} ${sourceY}, ${midX} ${targetY}, ${targetX} ${targetY}`}
-                stroke="oklch(0.55 0.18 265)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.6"
-              />
-              <circle cx={targetX} cy={targetY} r="4" fill="oklch(0.55 0.18 265)" />
-            </g>
-          )
-        })}
-      </svg>
-
-      {/* Nodes */}
-      <div
-        className="absolute inset-0"
-        style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}
+    <div className="w-full h-full">
+      <ReactFlow
+        nodes={reactFlowNodes}
+        edges={reactFlowEdges}
+        onConnect={onConnectHandler}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onSelectionChange={onSelectionChange}
+        onNodeDragStop={onNodeDragStop}
+        nodeTypes={nodeTypes}
+        defaultEdgeOptions={{ type: 'default' }}
+        connectionLineType="Bezier"
+        fitView
+        attributionPosition="bottom-left"
       >
-        {nodes.map((node) => (
-          <div
-            key={node.id}
-            style={{
-              position: "absolute",
-              left: node.position.x,
-              top: node.position.y,
-              cursor: draggingNode === node.id ? "grabbing" : "grab",
-            }}
-            onMouseDown={(e) => handleNodeMouseDown(node.id, e)}
-          >
-            <GraphNodeComponent node={node} selected={selectedNode?.id === node.id} />
-          </div>
-        ))}
-      </div>
-
-      {/* Controls */}
-      <div className="absolute bottom-4 right-4 bg-card border border-border rounded-lg p-2 flex flex-col gap-2">
-        <button
-          className="px-3 py-1 text-sm hover:bg-secondary rounded"
-          onClick={() => setZoom(Math.min(2, zoom + 0.1))}
-        >
-          +
-        </button>
-        <button
-          className="px-3 py-1 text-sm hover:bg-secondary rounded"
-          onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-        >
-          −
-        </button>
-        <button
-          className="px-3 py-1 text-sm hover:bg-secondary rounded"
-          onClick={() => {
-            setZoom(1)
-            setPan({ x: 0, y: 0 })
+        <Background
+          variant="dots"
+          gap={16}
+          size={1}
+          color="oklch(0.25 0.01 265)"
+        />
+        <Controls className="bg-card border border-border rounded-lg shadow-lg" />
+        <MiniMap
+          className="bg-card border border-border rounded-lg shadow-lg"
+          nodeColor={(node) => {
+            switch (node.type) {
+              case 'spec': return 'oklch(0.65 0.15 140)'
+              case 'entity': return 'oklch(0.45 0.15 180)'
+              case 'property': return 'oklch(0.65 0.15 140)'
+              case 'attribute': return 'oklch(0.65 0.15 140)'
+              case 'classification': return 'oklch(0.65 0.15 140)'
+              case 'material': return 'oklch(0.65 0.15 140)'
+              case 'partOf': return 'oklch(0.65 0.15 140)'
+              case 'restriction': return 'oklch(0.55 0.18 265)'
+              default: return 'oklch(0.55 0.18 265)'
+            }
           }}
-        >
-          ⊙
-        </button>
-      </div>
-
-      {/* Zoom indicator */}
-      <div className="absolute bottom-4 left-4 bg-card border border-border rounded-lg px-3 py-1 text-sm text-muted-foreground">
-        {Math.round(zoom * 100)}%
-      </div>
+        />
+      </ReactFlow>
     </div>
   )
 }
