@@ -6,9 +6,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'IDS Flow - IFC Specification Editor',
+  title: 'IDSflow - IFC Specification Editor',
   description: 'Professional IFC specification editor with visual flow design',
-  generator: 'v0.app',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#fafafa' },
     { media: '(prefers-color-scheme: dark)', color: '#1a1a1a' },
