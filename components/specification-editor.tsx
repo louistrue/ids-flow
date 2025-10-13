@@ -6,7 +6,7 @@ import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Workflow } from "lucide-react"
+import { Copy, Download, Upload, FileText, Workflow, Layout } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
@@ -14,6 +14,7 @@ import { GraphCanvas } from "./graph-canvas"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
+import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
 
 export function SpecificationEditor() {
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
@@ -34,36 +35,115 @@ export function SpecificationEditor() {
   }, [])
 
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
+    const smartPosition = calculateSmartPositionForNewNode(type, nodes, edges, position)
+
     const newNode: GraphNode = {
       id: `${type}-${Date.now()}`,
       type,
-      position,
+      position: smartPosition,
       data: getDefaultNodeData(type),
     }
     setNodes((nds) => [...nds, newNode])
-  }, [])
+  }, [nodes, edges])
+
+  const arrangeAll = useCallback(() => {
+    const updatedNodes = relayoutNodes(nodes, edges)
+    setNodes(updatedNodes)
+  }, [nodes, edges])
 
   const applyTemplate = useCallback((template: SpecTemplate) => {
     const timestamp = Date.now()
-    const newNodes: GraphNode[] = template.nodes.map((node, index) => ({
-      ...node,
-      id: `${node.type}-${timestamp}-${index}`,
-    }))
 
-    const newEdges: GraphEdge[] = template.edges.map((edge, index) => {
-      const sourceIndex = index < template.nodes.length - 1 ? index + 1 : index
-      const targetIndex = 0
-      return {
-        id: `edge-${timestamp}-${index}`,
-        source: newNodes[sourceIndex].id,
-        target: newNodes[targetIndex].id,
-        targetHandle: edge.targetHandle,
+    console.log(`🚀 Applying template: ${template.name}`)
+    console.log(`📋 Template nodes:`, template.nodes.map(n => ({ type: n.type, data: n.data })))
+
+    // Find a clear area for the new template (stack vertically)
+    const offset = findTemplateOffset(nodes, { x: 600, y: 150 })
+
+    // Track which nodes we're adding vs reusing
+    const nodesToAdd: GraphNode[] = []
+    const nodeIdMap = new Map<string, string>() // template index -> actual node id
+
+    // First pass: check for existing nodes and create new ones
+    template.nodes.forEach((node, index) => {
+      if (node.type === 'spec') {
+        // Always create new spec node
+        const newNode: GraphNode = {
+          ...node,
+          id: `${node.type}-${timestamp}-${index}`,
+          position: { x: offset.x, y: offset.y },
+        }
+        nodesToAdd.push(newNode)
+        nodeIdMap.set(index.toString(), newNode.id)
+      } else {
+        // Check if we can reuse an existing node
+        const existingNode = findExistingNode(nodes, node.type, node.data)
+
+        if (existingNode) {
+          // Reuse existing node
+          nodeIdMap.set(index.toString(), existingNode.id)
+        } else {
+          // Create new node
+          const edge = template.edges[index - 1]
+          const targetHandle = edge?.targetHandle as 'applicability' | 'requirements'
+
+          console.log(`🔧 Creating new ${node.type} node (${targetHandle})`)
+
+          // Find the spec node ID for this template
+          const specNodeId = nodeIdMap.get('0') // First node is always the spec
+
+          const position = calculateNodePosition(
+            node.type,
+            targetHandle || 'requirements',
+            [...nodes, ...nodesToAdd], // Include existing nodes AND nodes being added
+            edges, // Pass current edges
+            specNodeId || 'temp-spec', // Pass spec ID
+            {
+              ...DEFAULT_LAYOUT_CONFIG,
+              specPosition: offset,
+              baseX: offset.x - 500,
+              baseY: offset.y - 50,
+            }
+          )
+
+          const newNode: GraphNode = {
+            ...node,
+            id: `${node.type}-${timestamp}-${index}`,
+            position,
+          }
+          nodesToAdd.push(newNode)
+          nodeIdMap.set(index.toString(), newNode.id)
+
+          console.log(`✅ Created node ${newNode.id} at:`, position)
+        }
       }
     })
 
-    setNodes((nds) => [...nds, ...newNodes])
+    // Create edges using the actual node IDs
+    const newEdges: GraphEdge[] = template.edges.map((edge, index) => {
+      const sourceIndex = index < template.nodes.length - 1 ? index + 1 : index
+      const targetIndex = 0
+
+      const sourceId = nodeIdMap.get(sourceIndex.toString())
+      const targetId = nodeIdMap.get(targetIndex.toString())
+
+      if (!sourceId || !targetId) {
+        console.warn('Missing node ID for edge:', { sourceIndex, targetIndex, edge })
+        return null
+      }
+
+      return {
+        id: `edge-${timestamp}-${index}`,
+        source: sourceId,
+        target: targetId,
+        targetHandle: edge.targetHandle,
+      }
+    }).filter(Boolean) as GraphEdge[]
+
+    // Add new nodes and edges
+    setNodes((nds) => [...nds, ...nodesToAdd])
     setEdges((eds) => [...eds, ...newEdges])
-  }, [])
+  }, [nodes])
 
   const cloneAsProfile = useCallback(() => {
     if (!selectedNode || selectedNode.type !== "spec") return
@@ -254,6 +334,15 @@ export function SpecificationEditor() {
           </div>
           <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
           <TemplatesDialog onApplyTemplate={applyTemplate} />
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 bg-card"
+            onClick={arrangeAll}
+          >
+            <Layout className="h-4 w-4" />
+            Arrange All
+          </Button>
           <Button
             variant="outline"
             size="sm"

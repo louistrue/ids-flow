@@ -4,7 +4,7 @@ export const initialNodes: GraphNode[] = [
   {
     id: "SP1",
     type: "spec",
-    position: { x: 500, y: 100 },
+    position: { x: 600, y: 150 }, // Spec node center-right
     data: {
       name: "Walls-FireRating",
       ifcVersion: "IFC4X3_ADD2",
@@ -14,32 +14,32 @@ export const initialNodes: GraphNode[] = [
   {
     id: "E1",
     type: "entity",
-    position: { x: 100, y: 100 },
+    position: { x: 100, y: 100 }, // Entity at top (applicability)
     data: {
       name: "IFCWALL",
       predefinedType: "",
     },
   },
   {
-    id: "P1",
-    type: "property",
-    position: { x: 100, y: 220 },
-    data: {
-      propertySet: "Pset_WallCommon",
-      baseName: "FireRating",
-      dataType: "IFCLABEL",
-      value: "",
-    },
-  },
-  {
     id: "AP1",
     type: "property",
-    position: { x: 100, y: 350 },
+    position: { x: 100, y: 230 }, // Applicability property below entity
     data: {
       propertySet: "Pset_WallCommon",
       baseName: "IsExternal",
       dataType: "IFCBOOLEAN",
       value: "true",
+    },
+  },
+  {
+    id: "P1",
+    type: "property",
+    position: { x: 100, y: 480 }, // Requirements property (after gap)
+    data: {
+      propertySet: "Pset_WallCommon",
+      baseName: "FireRating",
+      dataType: "IFCLABEL",
+      value: "",
     },
   },
 ]

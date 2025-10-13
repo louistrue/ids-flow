@@ -75,6 +75,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   const onNodeDragStop: OnNodeDragStop = useCallback((_event, node) => {
     // Only update parent state when drag ends to prevent flicker
     onNodeMove(node.id, node.position)
+    console.log(`Node ${node.id} dragged to:`, node.position) // Log node position
   }, [onNodeMove])
 
   const onSelectionChange: OnSelectionChange = useCallback(({ nodes: selectedNodes }) => {
