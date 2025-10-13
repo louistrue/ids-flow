@@ -18,6 +18,7 @@ import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
+import { useIdsValidation } from "@/lib/use-ids-validation"
 
 export function SpecificationEditor() {
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
@@ -25,6 +26,15 @@ export function SpecificationEditor() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
+
+  // IDS Validation hook
+  const {
+    validationState,
+    validateNow,
+    isValidating,
+    hasErrors,
+    isDisabled: isValidationDisabled,
+  } = useIdsValidation(nodes, edges)
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     console.log('SpecificationEditor updateNodeData:', { nodeId, data })
     setNodes((nds) => {
@@ -425,6 +435,10 @@ export function SpecificationEditor() {
             <InspectorPanel
               selectedNode={selectedNode}
               onUpdateNode={updateNodeData}
+              validationState={validationState}
+              onValidateNow={validateNow}
+              isValidating={isValidating}
+              isValidationDisabled={isValidationDisabled}
             />
           </Panel>
         </PanelGroup>

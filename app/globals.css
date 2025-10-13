@@ -118,6 +118,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
     color-scheme: light;

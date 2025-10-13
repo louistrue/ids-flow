@@ -1,107 +1,124 @@
-# IDSflow
+# IDS Flow
 
-A professional IFC specification editor with visual flow design for building information modeling (BIM) workflows.
-
-## Overview
-
-IDSflow is a modern web application that enables users to create, edit, and manage IFC (Industry Foundation Classes) specifications through an intuitive visual interface. Built with Next.js and React Flow, it provides a node-based editor for defining IDS (Information Delivery Specification) requirements.
+A visual editor for creating Information Delivery Specifications (IDS) files with automatic validation.
 
 ## Features
 
-- **Visual Flow Editor**: Drag-and-drop interface for building IFC specifications
-- **Node-Based Design**: Support for multiple facet types:
-  - Entity facets
-  - Property facets
-  - Attribute facets
-  - Classification facets
-  - Material facets
-  - PartOf facets
-- **Specification Management**: Create and organize multiple specifications
-- **XML Import/Export**: Full support for IDS XML format
-- **Template System**: Pre-built templates for common use cases
-- **Dark Mode**: Built-in theme support for comfortable editing
-- **Real-time Validation**: Instant feedback on specification structure
+- **Visual Graph Editor**: Drag-and-drop interface for creating IDS specifications
+- **Real-time Validation**: Automatic IDS validation using the IfcTester-Service API
+- **Multiple Node Types**: Support for all IDS facet types (Entity, Property, Attribute, Classification, Material, PartOf, Restriction)
+- **Template System**: Pre-built specification templates
+- **Export/Import**: Save and load canvas configurations
+- **IDS XML Export**: Generate compliant IDS XML files
 
-## Getting Started
+## Setup
 
-### Prerequisites
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ids-flow
+   ```
 
-- Node.js 18+ or compatible runtime
-- npm, pnpm, or yarn package manager
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Installation
+3. **Configure environment**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Update `.env.local` with your IfcTester-Service configuration:
+   ```env
+   NEXT_PUBLIC_IDS_AUDIT_API_URL=https://your-service.run.app
+   IDS_AUDIT_API_KEY=your-api-key-here
+   ```
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/ids-flow.git
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-# Navigate to the project directory
-cd ids-flow
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-# Install dependencies
-npm install
-# or
-pnpm install
+## IDS Validation
+
+The application automatically validates your IDS specifications using the IfcTester-Service API:
+
+- **Automatic Validation**: Validates 2 seconds after you stop editing
+- **Manual Validation**: Click "Validate Now" in the Inspector Panel
+- **Status Indicators**: 
+  - ✅ Valid IDS - No errors
+  - ⚠️ Issues found - Check the status message
+  - ❌ Error - Validation failed or service unavailable
+
+## Usage
+
+1. **Create a Specification**: Add a specification node from the palette
+2. **Add Applicability**: Connect entity, classification, or other facet nodes to the specification's applicability handle
+3. **Add Requirements**: Connect property, attribute, or other facet nodes to the specification's requirements handle
+4. **Configure Nodes**: Select nodes to edit their properties in the Inspector Panel
+5. **Validate**: The system automatically validates your IDS structure
+6. **Export**: Use the export button to download your IDS as XML
+
+## Node Types
+
+- **Specification**: Main container for IDS specifications
+- **Entity**: IFC entity types (e.g., IfcWall, IfcDoor)
+- **Property**: Property sets and properties
+- **Attribute**: IFC attributes (Name, Description, etc.)
+- **Classification**: Classification systems (Uniclass, ETIM, etc.)
+- **Material**: Material specifications
+- **PartOf**: Spatial relationships
+- **Restriction**: Value constraints (enumeration, pattern, bounds, length)
+
+## Development
+
+### Project Structure
+
+```
+├── app/                    # Next.js app directory
+├── components/            # React components
+│   ├── enumeration-editors/ # Specialized editors
+│   ├── nodes/             # Node type components
+│   └── ui/                # UI components
+├── lib/                   # Utilities and types
+├── ids-docs/              # IDS documentation
+└── public/                # Static assets
 ```
 
-### Development
+### Key Files
 
-```bash
-# Run the development server
-npm run dev
-# or
-pnpm dev
+- `components/specification-editor.tsx` - Main editor component
+- `components/inspector-panel.tsx` - Property editor and validation display
+- `lib/ids-xml-converter.ts` - Graph to IDS XML conversion
+- `lib/use-ids-validation.ts` - Validation hook
+- `app/api/validate-ids/route.ts` - API proxy for validation
 
-# Open http://localhost:3000 in your browser
-```
+### Adding New Node Types
 
-### Build
+1. Create the node component in `components/nodes/`
+2. Add the node type to `lib/graph-types.ts`
+3. Update `getDefaultNodeData()` in `specification-editor.tsx`
+4. Add field editor in `inspector-panel.tsx`
+5. Update XML converter in `ids-xml-converter.ts`
 
-```bash
-# Create a production build
-npm run build
-# or
-pnpm build
+## Deployment
 
-# Start the production server
-npm start
-# or
-pnpm start
-```
+The application is designed to deploy on Vercel:
 
-## Documentation
-
-For detailed information about IDS specifications and implementation, see the [ids-docs](./ids-docs) directory:
-
-- [Developer Guide](./ids-docs/developer-guide.md)
-- [Entity Facet](./ids-docs/entity-facet.md)
-- [Property Facet](./ids-docs/property-facet.md)
-- [Attribute Facet](./ids-docs/attribute-facet.md)
-- [Classification Facet](./ids-docs/classification-facet.md)
-- [Material Facet](./ids-docs/material-facet.md)
-- [PartOf Facet](./ids-docs/partof-facet.md)
-- [Restrictions](./ids-docs/restrictions.md)
-- [Specifications](./ids-docs/specifications.md)
-
-## Technology Stack
-
-- **Framework**: Next.js 15
-- **UI Library**: React 19
-- **Flow Editor**: React Flow (xyflow)
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI
-- **Type Safety**: TypeScript
-- **XML Processing**: xmlbuilder2
-- **Theme**: next-themes
+1. **Environment Variables**: Set `NEXT_PUBLIC_IDS_AUDIT_API_URL` and `IDS_AUDIT_API_KEY` in Vercel
+2. **Deploy**: Push to your main branch to trigger deployment
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-Built with modern web technologies and best practices for BIM professionals.
+MIT License

@@ -9,27 +9,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Node } from "@xyflow/react"
 import type { NodeData } from "@/lib/graph-types"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle2, Upload, FileText } from "lucide-react"
+import { Upload, FileText } from "lucide-react"
 import { EnumerationChipsEditor } from "@/components/enumeration-editors/chips-editor"
 import { EnumerationListEditor } from "@/components/enumeration-editors/list-editor"
 import { BulkEditorModal } from "@/components/enumeration-editors/bulk-modal"
 import { EnumerationImportDialog } from "@/components/enumeration-editors/import-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import {
   getEntitiesForVersion,
   getPredefinedTypesForEntity,
   getPropertiesForPropertySet,
+  getExpectedDataTypesForProperty,
   IFC_DATA_TYPES,
   type IFCVersion,
 } from "@/lib/ifc-schema"
+import type { ValidationState } from "@/lib/use-ids-validation"
+import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw } from "lucide-react"
 
 interface InspectorPanelProps {
   selectedNode: Node<any> | null
   onUpdateNode: (nodeId: string, data: any) => void
+  validationState?: ValidationState
+  onValidateNow?: () => void
+  isValidating?: boolean
+  isValidationDisabled?: boolean
 }
 
-export function InspectorPanel({ selectedNode, onUpdateNode }: InspectorPanelProps) {
+export function InspectorPanel({
+  selectedNode,
+  onUpdateNode,
+  validationState,
+  onValidateNow,
+  isValidating = false,
+  isValidationDisabled = false
+}: InspectorPanelProps) {
   if (!selectedNode) {
     return (
       <Card className="h-full rounded-none border-l border-border bg-sidebar">
@@ -55,6 +71,20 @@ export function InspectorPanel({ selectedNode, onUpdateNode }: InspectorPanelPro
       </div>
       <ScrollArea className="h-[calc(100vh-80px)]">
         <div className="p-4 space-y-4 min-w-0">
+          {/* Validation Section */}
+          {validationState && (
+            <>
+              <ValidationSection
+                validationState={validationState}
+                onValidateNow={onValidateNow}
+                isValidating={isValidating}
+                isDisabled={isValidationDisabled}
+              />
+              <Separator />
+            </>
+          )}
+
+          {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} />}
           {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} />}
           {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} />}
@@ -185,6 +215,18 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
   ]
   const properties = data.propertySet ? getPropertiesForPropertySet(data.propertySet) : []
 
+  const handleBaseNameChange = (newBaseName: string) => {
+    // Update the base name
+    onChange("baseName", newBaseName)
+
+    // Auto-select the correct data type for predefined properties
+    const expectedTypes = getExpectedDataTypesForProperty(newBaseName)
+    if (expectedTypes && expectedTypes.length > 0) {
+      // Set to the first expected type (most common/recommended)
+      onChange("dataType", expectedTypes[0])
+    }
+  }
+
   return (
     <>
       <div className="space-y-2">
@@ -217,7 +259,7 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
         {properties.length > 0 ? (
           <Select
             value={data.baseName || "defaultProperty"}
-            onValueChange={(value) => onChange("baseName", value)}
+            onValueChange={handleBaseNameChange}
           >
             <SelectTrigger className="bg-input border-border text-foreground font-mono">
               <SelectValue placeholder="Select property..." />
@@ -234,7 +276,7 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
           <Input
             id="baseName"
             value={data.baseName || ""}
-            onChange={(e) => onChange("baseName", e.target.value)}
+            onChange={(e) => handleBaseNameChange(e.target.value)}
             placeholder="e.g., FireRating"
             className="bg-input border-border text-foreground font-mono"
           />
@@ -243,20 +285,33 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
       <div className="space-y-2">
         <Label htmlFor="dataType" className="text-sidebar-foreground">
           Data Type
+          {data.baseName && getExpectedDataTypesForProperty(data.baseName) && (
+            <span className="ml-2 text-xs text-muted-foreground">
+              (Recommended: {getExpectedDataTypesForProperty(data.baseName)?.join(' or ')})
+            </span>
+          )}
         </Label>
         <Select value={data.dataType || "IFCLABEL"} onValueChange={(value) => onChange("dataType", value)}>
           <SelectTrigger className="bg-input border-border text-foreground font-mono">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {IFC_DATA_TYPES.map((dt) => (
-              <SelectItem key={dt.name} value={dt.name} className="font-mono">
-                <div className="flex flex-col items-start">
-                  <span>{dt.name}</span>
-                  <span className="text-xs text-muted-foreground">{dt.description}</span>
-                </div>
-              </SelectItem>
-            ))}
+            {IFC_DATA_TYPES.map((dt) => {
+              const expectedTypes = data.baseName ? getExpectedDataTypesForProperty(data.baseName) : null
+              const isRecommended = expectedTypes?.includes(dt.name)
+
+              return (
+                <SelectItem key={dt.name} value={dt.name} className="font-mono">
+                  <div className="flex flex-col items-start">
+                    <span className={isRecommended ? "text-green-600 dark:text-green-500 font-medium" : ""}>
+                      {dt.name}
+                      {isRecommended && " ✓"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{dt.description}</span>
+                  </div>
+                </SelectItem>
+              )
+            })}
           </SelectContent>
         </Select>
       </div>
@@ -659,5 +714,157 @@ function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (fie
         />
       )}
     </>
+  )
+}
+
+function ValidationSection({
+  validationState,
+  onValidateNow,
+  isValidating,
+  isDisabled
+}: {
+  validationState: ValidationState
+  onValidateNow?: () => void
+  isValidating: boolean
+  isDisabled: boolean
+}) {
+  const getStatusIcon = () => {
+    if (isValidating) {
+      return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+    }
+
+    if (validationState.status === 'error') {
+      return <XCircle className="h-4 w-4 text-red-500" />
+    }
+
+    if (validationState.result?.status === 0) {
+      return <CheckCircle2 className="h-4 w-4 text-green-500" />
+    }
+
+    if (validationState.result?.status && validationState.result.status !== 0) {
+      return <AlertCircle className="h-4 w-4 text-yellow-500" />
+    }
+
+    return <AlertCircle className="h-4 w-4 text-gray-400" />
+  }
+
+  const getStatusBadge = () => {
+    if (isValidating) {
+      return <Badge variant="secondary" className="text-xs">Validating...</Badge>
+    }
+
+    if (validationState.status === 'error') {
+      return <Badge variant="destructive" className="text-xs">Error</Badge>
+    }
+
+    if (validationState.result?.status === 0) {
+      return <Badge variant="default" className="text-xs bg-green-500">Valid</Badge>
+    }
+
+    if (validationState.result?.status && validationState.result.status !== 0) {
+      return <Badge variant="secondary" className="text-xs bg-yellow-500 text-white">Issues</Badge>
+    }
+
+    return <Badge variant="outline" className="text-xs">Not validated</Badge>
+  }
+
+  const getStatusMessage = () => {
+    if (isValidating) {
+      return "Validating IDS structure..."
+    }
+
+    if (validationState.status === 'error') {
+      return validationState.error || "Validation failed"
+    }
+
+    if (validationState.result) {
+      return validationState.result.message
+    }
+
+    return "Click 'Validate Now' to check IDS structure"
+  }
+
+  const hasClientIssues = validationState.clientIssues && validationState.clientIssues.length > 0
+  const hasClientErrors = validationState.clientIssues?.some(issue => issue.severity === 'error')
+  const hasClientWarnings = validationState.clientIssues?.some(issue => issue.severity === 'warning')
+
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-sidebar-foreground">IDS Validation</h3>
+        {onValidateNow && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onValidateNow}
+            disabled={isDisabled || isValidating}
+            className="h-7 px-2 text-xs"
+          >
+            {isValidating ? (
+              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            ) : (
+              <RefreshCw className="h-3 w-3 mr-1" />
+            )}
+            Validate Now
+          </Button>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        {getStatusIcon()}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {getStatusBadge()}
+            {validationState.lastValidated && (
+              <span className="text-xs text-muted-foreground">
+                {formatTimestamp(validationState.lastValidated)}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {getStatusMessage()}
+          </p>
+        </div>
+      </div>
+
+      {isDisabled && (
+        <p className="text-xs text-muted-foreground italic">
+          Add a specification node to enable validation
+        </p>
+      )}
+
+      {/* Client-side validation issues */}
+      {hasClientIssues && (
+        <div className="space-y-2 mt-3 pt-3 border-t border-sidebar-border">
+          <h4 className="text-xs font-medium text-sidebar-foreground">
+            {hasClientErrors ? 'Validation Errors' : 'Validation Warnings'}
+          </h4>
+          <div className="space-y-1">
+            {validationState.clientIssues?.map((issue, index) => (
+              <div
+                key={index}
+                className={`text-xs p-2 rounded ${issue.severity === 'error'
+                  ? 'bg-red-500/10 text-red-500'
+                  : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'
+                  }`}
+              >
+                <div className="flex items-start gap-1">
+                  {issue.severity === 'error' ? (
+                    <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  )}
+                  <span className="leading-tight">{issue.message}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

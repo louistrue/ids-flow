@@ -77,6 +77,44 @@ export const IFC_ENTITIES: Record<IFCVersion, IFCEntity[]> = {
   ],
 }
 
+// Expected data types for common predefined properties
+export const PREDEFINED_PROPERTY_DATATYPES: Record<string, string[]> = {
+  // Text properties
+  "Reference": ["IFCLABEL", "IFCIDENTIFIER"],
+  "FireRating": ["IFCLABEL", "IFCTEXT"],
+  "AcousticRating": ["IFCLABEL", "IFCTEXT"],
+  "SecurityRating": ["IFCLABEL", "IFCTEXT"],
+  "Status": ["IFCLABEL"],
+  "Category": ["IFCLABEL"],
+  "FloorCovering": ["IFCLABEL"],
+  "WallCovering": ["IFCLABEL"],
+  "CeilingCovering": ["IFCLABEL"],
+  "SkirtingBoard": ["IFCLABEL"],
+  "SurfaceSpreadOfFlame": ["IFCLABEL"],
+
+  // Boolean properties
+  "Combustible": ["IFCBOOLEAN"],
+  "IsExternal": ["IFCBOOLEAN"],
+  "LoadBearing": ["IFCBOOLEAN"],
+  "Compartmentation": ["IFCBOOLEAN"],
+  "ExtendToStructure": ["IFCBOOLEAN"],
+  "HandicapAccessible": ["IFCBOOLEAN"],
+  "PubliclyAccessible": ["IFCBOOLEAN"],
+  "FireExit": ["IFCBOOLEAN"],
+  "SelfClosing": ["IFCBOOLEAN"],
+  "SmokeStop": ["IFCBOOLEAN"],
+
+  // Measurement properties
+  "ThermalTransmittance": ["IFCTHERMALTRANSMITTANCEMEASURE", "IFCREAL"],
+  "Infiltration": ["IFCVOLUMETRICFLOWRATEMEASURE", "IFCREAL"],
+  "GlazingAreaFraction": ["IFCPOSITIVERATIOMEASURE", "IFCREAL"],
+  "GrossPlannedArea": ["IFCAREAMEASURE", "IFCREAL"],
+  "NetPlannedArea": ["IFCAREAMEASURE", "IFCREAL"],
+  "Span": ["IFCLENGTHMEASURE", "IFCREAL"],
+  "Slope": ["IFCPLANEANGLEMEASURE", "IFCREAL"],
+  "PitchAngle": ["IFCPLANEANGLEMEASURE", "IFCREAL"],
+}
+
 // Common Property Sets
 export const IFC_PROPERTY_SETS: IFCPropertySet[] = [
   {
@@ -229,4 +267,25 @@ export function getPropertySetsForEntity(entityName: string): string[] {
 export function getPropertiesForPropertySet(propertySetName: string): string[] {
   const pset = IFC_PROPERTY_SETS.find((p) => p.name === propertySetName)
   return pset?.properties || []
+}
+
+export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {
+  return PREDEFINED_PROPERTY_DATATYPES[propertyName]
+}
+
+export function isPropertyDataTypeValid(propertyName: string, dataType: string): { valid: boolean; expectedTypes?: string[] } {
+  const expectedTypes = getExpectedDataTypesForProperty(propertyName)
+
+  // If no expected types defined, any valid IFC data type is acceptable (custom property)
+  if (!expectedTypes) {
+    return { valid: true }
+  }
+
+  // Check if the data type matches one of the expected types
+  const isValid = expectedTypes.includes(dataType.toUpperCase())
+
+  return {
+    valid: isValid,
+    expectedTypes: isValid ? undefined : expectedTypes
+  }
 }
