@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileText, Box, Tag, Layers, Package, GitBranch, Filter, Database, Info } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { SchemaStats } from "./schema-stats"
+import type { IFCVersion } from "@/lib/ifc-schema"
 
 interface NodePaletteProps {
   onAddNode: (type: string, position: { x: number; y: number }) => void
+  ifcVersion: IFCVersion
 }
 
 const nodeCategories = [
@@ -34,7 +37,7 @@ const nodeCategories = [
   },
 ]
 
-export function NodePalette({ onAddNode }: NodePaletteProps) {
+export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
   const handleAddNode = (type: string) => {
     // Add node to center of viewport
     onAddNode(type, { x: 400, y: 200 })
@@ -73,6 +76,8 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
           ))}
 
           <Separator className="my-4" />
+
+          <SchemaStats ifcVersion={ifcVersion} />
 
           <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
             <div className="flex items-start gap-2">

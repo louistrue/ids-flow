@@ -1,0 +1,20 @@
+{
+  "IFC2X3": {
+    "source": "official_psd",
+    "xml_files": [],
+    "extract_dir": null,
+    "bsdd_property_sets": []
+  },
+  "IFC4": {
+    "source": "official_psd",
+    "xml_files": [],
+    "extract_dir": null,
+    "bsdd_property_sets": []
+  },
+  "IFC4X3_ADD2": {
+    "source": "official_psd",
+    "xml_files": [],
+    "extract_dir": null,
+    "bsdd_property_sets": []
+  }
+}

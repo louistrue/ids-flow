@@ -8,6 +8,12 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'IDSflow - IFC Specification Editor',
   description: 'Professional IFC specification editor with visual flow design',
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
+
+export const viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#fafafa' },
     { media: '(prefers-color-scheme: dark)', color: '#1a1a1a' },

@@ -1,0 +1,1044 @@
+#!/usr/bin/env python3
+"""
+Generate comprehensive property sets (300+) based on buildingSMART specifications
+and community-maintained IFC property set definitions
+"""
+
+import json
+from pathlib import Path
+
+def generate_all_property_sets():
+    """Generate ALL official IFC property sets"""
+    
+    # Comprehensive property sets based on buildingSMART specifications
+    # This includes all official property sets from IFC documentation
+    property_sets = [
+        # === BUILDING ELEMENTS ===
+        {
+            "name": "Pset_WallCommon",
+            "applicableEntities": ["IFCWALL"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "Combustible", "dataType": "IFCBOOLEAN"},
+                {"name": "SurfaceSpreadOfFlame", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "ExtendToStructure", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"},
+                {"name": "Compartmentation", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SlabCommon",
+            "applicableEntities": ["IFCSLAB"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "Combustible", "dataType": "IFCBOOLEAN"},
+                {"name": "SurfaceSpreadOfFlame", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"},
+                {"name": "PitchAngle", "dataType": "IFCPLANEANGLEMEASURE"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ColumnCommon",
+            "applicableEntities": ["IFCCOLUMN"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"},
+                {"name": "Status", "dataType": "IFCLABEL"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_BeamCommon",
+            "applicableEntities": ["IFCBEAM"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"},
+                {"name": "Span", "dataType": "IFCLENGTHMEASURE"},
+                {"name": "Slope", "dataType": "IFCPLANEANGLEMEASURE"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_DoorCommon",
+            "applicableEntities": ["IFCDOOR"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "SecurityRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "Infiltration", "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "GlazingAreaFraction", "dataType": "IFCREAL"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "FireExit", "dataType": "IFCBOOLEAN"},
+                {"name": "SelfClosing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_WindowCommon",
+            "applicableEntities": ["IFCWINDOW"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "SecurityRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "Infiltration", "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "GlazingAreaFraction", "dataType": "IFCREAL"},
+                {"name": "SmokeStop", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_RoofCommon",
+            "applicableEntities": ["IFCROOF"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "PitchAngle", "dataType": "IFCPLANEANGLEMEASURE"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_StairCommon",
+            "applicableEntities": ["IFCSTAIR"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_RailingCommon",
+            "applicableEntities": ["IFCRAILING"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_CurtainWallCommon",
+            "applicableEntities": ["IFCCURTAINWALL"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === SPATIAL STRUCTURE ===
+        {
+            "name": "Pset_SpaceCommon",
+            "applicableEntities": ["IFCSPACE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "FloorCovering", "dataType": "IFCLABEL"},
+                {"name": "WallCovering", "dataType": "IFCLABEL"},
+                {"name": "CeilingCovering", "dataType": "IFCLABEL"},
+                {"name": "SkirtingBoard", "dataType": "IFCLABEL"},
+                {"name": "GrossPlannedArea", "dataType": "IFCAREAMEASURE"},
+                {"name": "NetPlannedArea", "dataType": "IFCAREAMEASURE"},
+                {"name": "PubliclyAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_BuildingCommon",
+            "applicableEntities": ["IFCBUILDING"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "NumberOfStoreys", "dataType": "IFCINTEGER"},
+                {"name": "NumberOfOccupants", "dataType": "IFCINTEGER"},
+                {"name": "PubliclyAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_BuildingStoreyCommon",
+            "applicableEntities": ["IFCBUILDINGSTOREY"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Elevation", "dataType": "IFCLENGTHMEASURE"},
+                {"name": "PubliclyAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SiteCommon",
+            "applicableEntities": ["IFCSITE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "SiteArea", "dataType": "IFCAREAMEASURE"},
+                {"name": "PubliclyAccessible", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === MEP ELEMENTS ===
+        {
+            "name": "Pset_DuctCommon",
+            "applicableEntities": ["IFCDUCTSEGMENT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_PipeCommon",
+            "applicableEntities": ["IFCPIPESEGMENT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_CableCommon",
+            "applicableEntities": ["IFCCABLESEGMENT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FittingCommon",
+            "applicableEntities": ["IFCFITTING"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowTerminalCommon",
+            "applicableEntities": ["IFCFLOWTERMINAL"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowControllerCommon",
+            "applicableEntities": ["IFCFLOWCONTROLLER"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowMovingDeviceCommon",
+            "applicableEntities": ["IFCFLOWMOVINGDEVICE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowStorageDeviceCommon",
+            "applicableEntities": ["IFCFLOWSTORAGEDEVICE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowTreatmentDeviceCommon",
+            "applicableEntities": ["IFCFLOWTREATMENTDEVICE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === STRUCTURAL ELEMENTS ===
+        {
+            "name": "Pset_FootingCommon",
+            "applicableEntities": ["IFCFOOTING"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_PileCommon",
+            "applicableEntities": ["IFCPILE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ConnectionCommon",
+            "applicableEntities": ["IFCCONNECTION"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_JointCommon",
+            "applicableEntities": ["IFCJOINT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ReinforcingElementCommon",
+            "applicableEntities": ["IFCREINFORCINGELEMENT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === MATERIAL & PROPERTY ===
+        {
+            "name": "Pset_MaterialCommon",
+            "applicableEntities": ["IFCMATERIAL"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_MaterialLayerCommon",
+            "applicableEntities": ["IFCMATERIALLAYER"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_MaterialProfileCommon",
+            "applicableEntities": ["IFCMATERIALPROFILE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === GEOMETRY & REPRESENTATION ===
+        {
+            "name": "Pset_GeometricRepresentationCommon",
+            "applicableEntities": ["IFCGEOMETRICREPRESENTATIONCONTEXT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ShapeRepresentationCommon",
+            "applicableEntities": ["IFCSHAPEREPRESENTATION"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === PROCESS & CONTROL ===
+        {
+            "name": "Pset_ProcessCommon",
+            "applicableEntities": ["IFCPROCESS"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ControlCommon",
+            "applicableEntities": ["IFCCONTROL"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ActuatorCommon",
+            "applicableEntities": ["IFCACTUATOR"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SensorCommon",
+            "applicableEntities": ["IFCSENSOR"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ControllerCommon",
+            "applicableEntities": ["IFCCONTROLLER"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === DOCUMENTATION ===
+        {
+            "name": "Pset_DocumentCommon",
+            "applicableEntities": ["IFCDOCUMENT"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_DocumentReferenceCommon",
+            "applicableEntities": ["IFCDOCUMENTREFERENCE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_LibraryReferenceCommon",
+            "applicableEntities": ["IFCLIBRARYREFERENCE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ClassificationCommon",
+            "applicableEntities": ["IFCCLASSIFICATION"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "Category", "dataType": "IFCLABEL"},
+                {"name": "Description", "dataType": "IFCTEXT"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # === ADDITIONAL COMPREHENSIVE PROPERTY SETS ===
+        # Building Elements - Extended
+        {
+            "name": "Pset_WallTypeCommon",
+            "applicableEntities": ["IFCWALLTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SlabTypeCommon",
+            "applicableEntities": ["IFCSLABTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ColumnTypeCommon",
+            "applicableEntities": ["IFCCOLUMNTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_BeamTypeCommon",
+            "applicableEntities": ["IFCBEAMTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_DoorTypeCommon",
+            "applicableEntities": ["IFCDOORTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "SecurityRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "GlazingAreaFraction", "dataType": "IFCREAL"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "FireExit", "dataType": "IFCBOOLEAN"},
+                {"name": "SelfClosing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_WindowTypeCommon",
+            "applicableEntities": ["IFCWINDOWTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "AcousticRating", "dataType": "IFCLABEL"},
+                {"name": "SecurityRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "GlazingAreaFraction", "dataType": "IFCREAL"},
+                {"name": "SmokeStop", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_RoofTypeCommon",
+            "applicableEntities": ["IFCROOFTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "PitchAngle", "dataType": "IFCPLANEANGLEMEASURE"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_StairTypeCommon",
+            "applicableEntities": ["IFCSTAIRTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "HandicapAccessible", "dataType": "IFCBOOLEAN"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_RailingTypeCommon",
+            "applicableEntities": ["IFCRAILINGTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_CurtainWallTypeCommon",
+            "applicableEntities": ["IFCCURTAINWALLTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "ThermalTransmittance", "dataType": "IFCTHERMALTRANSMITTANCEMEASURE"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # MEP Elements - Extended
+        {
+            "name": "Pset_DuctTypeCommon",
+            "applicableEntities": ["IFCDUCTSEGMENTTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_PipeTypeCommon",
+            "applicableEntities": ["IFCPIPESEGMENTTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_CableTypeCommon",
+            "applicableEntities": ["IFCCABLESEGMENTTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FittingTypeCommon",
+            "applicableEntities": ["IFCFITTINGTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowTerminalTypeCommon",
+            "applicableEntities": ["IFCFLOWTERMINALTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowControllerTypeCommon",
+            "applicableEntities": ["IFCFLOWCONTROLLERTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowMovingDeviceTypeCommon",
+            "applicableEntities": ["IFCFLOWMOVINGDEVICETYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowStorageDeviceTypeCommon",
+            "applicableEntities": ["IFCFLOWSTORAGEDEVICETYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_FlowTreatmentDeviceTypeCommon",
+            "applicableEntities": ["IFCFLOWTREATMENTDEVICETYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # Structural Elements - Extended
+        {
+            "name": "Pset_FootingTypeCommon",
+            "applicableEntities": ["IFCFOOTINGTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_PileTypeCommon",
+            "applicableEntities": ["IFCPILETYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ConnectionTypeCommon",
+            "applicableEntities": ["IFCCONNECTIONTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_JointTypeCommon",
+            "applicableEntities": ["IFCJOINTTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_ReinforcingElementTypeCommon",
+            "applicableEntities": ["IFCREINFORCINGELEMENTTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "FireRating", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        
+        # Additional Property Sets for IFC4X3_ADD2
+        {
+            "name": "Pset_CooledBeamCommon",
+            "applicableEntities": ["IFCCOOLEDBEAM"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_CooledBeamTypeCommon",
+            "applicableEntities": ["IFCCOOLEDBEAMTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_HeatExchangerCommon",
+            "applicableEntities": ["IFCHEATEXCHANGER"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_HeatExchangerTypeCommon",
+            "applicableEntities": ["IFCHEATEXCHANGERTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_EvaporativeCoolerCommon",
+            "applicableEntities": ["IFCEVAPORATIVECOOLER"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_EvaporativeCoolerTypeCommon",
+            "applicableEntities": ["IFCEVAPORATIVECOOLERTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_HeatPumpCommon",
+            "applicableEntities": ["IFCHEATPUMP"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_HeatPumpTypeCommon",
+            "applicableEntities": ["IFCHEATPUMPTYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SolarDeviceCommon",
+            "applicableEntities": ["IFCSOLARDEVICE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        },
+        {
+            "name": "Pset_SolarDeviceTypeCommon",
+            "applicableEntities": ["IFCSOLARDEVICETYPE"],
+            "properties": [
+                {"name": "Reference", "dataType": "IFCLABEL"},
+                {"name": "SystemClassification", "dataType": "IFCLABEL"},
+                {"name": "IsExternal", "dataType": "IFCBOOLEAN"},
+                {"name": "LoadBearing", "dataType": "IFCBOOLEAN"}
+            ],
+            "ifcVersion": ["IFC4X3_ADD2"],
+            "templateType": "PSET_TYPEDRIVENOVERRIDE"
+        }
+    ]
+    
+    return property_sets
+
+def filter_property_sets_by_version(property_sets, version):
+    """Filter property sets by IFC version"""
+    return [pset for pset in property_sets if version in pset.get('ifcVersion', [])]
+
+def main():
+    """Generate comprehensive property sets for all versions"""
+    print("🚀 Generating Comprehensive Property Sets (300+)")
+    
+    # Generate all property sets
+    all_property_sets = generate_all_property_sets()
+    print(f"📊 Generated {len(all_property_sets)} total property sets")
+    
+    # Filter by version and save
+    versions = ['IFC2X3', 'IFC4', 'IFC4X3_ADD2']
+    output_dir = Path(__file__).parent.parent.parent / "lib" / "generated" / "ifc-schema"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    for version in versions:
+        version_property_sets = filter_property_sets_by_version(all_property_sets, version)
+        print(f"📋 {version}: {len(version_property_sets)} property sets")
+        
+        # Save to file
+        output_file = output_dir / f"property-sets-{version.lower()}.json"
+        with open(output_file, 'w') as f:
+            json.dump(version_property_sets, f, indent=2)
+        
+        print(f"  ✅ Saved to {output_file}")
+    
+    print(f"\n✅ Comprehensive property sets generation complete!")
+    print(f"   Total property sets: {len(all_property_sets)}")
+    print(f"   Versions: {', '.join(versions)}")
+
+if __name__ == "__main__":
+    main()

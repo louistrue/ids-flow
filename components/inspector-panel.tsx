@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,11 +18,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import {
   getEntitiesForVersion,
   getPredefinedTypesForEntity,
   getPropertiesForPropertySet,
   getExpectedDataTypesForProperty,
+  getAllSimpleTypes,
+  getAllPropertySets,
+  getAllEntities,
+  getPropertySetsForEntityAsync,
   IFC_DATA_TYPES,
   type IFCVersion,
 } from "@/lib/ifc-schema"
@@ -36,6 +41,7 @@ interface InspectorPanelProps {
   onValidateNow?: () => void
   isValidating?: boolean
   isValidationDisabled?: boolean
+  ifcVersion?: IFCVersion
 }
 
 export function InspectorPanel({
@@ -44,7 +50,8 @@ export function InspectorPanel({
   validationState,
   onValidateNow,
   isValidating = false,
-  isValidationDisabled = false
+  isValidationDisabled = false,
+  ifcVersion = "IFC4X3_ADD2"
 }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
@@ -85,21 +92,21 @@ export function InspectorPanel({
           )}
 
           {/* Node Properties */}
-          {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} />}
-          {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} />}
+          {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
         </div>
       </ScrollArea>
     </Card>
   )
 }
 
-function SpecificationFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function SpecificationFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
   return (
     <>
@@ -144,10 +151,42 @@ function SpecificationFields({ node, onChange }: { node: Node<any>; onChange: (f
   )
 }
 
-function EntityFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
-  const ifcVersion: IFCVersion = "IFC4X3_ADD2"
-  const entities = getEntitiesForVersion(ifcVersion)
+
+  // Load comprehensive entities from schema
+  const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadEntities = async () => {
+      try {
+        const entities = await getAllEntities(ifcVersion)
+        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+          value: entity.name,
+          label: entity.name,
+          description: entity.description,
+          category: entity.category
+        }))
+        setAllEntities(entityOptions)
+      } catch (error) {
+        console.warn('Failed to load comprehensive entities:', error)
+        // Fallback to legacy entities
+        const legacyEntities = getEntitiesForVersion(ifcVersion)
+        setAllEntities(legacyEntities.map(entity => ({
+          value: entity,
+          label: entity,
+          description: `IFC ${ifcVersion} entity: ${entity}`,
+          category: 'Other'
+        })))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadEntities()
+  }, [ifcVersion])
+
   const predefinedTypes = data.name ? getPredefinedTypesForEntity(data.name, ifcVersion) : []
 
   return (
@@ -155,19 +194,19 @@ function EntityFields({ node, onChange }: { node: Node<any>; onChange: (field: s
       <div className="space-y-2">
         <Label htmlFor="name" className="text-sidebar-foreground">
           Entity Name
+          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
         </Label>
-        <Select value={data.name || "defaultEntity"} onValueChange={(value) => onChange("name", value)}>
-          <SelectTrigger className="bg-input border-border text-foreground font-mono">
-            <SelectValue placeholder="Select entity..." />
-          </SelectTrigger>
-          <SelectContent>
-            {entities.map((entity) => (
-              <SelectItem key={entity} value={entity} className="font-mono">
-                {entity}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SearchableSelect
+          options={allEntities}
+          value={data.name}
+          onValueChange={(value) => onChange("name", value)}
+          placeholder="Search entities..."
+          searchPlaceholder="Search 876+ entities..."
+          emptyText="No entities found"
+          showCategories={true}
+          maxHeight={400}
+          disabled={loading}
+        />
       </div>
       {predefinedTypes.length > 0 && (
         <div className="space-y-2">
@@ -202,18 +241,115 @@ function EntityFields({ node, onChange }: { node: Node<any>; onChange: (field: s
   )
 }
 
-function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function PropertyFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
-  const propertySets = [
-    "Pset_WallCommon",
-    "Pset_SlabCommon",
-    "Pset_ColumnCommon",
-    "Pset_BeamCommon",
-    "Pset_DoorCommon",
-    "Pset_WindowCommon",
-    "Pset_SpaceCommon",
-  ]
-  const properties = data.propertySet ? getPropertiesForPropertySet(data.propertySet) : []
+
+  // Use comprehensive property sets from the full schema
+  const [propertySetOptions, setPropertySetOptions] = useState<SearchableSelectOption[]>([])
+  const [allDataTypes, setAllDataTypes] = useState<any[]>([])
+  const [loadedPropertySets, setLoadedPropertySets] = useState<any[]>([])
+  const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Load comprehensive data on component mount
+  useEffect(() => {
+    const loadComprehensiveData = async () => {
+      try {
+        const [propertySets, dataTypes, entities] = await Promise.all([
+          getAllPropertySets(ifcVersion),
+          getAllSimpleTypes(ifcVersion),
+          getAllEntities(ifcVersion)
+        ])
+
+        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+          value: entity.name,
+          label: entity.name,
+          description: entity.description,
+          category: entity.category
+        }))
+
+        const psetOptions: SearchableSelectOption[] = propertySets.map(pset => ({
+          value: pset.name,
+          label: pset.name,
+          description: `${pset.properties?.length || 0} properties`,
+          category: 'Property Sets'
+        }))
+
+        setAllEntities(entityOptions)
+        setPropertySetOptions(psetOptions)
+        setLoadedPropertySets(propertySets)
+        setAllDataTypes(dataTypes)
+      } catch (error) {
+        console.warn('Failed to load comprehensive schema data:', error)
+        // Fallback to legacy data
+        const fallbackPsets = [
+          "Pset_WallCommon", "Pset_SlabCommon", "Pset_ColumnCommon",
+          "Pset_BeamCommon", "Pset_DoorCommon", "Pset_WindowCommon", "Pset_SpaceCommon"
+        ]
+        setPropertySetOptions(fallbackPsets.map(name => ({
+          value: name,
+          label: name,
+          description: 'Legacy property set',
+          category: 'Property Sets'
+        })))
+        setAllDataTypes(IFC_DATA_TYPES)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadComprehensiveData()
+  }, [ifcVersion])
+
+  // Filter property sets by selected entity
+  useEffect(() => {
+    const filterPropertySetsByEntity = async () => {
+      if (!data.applicableEntity) {
+        // Show all property sets if no entity selected
+        const allPsets = await getAllPropertySets(ifcVersion)
+        const psetOptions: SearchableSelectOption[] = allPsets.map(pset => ({
+          value: pset.name,
+          label: pset.name,
+          description: `${pset.properties?.length || 0} properties`,
+          category: 'Property Sets'
+        }))
+        setPropertySetOptions(psetOptions)
+        setLoadedPropertySets(allPsets)
+        return
+      }
+
+      try {
+        const filteredPsets = await getPropertySetsForEntityAsync(data.applicableEntity, ifcVersion)
+        const psetOptions: SearchableSelectOption[] = filteredPsets.map(pset => ({
+          value: pset.name,
+          label: pset.name,
+          description: `${pset.properties?.length || 0} properties`,
+          category: 'Property Sets'
+        }))
+        setPropertySetOptions(psetOptions)
+        setLoadedPropertySets(filteredPsets)
+      } catch (error) {
+        console.warn('Failed to filter property sets by entity:', error)
+      }
+    }
+
+    filterPropertySetsByEntity()
+  }, [data.applicableEntity, ifcVersion])
+
+  // Get properties for the selected property set
+  const properties = React.useMemo(() => {
+    if (!data.propertySet) return []
+
+    // Try loaded property sets first
+    const loadedPset = loadedPropertySets.find(ps => ps.name === data.propertySet)
+    if (loadedPset && loadedPset.properties) {
+      // Extract property names from loaded property set
+      return loadedPset.properties.map((p: any) => p.name || p)
+    }
+
+    // Fallback to legacy function
+    return getPropertiesForPropertySet(data.propertySet)
+  }, [data.propertySet, loadedPropertySets])
 
   const handleBaseNameChange = (newBaseName: string) => {
     // Update the base name
@@ -230,48 +366,79 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
   return (
     <>
       <div className="space-y-2">
+        <Label htmlFor="applicableEntity" className="text-sidebar-foreground">
+          Applicable Entity
+          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
+        </Label>
+        <SearchableSelect
+          options={allEntities}
+          value={data.applicableEntity}
+          onValueChange={(value) => {
+            onChange("applicableEntity", value)
+            onChange("propertySet", "") // Reset property set when changing entity
+            onChange("baseName", "") // Reset property when changing entity
+          }}
+          placeholder="Search entities..."
+          searchPlaceholder="Search 876+ entities..."
+          emptyText="No entities found"
+          showCategories={true}
+          maxHeight={300}
+          disabled={loading}
+        />
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="propertySet" className="text-sidebar-foreground">
           Property Set
+          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
+          {data.applicableEntity && (
+            <span className="ml-2 text-xs text-muted-foreground">
+              (Filtered for {data.applicableEntity})
+            </span>
+          )}
         </Label>
-        <Select
-          value={data.propertySet || "defaultPropertySet"}
+        <SearchableSelect
+          options={propertySetOptions}
+          value={data.propertySet}
           onValueChange={(value) => {
             onChange("propertySet", value)
             onChange("baseName", "") // Reset property when changing set
           }}
-        >
-          <SelectTrigger className="bg-input border-border text-foreground font-mono">
-            <SelectValue placeholder="Select property set..." />
-          </SelectTrigger>
-          <SelectContent>
-            {propertySets.map((pset) => (
-              <SelectItem key={pset} value={pset} className="font-mono">
-                {pset}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="Search property sets..."
+          searchPlaceholder={data.applicableEntity ? `Search property sets for ${data.applicableEntity}...` : "Search property sets..."}
+          emptyText="No property sets found"
+          showCategories={false}
+          maxHeight={300}
+          disabled={loading}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="baseName" className="text-sidebar-foreground">
           Base Name
+          {data.propertySet && (
+            <span className="ml-2 text-xs text-muted-foreground">
+              ({properties.length} properties available)
+            </span>
+          )}
         </Label>
         {properties.length > 0 ? (
-          <Select
-            value={data.baseName || "defaultProperty"}
+          <SearchableSelect
+            options={properties.map((prop: string) => {
+              const expectedTypes = getExpectedDataTypesForProperty(prop)
+              return {
+                value: prop,
+                label: prop,
+                description: expectedTypes ? `Recommended: ${expectedTypes.join(' or ')}` : 'Property',
+                category: expectedTypes ? 'Recommended Type' : 'All Properties'
+              }
+            })}
+            value={data.baseName || ""}
             onValueChange={handleBaseNameChange}
-          >
-            <SelectTrigger className="bg-input border-border text-foreground font-mono">
-              <SelectValue placeholder="Select property..." />
-            </SelectTrigger>
-            <SelectContent>
-              {properties.map((prop) => (
-                <SelectItem key={prop} value={prop} className="font-mono">
-                  {prop}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="Search properties..."
+            searchPlaceholder={`Search ${properties.length} properties...`}
+            emptyText="No properties found"
+            showCategories={true}
+            maxHeight={300}
+          />
         ) : (
           <Input
             id="baseName"
@@ -291,29 +458,26 @@ function PropertyFields({ node, onChange }: { node: Node<any>; onChange: (field:
             </span>
           )}
         </Label>
-        <Select value={data.dataType || "IFCLABEL"} onValueChange={(value) => onChange("dataType", value)}>
-          <SelectTrigger className="bg-input border-border text-foreground font-mono">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {IFC_DATA_TYPES.map((dt) => {
-              const expectedTypes = data.baseName ? getExpectedDataTypesForProperty(data.baseName) : null
-              const isRecommended = expectedTypes?.includes(dt.name)
+        <SearchableSelect
+          options={allDataTypes.map((dt) => {
+            const expectedTypes = data.baseName ? getExpectedDataTypesForProperty(data.baseName) : null
+            const isRecommended = expectedTypes?.includes(dt.name)
 
-              return (
-                <SelectItem key={dt.name} value={dt.name} className="font-mono">
-                  <div className="flex flex-col items-start">
-                    <span className={isRecommended ? "text-green-600 dark:text-green-500 font-medium" : ""}>
-                      {dt.name}
-                      {isRecommended && " ✓"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{dt.description}</span>
-                  </div>
-                </SelectItem>
-              )
-            })}
-          </SelectContent>
-        </Select>
+            return {
+              value: dt.name,
+              label: dt.name,
+              description: dt.description,
+              category: isRecommended ? 'Recommended' : 'All Types'
+            }
+          })}
+          value={data.dataType || "IFCLABEL"}
+          onValueChange={(value) => onChange("dataType", value)}
+          placeholder="Search data types..."
+          searchPlaceholder="Search 60+ data types..."
+          emptyText="No data types found"
+          showCategories={true}
+          maxHeight={300}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="value" className="text-sidebar-foreground">
@@ -351,7 +515,7 @@ function getPlaceholderForDataType(dataType: string): string {
   }
 }
 
-function AttributeFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function AttributeFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
   return (
     <>
@@ -392,7 +556,7 @@ function AttributeFields({ node, onChange }: { node: Node<any>; onChange: (field
   )
 }
 
-function ClassificationFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function ClassificationFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
   return (
     <>
@@ -445,7 +609,7 @@ function ClassificationFields({ node, onChange }: { node: Node<any>; onChange: (
   )
 }
 
-function MaterialFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function MaterialFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
   return (
     <>
@@ -489,8 +653,10 @@ function MaterialFields({ node, onChange }: { node: Node<any>; onChange: (field:
   )
 }
 
-function PartOfFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function PartOfFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
+  const entities = getEntitiesForVersion(ifcVersion)
+
   return (
     <>
       <div className="space-y-2">
@@ -505,14 +671,11 @@ function PartOfFields({ node, onChange }: { node: Node<any>; onChange: (field: s
             <SelectValue placeholder="Select entity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="IFCSPACE">IFCSPACE</SelectItem>
-            <SelectItem value="IFCBUILDING">IFCBUILDING</SelectItem>
-            <SelectItem value="IFCBUILDINGSTOREY">IFCBUILDINGSTOREY</SelectItem>
-            <SelectItem value="IFCZONE">IFCZONE</SelectItem>
-            <SelectItem value="IFCELEMENT">IFCELEMENT</SelectItem>
-            <SelectItem value="IFCGROUP">IFCGROUP</SelectItem>
-            <SelectItem value="IFCASSET">IFCASSET</SelectItem>
-            <SelectItem value="IFCSYSTEM">IFCSYSTEM</SelectItem>
+            {entities.map((entity) => (
+              <SelectItem key={entity} value={entity} className="font-mono">
+                {entity}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -541,7 +704,7 @@ function PartOfFields({ node, onChange }: { node: Node<any>; onChange: (field: s
   )
 }
 
-function RestrictionFields({ node, onChange }: { node: Node<any>; onChange: (field: string, value: any) => void }) {
+function RestrictionFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
   const [enumerationMode, setEnumerationMode] = useState<"chips" | "list">("chips")
   const [showImportDialog, setShowImportDialog] = useState(false)
