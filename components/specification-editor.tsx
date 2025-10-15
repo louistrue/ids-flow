@@ -440,6 +440,8 @@ export function SpecificationEditor() {
               isValidating={isValidating}
               isValidationDisabled={isValidationDisabled}
               ifcVersion={ifcVersion}
+              nodes={nodes}
+              edges={edges}
             />
           </Panel>
         </PanelGroup>

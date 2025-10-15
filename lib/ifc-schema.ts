@@ -380,8 +380,9 @@ export async function getAllPropertySets(version: IFCVersion): Promise<IFCProper
 
 export async function getPropertySetsForEntityAsync(entityName: string, version: IFCVersion): Promise<IFCPropertySet[]> {
   const allPropertySets = await getAllPropertySets(version)
+  const normalizedEntityName = entityName.toUpperCase()
   return allPropertySets.filter(pset =>
-    pset.applicableEntities.includes(entityName)
+    pset.applicableEntities.some(e => e.toUpperCase() === normalizedEntityName)
   )
 }
 
@@ -395,6 +396,72 @@ export async function searchPropertySets(query: string, version: IFCVersion): Pr
       prop.name.toLowerCase().includes(lowercaseQuery)
     )
   )
+}
+
+export async function getAttributesForEntity(entityName: string, version: IFCVersion): Promise<{ name: string; type: string; optional: boolean }[]> {
+  const entities = await loadEntities(version)
+  const normalizedEntityName = entityName.toUpperCase()
+  const entity = entities.find((e) => e.name.toUpperCase() === normalizedEntityName)
+  return entity?.attributes || []
+}
+
+export async function getClassificationSystemsForEntity(entityName: string, version: IFCVersion): Promise<string[]> {
+  // For now, return common classification systems
+  // In a full implementation, this would filter based on entity applicability
+  // Note: entityName is normalized to uppercase for consistency
+  const normalizedEntityName = entityName.toUpperCase()
+  return [
+    "OmniClass",
+    "Uniclass",
+    "MasterFormat",
+    "Uniformat",
+    "ISO 12006-2",
+    "ISO 81346",
+    "ETIM",
+    "eCl@ss"
+  ]
+}
+
+export async function getMaterialTypesForEntity(entityName: string, version: IFCVersion): Promise<string[]> {
+  // For now, return common material types
+  // In a full implementation, this would filter based on entity applicability
+  // Note: entityName is normalized to uppercase for consistency
+  const normalizedEntityName = entityName.toUpperCase()
+  return [
+    "Concrete",
+    "Steel",
+    "Wood",
+    "Glass",
+    "Aluminum",
+    "Masonry",
+    "Plastic",
+    "Composite",
+    "Ceramic",
+    "Natural Stone"
+  ]
+}
+
+export async function getSpatialRelationsForEntity(entityName: string, version: IFCVersion): Promise<string[]> {
+  // For now, return common spatial relations
+  // In a full implementation, this would filter based on entity applicability
+  // Note: entityName is normalized to uppercase for consistency
+  const normalizedEntityName = entityName.toUpperCase()
+  return [
+    "Contains",
+    "ContainedIn",
+    "AdjacentTo",
+    "Above",
+    "Below",
+    "LeftOf",
+    "RightOf",
+    "FrontOf",
+    "Behind",
+    "Inside",
+    "Outside",
+    "Overlaps",
+    "Touches",
+    "Intersects"
+  ]
 }
 
 export async function getEntityAttributes(entityName: string, version: IFCVersion): Promise<{ name: string; type: string; optional: boolean }[]> {

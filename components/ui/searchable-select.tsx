@@ -38,6 +38,8 @@ interface SearchableSelectProps {
     disabled?: boolean
     showCategories?: boolean
     maxHeight?: number
+    allowCustom?: boolean
+    onCreateOption?: (value: string) => void
 }
 
 export function SearchableSelect({
@@ -51,6 +53,8 @@ export function SearchableSelect({
     disabled = false,
     showCategories = false,
     maxHeight = 300,
+    allowCustom = false,
+    onCreateOption,
 }: SearchableSelectProps) {
     const [open, setOpen] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
@@ -94,6 +98,35 @@ export function SearchableSelect({
         setSearchQuery("")
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (allowCustom && onCreateOption && e.key === 'Enter' && searchQuery.trim()) {
+            // Check if the search query doesn't match any existing option
+            const exactMatch = options.some(option => 
+                option.value.toLowerCase() === searchQuery.toLowerCase() ||
+                option.label.toLowerCase() === searchQuery.toLowerCase()
+            )
+            
+            if (!exactMatch) {
+                onCreateOption(searchQuery.trim())
+                setOpen(false)
+                setSearchQuery("")
+                e.preventDefault()
+            }
+        }
+    }
+
+    // Check if we should show "create new" option
+    const shouldShowCreateOption = React.useMemo(() => {
+        if (!allowCustom || !onCreateOption || !searchQuery.trim()) return false
+        
+        const exactMatch = options.some(option => 
+            option.value.toLowerCase() === searchQuery.toLowerCase() ||
+            option.label.toLowerCase() === searchQuery.toLowerCase()
+        )
+        
+        return !exactMatch
+    }, [allowCustom, onCreateOption, searchQuery, options])
+
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -122,6 +155,7 @@ export function SearchableSelect({
                             placeholder={searchPlaceholder}
                             value={searchQuery}
                             onValueChange={setSearchQuery}
+                            onKeyDown={handleKeyDown}
                             className="flex h-11"
                         />
                     </div>
@@ -155,6 +189,35 @@ export function SearchableSelect({
                                     ))}
                                 </CommandGroup>
                             ))}
+                            
+                            {/* Show "Create new" option when typing non-matching text */}
+                            {shouldShowCreateOption && (
+                                <CommandGroup>
+                                    <CommandItem
+                                        value="__create_custom__"
+                                        onSelect={() => {
+                                            if (onCreateOption) {
+                                                onCreateOption(searchQuery.trim())
+                                                setOpen(false)
+                                                setSearchQuery("")
+                                            }
+                                        }}
+                                        className="cursor-pointer border-t border-border/50"
+                                    >
+                                        <div className="mr-2 h-4 w-4 flex items-center justify-center">
+                                            <span className="text-xs text-muted-foreground">+</span>
+                                        </div>
+                                        <div className="flex flex-col flex-1">
+                                            <span className="font-mono text-primary">
+                                                Create "{searchQuery.trim()}"
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Press Enter to create new option
+                                            </span>
+                                        </div>
+                                    </CommandItem>
+                                </CommandGroup>
+                            )}
                         </ScrollArea>
                     </CommandList>
                 </Command>

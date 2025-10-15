@@ -2,7 +2,8 @@
 
 import { Handle, Position, type NodeProps } from "@xyflow/react"
 import { Card } from "@/components/ui/card"
-import { Tag } from "lucide-react"
+import { Tag, Filter } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export function PropertyNode({ data, selected }: NodeProps) {
   return (
@@ -16,6 +17,12 @@ export function PropertyNode({ data, selected }: NodeProps) {
             <Tag className="h-4 w-4 text-chart-3" />
           </div>
           <h3 className="font-semibold text-sm text-foreground font-mono">{data.baseName}</h3>
+          {data.entityContext && (
+            <Badge variant="secondary" className="ml-auto text-xs">
+              <Filter className="h-3 w-3 mr-1" />
+              {data.entityContext}
+            </Badge>
+          )}
         </div>
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground font-mono">{data.propertySet}</p>
