@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useEffect } from "react"
 import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, type OnSelectionChange, type OnNodeDragStop, NodeChange, EdgeChange } from "@xyflow/react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
+import { getEntityContext } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
 import { EntityNode } from "./nodes/entity-node"
 import { PropertyNode } from "./nodes/property-node"
@@ -33,14 +34,20 @@ const nodeTypes = {
 }
 
 export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onConnect }: GraphCanvasProps) {
-  // Convert GraphNode/GraphEdge to ReactFlow format
+  // Convert GraphNode/GraphEdge to ReactFlow format with entity context
   const initialNodes: Node[] = useMemo(() =>
-    nodes.map(node => ({
-      id: node.id,
-      type: node.type,
-      position: node.position,
-      data: node.data,
-    })), [nodes]
+    nodes.map(node => {
+      const entityContext = getEntityContext(node.id, nodes, edges)
+      return {
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: {
+          ...node.data,
+          entityContext: entityContext.entityName
+        },
+      }
+    }), [nodes, edges]
   )
 
   const initialEdges: Edge[] = useMemo(() =>

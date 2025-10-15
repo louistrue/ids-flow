@@ -12,7 +12,18 @@ import {
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Flame, Building2, Zap, Shield } from "lucide-react"
+import {
+  FileText,
+  Flame,
+  Building2,
+  Zap,
+  Shield,
+  Tag,
+  Grid3x3,
+  Package,
+  MapPin,
+  ListFilter
+} from "lucide-react"
 import { SPEC_TEMPLATES, getTemplateCategories } from "@/lib/templates"
 import type { SpecTemplate } from "@/lib/templates"
 
@@ -25,13 +36,23 @@ const categoryIcons: Record<string, any> = {
   Structure: Building2,
   Energy: Zap,
   Space: FileText,
+  Naming: Tag,
+  Classification: Grid3x3,
+  Material: Package,
+  Spatial: MapPin,
+  Restriction: ListFilter,
 }
 
 const categoryColors: Record<string, string> = {
-  Safety: "text-destructive",
-  Structure: "text-primary",
-  Energy: "text-chart-4",
-  Space: "text-accent",
+  Safety: "text-red-500",
+  Structure: "text-blue-500",
+  Energy: "text-orange-500",
+  Space: "text-purple-500",
+  Naming: "text-green-500",
+  Classification: "text-cyan-500",
+  Material: "text-amber-500",
+  Spatial: "text-indigo-500",
+  Restriction: "text-pink-500",
 }
 
 export function TemplatesDialog({ onApplyTemplate }: TemplatesDialogProps) {
@@ -62,7 +83,7 @@ export function TemplatesDialog({ onApplyTemplate }: TemplatesDialogProps) {
           <DialogDescription>Choose a template to quickly create common IFC specifications</DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           <Button
             variant={selectedCategory === null ? "default" : "outline"}
             size="sm"

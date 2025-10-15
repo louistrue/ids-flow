@@ -1,0 +1,29 @@
+{
+  "versions": [
+    "IFC2X3",
+    "IFC4",
+    "IFC4X3_ADD2"
+  ],
+  "lastGenerated": "2025-01-13T00:00:00.000Z",
+  "entityCounts": {
+    "IFC2X3": 653,
+    "IFC4": 776,
+    "IFC4X3_ADD2": 876
+  },
+  "propertySetCounts": {
+    "IFC2X3": 66,
+    "IFC4": 66,
+    "IFC4X3_ADD2": 131
+  },
+  "categories": {
+    "Building Element": "Structural building components",
+    "Spatial Structure": "Spatial organization elements",
+    "MEP Element": "Mechanical, electrical, plumbing",
+    "Structural Element": "Structural engineering elements",
+    "Material & Property": "Materials and properties",
+    "Geometry & Representation": "Geometric representations",
+    "Process & Control": "Process control systems",
+    "Documentation": "Documentation and references",
+    "Other": "Other IFC entities"
+  }
+}

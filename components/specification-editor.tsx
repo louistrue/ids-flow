@@ -418,7 +418,7 @@ export function SpecificationEditor() {
 
       {/* Content row */}
       <div className="flex flex-1 min-h-0">
-        <NodePalette onAddNode={addNode} />
+        <NodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
         <PanelGroup direction="horizontal" className="flex-1">
           <Panel defaultSize={70} minSize={30} className="relative">
             <GraphCanvas
@@ -439,6 +439,9 @@ export function SpecificationEditor() {
               onValidateNow={validateNow}
               isValidating={isValidating}
               isValidationDisabled={isValidationDisabled}
+              ifcVersion={ifcVersion}
+              nodes={nodes}
+              edges={edges}
             />
           </Panel>
         </PanelGroup>
