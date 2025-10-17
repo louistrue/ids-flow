@@ -6,8 +6,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'IDSflow - IFC Specification Editor',
-  description: 'Professional IFC specification editor with visual flow design',
+  title: 'IDSflow - IDS Spec Editor',
+  description: 'Professional IDS Spec Editor with visual flow design',
   icons: {
     icon: '/favicon.ico',
   },

@@ -72,11 +72,11 @@ export function InspectorPanel({
 }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
-      <Card className="h-full rounded-none border-l border-border bg-sidebar">
-        <div className="p-4 border-b border-sidebar-border">
+      <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col">
+        <div className="p-4 border-b border-sidebar-border flex-shrink-0">
           <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
         </div>
-        <div className="flex items-center justify-center h-[calc(100vh-80px)] p-6">
+        <div className="flex items-center justify-center flex-1 p-6">
           <p className="text-sm text-muted-foreground text-center">Select a node to view and edit its properties</p>
         </div>
       </Card>
@@ -88,26 +88,30 @@ export function InspectorPanel({
   }
 
   return (
-    <Card className="h-full rounded-none border-l border-border bg-sidebar">
-      <div className="p-4 border-b border-sidebar-border">
-        <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
-        <p className="text-xs text-muted-foreground mt-1 capitalize">{selectedNode.type} Node</p>
-      </div>
-      <ScrollArea className="h-[calc(100vh-80px)]">
-        <div className="p-4 space-y-4 min-w-0">
-          {/* Validation Section */}
+    <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col">
+      <div className="p-4 border-b border-sidebar-border flex-shrink-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
+            <p className="text-xs text-muted-foreground mt-1 capitalize">{selectedNode.type} Node</p>
+          </div>
+          {/* Compact Validation Badge */}
           {validationState && (
-            <>
-              <ValidationSection
-                validationState={validationState}
-                onValidateNow={onValidateNow}
-                isValidating={isValidating}
-                isDisabled={isValidationDisabled}
-              />
-              <Separator />
-            </>
+            <ValidationBadge
+              validationState={validationState}
+              onValidateNow={onValidateNow}
+              isValidating={isValidating}
+              isDisabled={isValidationDisabled}
+            />
           )}
-
+        </div>
+        {/* Validation Issues (if any) */}
+        {validationState && validationState.clientIssues && validationState.clientIssues.length > 0 && (
+          <ValidationIssues issues={validationState.clientIssues} />
+        )}
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-4 min-w-0">
           {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
           {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
@@ -1198,7 +1202,7 @@ function RestrictionFields({ node, onChange, ifcVersion }: { node: Node<any>; on
   )
 }
 
-function ValidationSection({
+function ValidationBadge({
   validationState,
   onValidateNow,
   isValidating,
@@ -1211,141 +1215,79 @@ function ValidationSection({
 }) {
   const getStatusIcon = () => {
     if (isValidating) {
-      return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+      return <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500" />
     }
 
     if (validationState.status === 'error') {
-      return <XCircle className="h-4 w-4 text-red-500" />
+      return <XCircle className="h-3.5 w-3.5 text-red-500" />
     }
 
     if (validationState.result?.status === 0) {
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      return <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
     }
 
     if (validationState.result?.status && validationState.result.status !== 0) {
-      return <AlertCircle className="h-4 w-4 text-yellow-500" />
+      return <AlertCircle className="h-3.5 w-3.5 text-yellow-500" />
     }
 
-    return <AlertCircle className="h-4 w-4 text-gray-400" />
+    return <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
   }
 
-  const getStatusBadge = () => {
-    if (isValidating) {
-      return <Badge variant="secondary" className="text-xs">Validating...</Badge>
-    }
-
-    if (validationState.status === 'error') {
-      return <Badge variant="destructive" className="text-xs">Error</Badge>
-    }
-
-    if (validationState.result?.status === 0) {
-      return <Badge variant="default" className="text-xs bg-green-500">Valid</Badge>
-    }
-
-    if (validationState.result?.status && validationState.result.status !== 0) {
-      return <Badge variant="secondary" className="text-xs bg-yellow-500 text-white">Issues</Badge>
-    }
-
-    return <Badge variant="outline" className="text-xs">Not validated</Badge>
-  }
-
-  const getStatusMessage = () => {
-    if (isValidating) {
-      return "Validating IDS structure..."
-    }
-
-    if (validationState.status === 'error') {
-      return validationState.error || "Validation failed"
-    }
-
-    if (validationState.result) {
-      return validationState.result.message
-    }
-
-    return "Click 'Validate Now' to check IDS structure"
-  }
-
-  const hasClientIssues = validationState.clientIssues && validationState.clientIssues.length > 0
-  const hasClientErrors = validationState.clientIssues?.some(issue => issue.severity === 'error')
-  const hasClientWarnings = validationState.clientIssues?.some(issue => issue.severity === 'warning')
-
-  const formatTimestamp = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const getStatusColor = () => {
+    if (isValidating) return "border-blue-500/50 bg-blue-500/10"
+    if (validationState.status === 'error') return "border-red-500/50 bg-red-500/10"
+    if (validationState.result?.status === 0) return "border-green-500/50 bg-green-500/10"
+    if (validationState.result?.status && validationState.result.status !== 0) return "border-yellow-500/50 bg-yellow-500/10"
+    return "border-gray-400/50 bg-gray-400/10"
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-sidebar-foreground">IDS Validation</h3>
-        {onValidateNow && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onValidateNow}
-            disabled={isDisabled || isValidating}
-            className="h-7 px-2 text-xs"
-          >
-            {isValidating ? (
-              <Loader2 className="h-3 w-3 animate-spin mr-1" />
-            ) : (
-              <RefreshCw className="h-3 w-3 mr-1" />
-            )}
-            Validate Now
-          </Button>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
+      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border ${getStatusColor()}`}>
         {getStatusIcon()}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {getStatusBadge()}
-            {validationState.lastValidated && (
-              <span className="text-xs text-muted-foreground">
-                {formatTimestamp(validationState.lastValidated)}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {getStatusMessage()}
-          </p>
-        </div>
+        <span className="text-xs font-medium text-sidebar-foreground">IDS</span>
       </div>
-
-      {isDisabled && (
-        <p className="text-xs text-muted-foreground italic">
-          Add a specification node to enable validation
-        </p>
+      {onValidateNow && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onValidateNow}
+          disabled={isDisabled || isValidating}
+          className="h-7 w-7 p-0"
+          title="Validate IDS"
+        >
+          {isValidating ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
+        </Button>
       )}
+    </div>
+  )
+}
 
-      {/* Client-side validation issues */}
-      {hasClientIssues && (
-        <div className="space-y-2 mt-3 pt-3 border-t border-sidebar-border">
-          <h4 className="text-xs font-medium text-sidebar-foreground">
-            {hasClientErrors ? 'Validation Errors' : 'Validation Warnings'}
-          </h4>
-          <div className="space-y-1">
-            {validationState.clientIssues?.map((issue, index) => (
-              <div
-                key={index}
-                className={`text-xs p-2 rounded ${issue.severity === 'error'
-                  ? 'bg-red-500/10 text-red-500'
-                  : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'
-                  }`}
-              >
-                <div className="flex items-start gap-1">
-                  {issue.severity === 'error' ? (
-                    <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  ) : (
-                    <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  )}
-                  <span className="leading-tight">{issue.message}</span>
-                </div>
-              </div>
-            ))}
+function ValidationIssues({ issues }: { issues: Array<{ severity: 'error' | 'warning'; message: string }> }) {
+  return (
+    <div className="mt-3 space-y-1">
+      {issues.map((issue, index) => (
+        <div
+          key={index}
+          className={`text-xs p-2 rounded ${issue.severity === 'error'
+            ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+            : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border border-yellow-500/20'
+            }`}
+        >
+          <div className="flex items-start gap-1.5">
+            {issue.severity === 'error' ? (
+              <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+            )}
+            <span className="leading-tight flex-1">{issue.message}</span>
           </div>
         </div>
-      )}
+      ))}
     </div>
   )
 }

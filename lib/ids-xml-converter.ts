@@ -39,7 +39,7 @@ export function convertGraphToIdsXml(
 
   for (const specNode of specNodes) {
     const { applicabilityNodes, requirementNodes } = groupNodesBySpecification(nodes, edges, specNode)
-    buildSpecification(specs, specNode, applicabilityNodes, requirementNodes, edges)
+    buildSpecification(specs, specNode, applicabilityNodes, requirementNodes, edges, nodes)
   }
 
   return root.end({ prettyPrint: options.pretty ?? true })
@@ -59,11 +59,26 @@ function groupNodesBySpecification(
     .filter((node): node is GraphNode => node !== undefined)
 
   // Find nodes connected to this spec's requirements handle
+  // Follow restriction chains: facet -> restriction -> spec
   const requirementEdges = edges.filter(
     edge => edge.target === specNode.id && edge.targetHandle === 'requirements'
   )
   const requirementNodes = requirementEdges
-    .map(edge => nodes.find(node => node.id === edge.source))
+    .map(edge => {
+      const sourceNode = nodes.find(node => node.id === edge.source)
+      if (!sourceNode) return null
+
+      // If this is a restriction node, find the facet it's connected to
+      if (sourceNode.type === 'restriction') {
+        const facetEdge = edges.find(e => e.target === sourceNode.id)
+        if (facetEdge) {
+          const facetNode = nodes.find(node => node.id === facetEdge.source)
+          return facetNode || null
+        }
+      }
+
+      return sourceNode
+    })
     .filter((node): node is GraphNode => node !== undefined)
 
   return { applicabilityNodes, requirementNodes }
@@ -97,7 +112,8 @@ function buildSpecification(
   specNode: GraphNode,
   applicabilityNodes: GraphNode[],
   requirementNodes: GraphNode[],
-  edges: GraphEdge[]
+  edges: GraphEdge[],
+  nodes: GraphNode[]
 ) {
   const specData = specNode.data as any
 
@@ -124,18 +140,18 @@ function buildSpecification(
         buildPartOfFacet(node, appl)
         break
       case 'classification':
-        buildClassificationFacet(node, appl)
+        buildClassificationFacet(node, appl, undefined, edges, nodes)
         break
       case 'material':
-        buildMaterialFacet(node, appl)
+        buildMaterialFacet(node, appl, undefined, edges, nodes)
         break
       case 'property':
         // Properties in applicability are treated as conditions
-        buildPropertyFacet(node, appl, undefined)
+        buildPropertyFacet(node, appl, undefined, edges, nodes)
         break
       case 'attribute':
         // Attributes in applicability are treated as conditions
-        buildAttributeFacet(node, appl, undefined)
+        buildAttributeFacet(node, appl, undefined, edges, nodes)
         break
     }
   }
@@ -146,16 +162,16 @@ function buildSpecification(
   for (const node of requirementNodes) {
     switch (node.type) {
       case 'property':
-        buildPropertyFacet(node, reqs, "required", edges)
+        buildPropertyFacet(node, reqs, "required", edges, nodes)
         break
       case 'attribute':
-        buildAttributeFacet(node, reqs, "required")
+        buildAttributeFacet(node, reqs, "required", edges, nodes)
         break
       case 'classification':
-        buildClassificationFacet(node, reqs, "required")
+        buildClassificationFacet(node, reqs, "required", edges, nodes)
         break
       case 'material':
-        buildMaterialFacet(node, reqs, "required")
+        buildMaterialFacet(node, reqs, "required", edges, nodes)
         break
       case 'partOf':
         buildPartOfFacet(node, reqs, "required")
@@ -179,7 +195,7 @@ function buildEntityFacet(node: GraphNode, parent: any) {
   }
 }
 
-function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[]) {
+function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {
     dataType: data.dataType || "IFCLABEL",
@@ -193,17 +209,21 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
   idsSimple(prop, "ids:baseName", data.baseName)
 
   // Handle restrictions by checking for connected restriction nodes
-  if (edges) {
+  if (edges && nodes) {
     const restrictionEdge = edges.find(e => e.source === node.id)
     if (restrictionEdge) {
-      const restrictionNode = edges.find(e => e.target === restrictionEdge.target)
-      if (restrictionNode) {
-        // This would need the actual restriction node data
-        // For now, handle simple value constraints
-        if (data.value) {
-          idsSimple(prop, "ids:value", data.value)
-        }
+      const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
+      if (restrictionNode && restrictionNode.type === 'restriction') {
+        // Create value element with restriction
+        const valueElement = prop.ele("ids:value")
+        buildValueRestriction(valueElement, restrictionNode)
+      } else if (data.value) {
+        // Simple value constraint
+        idsSimple(prop, "ids:value", data.value)
       }
+    } else if (data.value) {
+      // Simple value constraint
+      idsSimple(prop, "ids:value", data.value)
     }
   } else if (data.value) {
     // Simple value constraint
@@ -211,7 +231,7 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 }
 
-function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string) {
+function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -220,12 +240,31 @@ function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string)
 
   const attr = parent.ele("ids:attribute", attrs)
   idsSimple(attr, "ids:name", data.name)
-  if (data.value) {
+
+  // Handle restrictions by checking for connected restriction nodes
+  if (edges && nodes) {
+    const restrictionEdge = edges.find(e => e.source === node.id)
+    if (restrictionEdge) {
+      const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
+      if (restrictionNode && restrictionNode.type === 'restriction') {
+        // Create value element with restriction
+        const valueElement = attr.ele("ids:value")
+        buildValueRestriction(valueElement, restrictionNode)
+      } else if (data.value) {
+        // Simple value constraint
+        idsSimple(attr, "ids:value", data.value)
+      }
+    } else if (data.value) {
+      // Simple value constraint
+      idsSimple(attr, "ids:value", data.value)
+    }
+  } else if (data.value) {
+    // Simple value constraint
     idsSimple(attr, "ids:value", data.value)
   }
 }
 
-function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string) {
+function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -237,12 +276,31 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
 
   const cls = parent.ele("ids:classification", attrs)
   idsSimple(cls, "ids:system", data.system)
-  if (data.value) {
+
+  // Handle restrictions by checking for connected restriction nodes
+  if (edges && nodes) {
+    const restrictionEdge = edges.find(e => e.source === node.id)
+    if (restrictionEdge) {
+      const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
+      if (restrictionNode && restrictionNode.type === 'restriction') {
+        // Create value element with restriction
+        const valueElement = cls.ele("ids:value")
+        buildValueRestriction(valueElement, restrictionNode)
+      } else if (data.value) {
+        // Simple value constraint
+        idsSimple(cls, "ids:value", data.value)
+      }
+    } else if (data.value) {
+      // Simple value constraint
+      idsSimple(cls, "ids:value", data.value)
+    }
+  } else if (data.value) {
+    // Simple value constraint
     idsSimple(cls, "ids:value", data.value)
   }
 }
 
-function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string) {
+function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -253,7 +311,26 @@ function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string) 
   }
 
   const mat = parent.ele("ids:material", attrs)
-  if (data.value) {
+
+  // Handle restrictions by checking for connected restriction nodes
+  if (edges && nodes) {
+    const restrictionEdge = edges.find(e => e.source === node.id)
+    if (restrictionEdge) {
+      const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
+      if (restrictionNode && restrictionNode.type === 'restriction') {
+        // Create value element with restriction
+        const valueElement = mat.ele("ids:value")
+        buildValueRestriction(valueElement, restrictionNode)
+      } else if (data.value) {
+        // Simple value constraint
+        idsSimple(mat, "ids:value", data.value)
+      }
+    } else if (data.value) {
+      // Simple value constraint
+      idsSimple(mat, "ids:value", data.value)
+    }
+  } else if (data.value) {
+    // Simple value constraint
     idsSimple(mat, "ids:value", data.value)
   }
 }
@@ -276,8 +353,8 @@ function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string) {
 // Restriction handling (for future enhancement)
 function buildValueRestriction(parent: any, restriction: GraphNode) {
   const data = restriction.data as any
-  const value = parent.ele("ids:value")
-  const r = value.ele("xs:restriction", { base: "xs:string" })
+  // parent is already the ids:value element, so add xs:restriction directly to it
+  const r = parent.ele("xs:restriction", { base: "xs:string" })
 
   switch (data.restrictionType) {
     case "enumeration":

@@ -101,11 +101,11 @@ export function SearchableSelect({
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (allowCustom && onCreateOption && e.key === 'Enter' && searchQuery.trim()) {
             // Check if the search query doesn't match any existing option
-            const exactMatch = options.some(option => 
+            const exactMatch = options.some(option =>
                 option.value.toLowerCase() === searchQuery.toLowerCase() ||
                 option.label.toLowerCase() === searchQuery.toLowerCase()
             )
-            
+
             if (!exactMatch) {
                 onCreateOption(searchQuery.trim())
                 setOpen(false)
@@ -118,12 +118,12 @@ export function SearchableSelect({
     // Check if we should show "create new" option
     const shouldShowCreateOption = React.useMemo(() => {
         if (!allowCustom || !onCreateOption || !searchQuery.trim()) return false
-        
-        const exactMatch = options.some(option => 
+
+        const exactMatch = options.some(option =>
             option.value.toLowerCase() === searchQuery.toLowerCase() ||
             option.label.toLowerCase() === searchQuery.toLowerCase()
         )
-        
+
         return !exactMatch
     }, [allowCustom, onCreateOption, searchQuery, options])
 
@@ -136,13 +136,13 @@ export function SearchableSelect({
                     aria-expanded={open}
                     className={cn(
                         "w-full justify-between font-mono text-left",
-                        !selectedOption && "text-muted-foreground",
+                        !selectedOption && !value && "text-muted-foreground",
                         className
                     )}
                     disabled={disabled}
                 >
                     <span className="truncate">
-                        {selectedOption ? selectedOption.label : placeholder}
+                        {selectedOption ? selectedOption.label : (value || placeholder)}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -189,7 +189,7 @@ export function SearchableSelect({
                                     ))}
                                 </CommandGroup>
                             ))}
-                            
+
                             {/* Show "Create new" option when typing non-matching text */}
                             {shouldShowCreateOption && (
                                 <CommandGroup>

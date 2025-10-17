@@ -75,6 +75,28 @@ export function calculateNodePosition(
         // Requirements start after applicability group + gap
         const applicabilityCount = applicabilityNodesInCurrentSpec.length
         yPosition = config.baseY + (applicabilityCount * config.verticalSpacing) + config.groupGap + (nodesInGroup.length * config.verticalSpacing)
+
+        // Special positioning for restriction nodes - place them between facets and spec
+        if (nodeType === 'restriction') {
+            // Find the facet node this restriction is connected to
+            const facetEdge = allEdges.find(e => e.target === 'temp-spec' || e.target === currentSpecId)
+            if (facetEdge) {
+                const facetNode = existingNodes.find(n => n.id === facetEdge.source)
+                if (facetNode) {
+                    // Position restriction midway between facet and spec
+                    const specNode = existingNodes.find(n => n.id === currentSpecId)
+                    if (specNode) {
+                        const facetX = facetNode.position.x
+                        const specX = specNode.position.x
+                        const midX = (facetX + specX) / 2
+                        yPosition = facetNode.position.y // Same Y as facet
+
+                        // Override the base X position
+                        config.baseX = midX
+                    }
+                }
+            }
+        }
     }
 
     console.log(`📐 Initial position calculation:`, {
@@ -105,12 +127,39 @@ function isNodeConnectedToHandle(
     targetHandle: 'applicability' | 'requirements'
 ): boolean {
     // Find edge connecting this node to the spec
-    const edge = allEdges.find(e =>
+    const directEdge = allEdges.find(e =>
         e.source === node.id &&
         e.target === specId &&
         e.targetHandle === targetHandle
     )
-    return !!edge
+
+    if (directEdge) {
+        return true
+    }
+
+    // Check for restriction chain: facet -> restriction -> spec
+    if (node.type === 'restriction') {
+        // Restriction nodes connect directly to spec
+        const restrictionEdge = allEdges.find(e =>
+            e.source === node.id &&
+            e.target === specId &&
+            e.targetHandle === targetHandle
+        )
+        return !!restrictionEdge
+    } else {
+        // For facet nodes, check if they connect through a restriction
+        const facetToRestrictionEdge = allEdges.find(e => e.source === node.id)
+        if (facetToRestrictionEdge) {
+            const restrictionToSpecEdge = allEdges.find(e =>
+                e.source === facetToRestrictionEdge.target &&
+                e.target === specId &&
+                e.targetHandle === targetHandle
+            )
+            return !!restrictionToSpecEdge
+        }
+    }
+
+    return false
 }
 
 export function findAvailableSpace(

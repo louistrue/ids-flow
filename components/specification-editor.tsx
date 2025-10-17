@@ -8,17 +8,18 @@ import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Workflow, Layout } from "lucide-react"
+import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
-import type { GraphNode, GraphEdge } from "@/lib/graph-types"
+import type { GraphNode, GraphEdge, NodeData } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
+import { useUndoRedo } from "@/lib/use-undo-redo"
 
 export function SpecificationEditor() {
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
@@ -35,6 +36,31 @@ export function SpecificationEditor() {
     hasErrors,
     isDisabled: isValidationDisabled,
   } = useIdsValidation(nodes, edges)
+
+  // Undo/Redo hook
+  const { undo, redo, takeSnapshot, canUndo, canRedo } = useUndoRedo(
+    nodes,
+    edges,
+    setNodes,
+    setEdges
+  )
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        e.shiftKey ? redo() : undo()
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault()
+        redo()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [undo, redo])
+
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     console.log('SpecificationEditor updateNodeData:', { nodeId, data })
     setNodes((nds) => {
@@ -59,21 +85,23 @@ export function SpecificationEditor() {
   }, [selectedNode])
 
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
+    takeSnapshot() // Capture BEFORE adding node
     const smartPosition = calculateSmartPositionForNewNode(type, nodes, edges, position)
 
     const newNode: GraphNode = {
       id: `${type}-${Date.now()}`,
       type,
       position: smartPosition,
-      data: getDefaultNodeData(type),
+      data: getDefaultNodeData(type) as NodeData,
     }
     setNodes((nds) => [...nds, newNode])
-  }, [nodes, edges])
+  }, [nodes, edges, takeSnapshot])
 
   const arrangeAll = useCallback(() => {
+    takeSnapshot() // Capture BEFORE rearranging
     const updatedNodes = relayoutNodes(nodes, edges)
     setNodes(updatedNodes)
-  }, [nodes, edges])
+  }, [nodes, edges, takeSnapshot])
 
   const applyTemplate = useCallback((template: SpecTemplate) => {
     const timestamp = Date.now()
@@ -96,12 +124,14 @@ export function SpecificationEditor() {
           ...node,
           id: `${node.type}-${timestamp}-${index}`,
           position: { x: offset.x, y: offset.y },
+          type: node.type || 'spec',
+          data: node.data as NodeData,
         }
         nodesToAdd.push(newNode)
         nodeIdMap.set(index.toString(), newNode.id)
       } else {
         // Check if we can reuse an existing node
-        const existingNode = findExistingNode(nodes, node.type, node.data)
+        const existingNode = findExistingNode(nodes, node.type || 'spec', node.data)
 
         if (existingNode) {
           // Reuse existing node
@@ -117,7 +147,7 @@ export function SpecificationEditor() {
           const specNodeId = nodeIdMap.get('0') // First node is always the spec
 
           const position = calculateNodePosition(
-            node.type,
+            node.type || 'spec',
             targetHandle || 'requirements',
             [...nodes, ...nodesToAdd], // Include existing nodes AND nodes being added
             edges, // Pass current edges
@@ -134,6 +164,8 @@ export function SpecificationEditor() {
             ...node,
             id: `${node.type}-${timestamp}-${index}`,
             position,
+            type: node.type || 'spec',
+            data: node.data as NodeData,
           }
           nodesToAdd.push(newNode)
           nodeIdMap.set(index.toString(), newNode.id)
@@ -145,14 +177,32 @@ export function SpecificationEditor() {
 
     // Create edges using the actual node IDs
     const newEdges: GraphEdge[] = template.edges.map((edge, index) => {
-      const sourceIndex = index < template.nodes.length - 1 ? index + 1 : index
-      const targetIndex = 0
+      let sourceId: string | undefined
+      let targetId: string | undefined
 
-      const sourceId = nodeIdMap.get(sourceIndex.toString())
-      const targetId = nodeIdMap.get(targetIndex.toString())
+      // Check if edge has explicit source/target definitions
+      if (edge.source && edge.target) {
+        // Find nodes by type matching
+        const sourceNode = nodesToAdd.find(node => node.type === edge.source)
+        const targetNode = nodesToAdd.find(node => node.type === edge.target)
+
+        sourceId = sourceNode?.id
+        targetId = targetNode?.id
+
+        console.log(`🔗 Using explicit edge: ${edge.source} -> ${edge.target}`)
+      } else {
+        // Fall back to index-based mapping for backward compatibility
+        const sourceIndex = index < template.nodes.length - 1 ? index + 1 : index
+        const targetIndex = 0
+
+        sourceId = nodeIdMap.get(sourceIndex.toString())
+        targetId = nodeIdMap.get(targetIndex.toString())
+
+        console.log(`🔗 Using index-based edge: ${sourceIndex} -> ${targetIndex}`)
+      }
 
       if (!sourceId || !targetId) {
-        console.warn('Missing node ID for edge:', { sourceIndex, targetIndex, edge })
+        console.warn('Missing node ID for edge:', { edge, sourceId, targetId })
         return null
       }
 
@@ -165,9 +215,10 @@ export function SpecificationEditor() {
     }).filter(Boolean) as GraphEdge[]
 
     // Add new nodes and edges
+    takeSnapshot() // Capture BEFORE applying template
     setNodes((nds) => [...nds, ...nodesToAdd])
     setEdges((eds) => [...eds, ...newEdges])
-  }, [nodes])
+  }, [nodes, takeSnapshot])
 
   const cloneAsProfile = useCallback(() => {
     if (!selectedNode || selectedNode.type !== "spec") return
@@ -177,13 +228,14 @@ export function SpecificationEditor() {
     })
 
     const timestamp = Date.now()
+
+    // Find a clear area for the new profile (stack vertically like templates)
+    const offset = findTemplateOffset(nodes, { x: 600, y: 150 })
+
     const clonedSpec: GraphNode = {
       ...selectedNode,
       id: `spec-${timestamp}`,
-      position: {
-        x: selectedNode.position.x + 50,
-        y: selectedNode.position.y + 50,
-      },
+      position: offset,
       data: {
         ...selectedNode.data,
         name: `${selectedNode.data.name}-Profile`,
@@ -191,31 +243,75 @@ export function SpecificationEditor() {
       },
     }
 
-    const clonedNodes: GraphNode[] = relatedNodes.map((node, index) => ({
-      ...node,
-      id: `${node.type}-${timestamp}-${index}`,
-      position: {
-        x: node.position.x + 50,
-        y: node.position.y + 50,
-      },
-    }))
+    // Track which nodes we're adding vs reusing
+    const nodesToAdd: GraphNode[] = []
+    const nodeIdMap = new Map<string, string>() // original node id -> cloned node id
 
+    // First pass: check for existing nodes and create new ones
+    relatedNodes.forEach((node, index) => {
+      // Check if we can reuse an existing node
+      const existingNode = findExistingNode(nodes, node.type, node.data)
+
+      if (existingNode) {
+        // Reuse existing node
+        nodeIdMap.set(node.id, existingNode.id)
+      } else {
+        // Create new node with smart positioning
+        const edge = edges.find(e => e.source === node.id && e.target === selectedNode.id)
+        const targetHandle = edge?.targetHandle as 'applicability' | 'requirements'
+
+        console.log(`🔧 Creating new ${node.type} node (${targetHandle}) for profile`)
+
+        const position = calculateNodePosition(
+          node.type,
+          targetHandle || 'requirements',
+          [...nodes, ...nodesToAdd], // Include existing nodes AND nodes being added
+          edges, // Pass current edges
+          clonedSpec.id, // Pass cloned spec ID
+          {
+            ...DEFAULT_LAYOUT_CONFIG,
+            specPosition: offset,
+            baseX: offset.x - 500,
+            baseY: offset.y - 50,
+          }
+        )
+
+        const clonedNode: GraphNode = {
+          ...node,
+          id: `${node.type}-${timestamp}-${index}`,
+          position,
+        }
+        nodesToAdd.push(clonedNode)
+        nodeIdMap.set(node.id, clonedNode.id)
+
+        console.log(`✅ Created cloned node ${clonedNode.id} at:`, position)
+      }
+    })
+
+    // Create edges using the actual node IDs
     const clonedEdges: GraphEdge[] = edges
       .filter((edge) => edge.target === selectedNode.id && relatedNodes.some((n) => n.id === edge.source))
       .map((edge, index) => {
-        const sourceNode = relatedNodes.find((n) => n.id === edge.source)
-        const sourceIndex = relatedNodes.indexOf(sourceNode!)
+        const sourceId = nodeIdMap.get(edge.source)
+        const targetId = clonedSpec.id
+
+        if (!sourceId) {
+          console.warn('Missing node ID for cloned edge:', { edge })
+          return null
+        }
+
         return {
           id: `edge-${timestamp}-${index}`,
-          source: clonedNodes[sourceIndex].id,
-          target: clonedSpec.id,
+          source: sourceId,
+          target: targetId,
           targetHandle: edge.targetHandle,
         }
-      })
+      }).filter(Boolean) as GraphEdge[]
 
-    setNodes((nds) => [...nds, clonedSpec, ...clonedNodes])
+    takeSnapshot() // Capture BEFORE cloning profile
+    setNodes((nds) => [...nds, clonedSpec, ...nodesToAdd])
     setEdges((eds) => [...eds, ...clonedEdges])
-  }, [selectedNode, nodes, edges])
+  }, [selectedNode, nodes, edges, takeSnapshot])
 
   const exportCanvas = useCallback(() => {
     try {
@@ -335,9 +431,15 @@ export function SpecificationEditor() {
         return node
       }),
     )
+    // Don't take snapshot during drag - only on drag stop
   }, [])
 
+  const handleNodeDragStart = useCallback(() => {
+    takeSnapshot() // Capture before drag starts
+  }, [takeSnapshot])
+
   const handleConnect = useCallback((sourceId: string, targetId: string, targetHandle?: string) => {
+    takeSnapshot() // Capture BEFORE connecting
     const newEdge: GraphEdge = {
       id: `edge-${Date.now()}`,
       source: sourceId,
@@ -345,7 +447,21 @@ export function SpecificationEditor() {
       targetHandle,
     }
     setEdges((eds) => [...eds, newEdge])
-  }, [])
+  }, [takeSnapshot])
+
+  const handleNodesDelete = useCallback((nodeIds: string[]) => {
+    takeSnapshot() // Capture BEFORE deletion
+    setNodes((nds) => nds.filter(node => !nodeIds.includes(node.id)))
+    // Also remove edges connected to deleted nodes
+    setEdges((eds) =>
+      eds.filter(edge => !nodeIds.includes(edge.source) && !nodeIds.includes(edge.target))
+    )
+  }, [takeSnapshot])
+
+  const handleEdgesDelete = useCallback((edgeIds: string[]) => {
+    takeSnapshot() // Capture BEFORE deletion
+    setEdges((eds) => eds.filter(edge => !edgeIds.includes(edge.id)))
+  }, [takeSnapshot])
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -354,12 +470,34 @@ export function SpecificationEditor() {
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
-              <h1 className="text-lg font-semibold text-foreground">IFC Specification Editor</h1>
+              <h1 className="text-lg font-semibold text-foreground">IDS Spec Editor</h1>
             </div>
             <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
           </div>
           <div className="flex items-center gap-3">
             <TemplatesDialog onApplyTemplate={applyTemplate} />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 bg-card"
+              onClick={undo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Undo
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 bg-card"
+              onClick={redo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <RotateCw className="h-4 w-4" />
+              Redo
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -427,7 +565,10 @@ export function SpecificationEditor() {
               selectedNode={selectedNode}
               onNodeSelect={setSelectedNode}
               onNodeMove={handleNodeMove}
+              onNodeDragStart={handleNodeDragStart}
               onConnect={handleConnect}
+              onNodesDelete={handleNodesDelete}
+              onEdgesDelete={handleEdgesDelete}
             />
           </Panel>
           <CustomPanelResizeHandle />
@@ -460,7 +601,7 @@ function getDefaultNodeData(type: string) {
       }
     case "entity":
       return {
-        name: "IFCWALL",
+        name: "",
         predefinedType: "",
       }
     case "property":

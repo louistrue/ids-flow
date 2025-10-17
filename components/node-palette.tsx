@@ -3,9 +3,9 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { FileText, Box, Tag, Layers, Package, GitBranch, Filter, Database, Info } from "lucide-react"
+import { FileText, Box, Tag, Layers, Package, GitBranch, Filter, Database } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { SchemaStats } from "./schema-stats"
+import { FACET_COLORS } from "@/lib/facet-colors"
 import type { IFCVersion } from "@/lib/ifc-schema"
 
 interface NodePaletteProps {
@@ -17,18 +17,18 @@ const nodeCategories = [
   {
     title: "Core",
     nodes: [
-      { type: "spec", label: "Specification", icon: FileText, color: "text-primary" },
-      { type: "entity", label: "Entity", icon: Box, color: "text-accent" },
-      { type: "property", label: "Property", icon: Tag, color: "text-chart-3" },
+      { type: "spec", label: "Specification", icon: FileText },
+      { type: "entity", label: "Entity", icon: Box },
+      { type: "property", label: "Property", icon: Tag },
     ],
   },
   {
     title: "Advanced",
     nodes: [
-      { type: "attribute", label: "Attribute", icon: Database, color: "text-chart-4" },
-      { type: "classification", label: "Classification", icon: Layers, color: "text-chart-5" },
-      { type: "material", label: "Material", icon: Package, color: "text-chart-2" },
-      { type: "partOf", label: "Part Of", icon: GitBranch, color: "text-chart-1" },
+      { type: "attribute", label: "Attribute", icon: Database },
+      { type: "classification", label: "Classification", icon: Layers },
+      { type: "material", label: "Material", icon: Package },
+      { type: "partOf", label: "Part Of", icon: GitBranch },
     ],
   },
   {
@@ -59,14 +59,16 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
               <div className="space-y-2">
                 {category.nodes.map((node) => {
                   const Icon = node.icon
+                  const facet = FACET_COLORS[node.type as keyof typeof FACET_COLORS]
                   return (
                     <Button
                       key={node.type}
                       variant="ghost"
-                      className="w-full justify-start gap-3 h-auto py-3 hover:bg-sidebar-accent"
+                      className="node-palette-btn w-full justify-start gap-3 h-auto py-3 hover:bg-sidebar-accent transition-all"
+                      data-facet={node.type}
                       onClick={() => handleAddNode(node.type)}
                     >
-                      <Icon className={`h-4 w-4 ${node.color}`} />
+                      <Icon className={`h-4 w-4 ${facet?.text ?? "text-primary"} transition-transform group-hover:scale-110`} />
                       <span className="text-sm text-sidebar-foreground">{node.label}</span>
                     </Button>
                   )
@@ -75,21 +77,6 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
             </div>
           ))}
 
-          <Separator className="my-4" />
-
-          <SchemaStats ifcVersion={ifcVersion} />
-
-          <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-            <div className="flex items-start gap-2">
-              <Info className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-foreground">Quick Tip</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Use templates for common specifications or clone existing specs as profiles for variants.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </ScrollArea>
     </Card>

@@ -1,51 +1,56 @@
 "use client"
 
-import { Handle, Position, type NodeProps } from "@xyflow/react"
+import { type NodeProps } from "@xyflow/react"
 import { Card } from "@/components/ui/card"
 import { FileText } from "lucide-react"
+import { PortLabelRow } from "./port-label-row"
+import { type SpecificationNodeData } from "@/lib/graph-types"
 
 export function SpecificationNode({ data, selected }: NodeProps) {
+  const nodeData = data as unknown as SpecificationNodeData & {
+    highlightTarget?: 'applicability' | 'requirements'
+    highlightColor?: string
+    highlightSourceId?: string
+  }
   return (
     <Card
-      className={`min-w-[250px] bg-card border-2 transition-all ${selected ? "border-primary shadow-lg" : "border-border"
-        }`}
+      className={`w-[280px] bg-card border-2 transition-all ${selected ? "border-primary ring-2 ring-primary/40" : "border-border"}`}
     >
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 rounded-lg bg-primary/10">
             <FileText className="h-5 w-5 text-primary" />
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm text-foreground">{data.name}</h3>
-            <p className="text-xs text-muted-foreground">{data.ifcVersion}</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm text-foreground truncate">{nodeData.name}</h3>
+            <p className="text-xs text-muted-foreground">{nodeData.ifcVersion}</p>
           </div>
         </div>
-        {data.description && <p className="text-xs text-muted-foreground line-clamp-2">{data.description}</p>}
-        <div className="mt-4 pt-3 border-t border-border space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-accent" />
-            <span className="text-xs text-muted-foreground">Applicability</span>
+        {nodeData.description && (
+          <div className="mb-3 p-2 bg-muted/30 rounded border border-border">
+            <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">{nodeData.description}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-chart-3" />
-            <span className="text-xs text-muted-foreground">Requirements</span>
-          </div>
+        )}
+        <div className="mt-4 pt-3 border-t border-border space-y-4">
+          <PortLabelRow
+            id="applicability"
+            label="Applicability"
+            handleColor="bg-accent"
+            highlighted={nodeData.highlightTarget === 'applicability'}
+            highlightColor={nodeData.highlightColor}
+            highlightSourceId={nodeData.highlightSourceId}
+          />
+          <PortLabelRow
+            id="requirements"
+            label="Requirements"
+            handleColor="bg-chart-3"
+            highlighted={nodeData.highlightTarget === 'requirements'}
+            highlightColor={nodeData.highlightColor}
+            highlightSourceId={nodeData.highlightSourceId}
+          />
         </div>
       </div>
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="applicability"
-        style={{ top: "70%" }}
-        className="bg-accent"
-      />
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="requirements"
-        style={{ top: "85%" }}
-        className="bg-chart-3"
-      />
     </Card>
   )
 }
+

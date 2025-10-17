@@ -5,76 +5,76 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Professional light neutrals */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.17 0 0);
-  --card: oklch(0.99 0 0);
-  --card-foreground: oklch(0.17 0 0);
-  --popover: oklch(0.99 0 0);
-  --popover-foreground: oklch(0.17 0 0);
-  --primary: oklch(0.35 0 0);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.22 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.52 0 0);
-  --accent: oklch(0.92 0 0);
-  --accent-foreground: oklch(0.22 0 0);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 265);
-  --border: oklch(0.90 0 0);
-  --input: oklch(0.90 0 0);
-  --ring: oklch(0.55 0 0);
-  --chart-1: oklch(0.55 0.18 265);
-  --chart-2: oklch(0.45 0.15 180);
-  --chart-3: oklch(0.65 0.15 140);
-  --chart-4: oklch(0.6 0.2 40);
-  --chart-5: oklch(0.55 0.18 320);
+  /* Catppuccin Latte inspired light theme */
+  --background: oklch(0.98 0.005 264);
+  --foreground: oklch(0.30 0.03 264);
+  --card: oklch(0.96 0.008 264);
+  --card-foreground: oklch(0.30 0.03 264);
+  --popover: oklch(0.96 0.008 264);
+  --popover-foreground: oklch(0.30 0.03 264);
+  --primary: oklch(0.62 0.13 292);
+  --primary-foreground: oklch(0.98 0.005 264);
+  --secondary: oklch(0.92 0.01 264);
+  --secondary-foreground: oklch(0.30 0.03 264);
+  --muted: oklch(0.92 0.01 264);
+  --muted-foreground: oklch(0.50 0.02 264);
+  --accent: oklch(0.60 0.12 233);
+  --accent-foreground: oklch(0.98 0.005 264);
+  --destructive: oklch(0.60 0.18 17);
+  --destructive-foreground: oklch(0.98 0.005 264);
+  --border: oklch(0.88 0.01 264);
+  --input: oklch(0.88 0.01 264);
+  --ring: oklch(0.62 0.13 292);
+  --chart-1: oklch(0.64 0.11 273);
+  --chart-2: oklch(0.62 0.13 186);
+  --chart-3: oklch(0.65 0.14 142);
+  --chart-4: oklch(0.68 0.13 35);
+  --chart-5: oklch(0.66 0.15 342);
   --radius: 0.5rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.17 0 0);
-  --sidebar-primary: oklch(0.35 0 0);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: oklch(0.22 0 0);
-  --sidebar-border: oklch(0.90 0 0);
-  --sidebar-ring: oklch(0.55 0 0);
+  --sidebar: oklch(0.96 0.008 264);
+  --sidebar-foreground: oklch(0.30 0.03 264);
+  --sidebar-primary: oklch(0.62 0.13 292);
+  --sidebar-primary-foreground: oklch(0.98 0.005 264);
+  --sidebar-accent: oklch(0.92 0.01 264);
+  --sidebar-accent-foreground: oklch(0.30 0.03 264);
+  --sidebar-border: oklch(0.88 0.01 264);
+  --sidebar-ring: oklch(0.62 0.13 292);
 }
 
 .dark {
-  /* Updated theme for professional dark IFC editor */
-  --background: oklch(0.12 0.01 265);
-  --foreground: oklch(0.95 0.005 265);
-  --card: oklch(0.16 0.01 265);
-  --card-foreground: oklch(0.95 0.005 265);
-  --popover: oklch(0.14 0.01 265);
-  --popover-foreground: oklch(0.95 0.005 265);
-  --primary: oklch(0.55 0.18 265);
-  --primary-foreground: oklch(0.98 0.005 265);
-  --secondary: oklch(0.22 0.01 265);
-  --secondary-foreground: oklch(0.95 0.005 265);
-  --muted: oklch(0.22 0.01 265);
-  --muted-foreground: oklch(0.55 0.01 265);
-  --accent: oklch(0.45 0.15 180);
-  --accent-foreground: oklch(0.98 0.005 265);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 265);
-  --border: oklch(0.25 0.01 265);
-  --input: oklch(0.22 0.01 265);
-  --ring: oklch(0.55 0.18 265);
-  --chart-1: oklch(0.55 0.18 265);
-  --chart-2: oklch(0.45 0.15 180);
-  --chart-3: oklch(0.65 0.15 140);
-  --chart-4: oklch(0.6 0.2 40);
-  --chart-5: oklch(0.55 0.18 320);
-  --sidebar: oklch(0.14 0.01 265);
-  --sidebar-foreground: oklch(0.95 0.005 265);
-  --sidebar-primary: oklch(0.55 0.18 265);
-  --sidebar-primary-foreground: oklch(0.98 0.005 265);
-  --sidebar-accent: oklch(0.22 0.01 265);
-  --sidebar-accent-foreground: oklch(0.95 0.005 265);
-  --sidebar-border: oklch(0.25 0.01 265);
-  --sidebar-ring: oklch(0.55 0.18 265);
+  /* Catppuccin Mocha inspired dark theme */
+  --background: oklch(0.18 0.018 264);
+  --foreground: oklch(0.87 0.012 264);
+  --card: oklch(0.23 0.02 264);
+  --card-foreground: oklch(0.87 0.012 264);
+  --popover: oklch(0.20 0.019 264);
+  --popover-foreground: oklch(0.87 0.012 264);
+  --primary: oklch(0.77 0.14 292);
+  --primary-foreground: oklch(0.18 0.018 264);
+  --secondary: oklch(0.30 0.025 264);
+  --secondary-foreground: oklch(0.87 0.012 264);
+  --muted: oklch(0.30 0.025 264);
+  --muted-foreground: oklch(0.62 0.015 264);
+  --accent: oklch(0.74 0.13 233);
+  --accent-foreground: oklch(0.18 0.018 264);
+  --destructive: oklch(0.68 0.20 17);
+  --destructive-foreground: oklch(0.18 0.018 264);
+  --border: oklch(0.32 0.03 264);
+  --input: oklch(0.30 0.025 264);
+  --ring: oklch(0.77 0.14 292);
+  --chart-1: oklch(0.77 0.12 273);
+  --chart-2: oklch(0.74 0.14 186);
+  --chart-3: oklch(0.82 0.15 142);
+  --chart-4: oklch(0.80 0.14 35);
+  --chart-5: oklch(0.81 0.17 342);
+  --sidebar: oklch(0.20 0.019 264);
+  --sidebar-foreground: oklch(0.87 0.012 264);
+  --sidebar-primary: oklch(0.77 0.14 292);
+  --sidebar-primary-foreground: oklch(0.18 0.018 264);
+  --sidebar-accent: oklch(0.30 0.025 264);
+  --sidebar-accent-foreground: oklch(0.87 0.012 264);
+  --sidebar-border: oklch(0.32 0.03 264);
+  --sidebar-ring: oklch(0.77 0.14 292);
 }
 
 @theme inline {
@@ -154,12 +154,6 @@
   stroke-width: 2;
 }
 
-.react-flow__handle {
-  background: var(--primary);
-  border: 2px solid var(--primary-foreground);
-  width: 10px;
-  height: 10px;
-}
 
 .react-flow__handle-connecting {
   background: var(--accent);
@@ -207,4 +201,135 @@
 
 .react-flow__handle {
   transition: none;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--accent) !important;
+  stroke-width: 3 !important;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3;
+  cursor: pointer;
+}
+
+/* Port rail and handle polish */
+.port-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  line-height: 24px;
+  position: relative;
+}
+
+.port-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.port-text {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.port-text-highlight {
+  color: var(--foreground);
+  font-weight: 600;
+  animation: pulseLabel 900ms ease-in-out 0s 1;
+}
+
+@keyframes pulseLabel {
+  0% {
+    text-shadow: 0 0 0px transparent
+  }
+
+  30% {
+    text-shadow: 0 0 10px color-mix(in oklch, var(--highlight-color, var(--ring)) 50%, transparent)
+  }
+
+  100% {
+    text-shadow: 0 0 0px transparent
+  }
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid color-mix(in oklch, black 20%, transparent);
+  box-shadow: 0 0 0 2px var(--card);
+  border-radius: 9999px;
+}
+
+.react-flow__handle:hover {
+  opacity: 1;
+  box-shadow: 0 0 0 3px var(--card), 0 0 8px 1px currentColor;
+}
+
+/* Dark mode glow effects for selected nodes */
+.dark .react-flow__node.selected [data-slot="card"] {
+  box-shadow: 0 0 0 1px var(--border), 0 0 16px -2px currentColor, 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* Enhance dark mode handle glow */
+.dark .react-flow__handle {
+  box-shadow: 0 0 0 2px var(--card), 0 0 8px -1px currentColor;
+}
+
+.dark .react-flow__handle:hover {
+  box-shadow: 0 0 0 2px var(--card), 0 0 12px 0px currentColor;
+}
+
+/* Node palette button colored hover effects */
+.node-palette-btn[data-facet="spec"]:hover {
+  background: color-mix(in oklch, var(--primary) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="entity"]:hover {
+  background: color-mix(in oklch, var(--accent) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--accent) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="property"]:hover {
+  background: color-mix(in oklch, var(--chart-3) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--chart-3) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="attribute"]:hover {
+  background: color-mix(in oklch, var(--chart-4) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--chart-4) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="classification"]:hover {
+  background: color-mix(in oklch, var(--chart-5) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--chart-5) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="material"]:hover {
+  background: color-mix(in oklch, var(--chart-2) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--chart-2) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="partOf"]:hover {
+  background: color-mix(in oklch, var(--chart-1) 8%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--chart-1) 40%, transparent);
+}
+
+.node-palette-btn[data-facet="restriction"]:hover {
+  background: color-mix(in oklch, var(--muted-foreground) 6%, transparent) !important;
+  border-left: 1px solid color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+}
+
+/* Minimap selected node highlight */
+.minimap-selected-node {
+  stroke: oklch(0.90 0.15 292) !important;
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 4px oklch(0.90 0.15 292)) !important;
+}
+
+/* Hide ReactFlow attribution */
+.react-flow__attribution {
+  display: none !important;
 }

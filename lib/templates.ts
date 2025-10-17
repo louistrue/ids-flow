@@ -6,7 +6,7 @@ export interface SpecTemplate {
   description: string
   category: string
   nodes: Omit<Node, "id">[]
-  edges: Omit<Edge, "id" | "source" | "target">[]
+  edges: Omit<Edge, "id">[] // Allow explicit source/target definitions
 }
 
 export const SPEC_TEMPLATES: SpecTemplate[] = [
@@ -456,10 +456,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -510,10 +509,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -564,10 +562,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -615,10 +612,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
       { source: "material", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -669,10 +665,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   // Complex multi-facet templates
@@ -888,12 +883,11 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -1117,13 +1111,12 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
+      { source: "material", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
-      { targetHandle: "requirements" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -1200,13 +1193,12 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
-      { targetHandle: "requirements" },
-      { targetHandle: "requirements" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -1364,13 +1356,12 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "applicability" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
-      { targetHandle: "requirements" },
-      { targetHandle: "requirements" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
+      { source: "material", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
@@ -1457,14 +1448,13 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
       },
     ],
     edges: [
-      { targetHandle: "applicability" },
-      { targetHandle: "requirements" },
-      { targetHandle: "requirements" },
-      { targetHandle: "requirements" },
+      { source: "entity", target: "spec", targetHandle: "applicability" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
       { source: "property", target: "restriction" },
-      { source: "restriction", target: "spec" },
-      { targetHandle: "requirements" },
-      { targetHandle: "requirements" },
+      { source: "restriction", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
+      { source: "property", target: "spec", targetHandle: "requirements" },
     ],
   },
   {
