@@ -527,7 +527,7 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
               category: isRecommended ? 'Recommended' : 'All Types'
             }
           })}
-          value={data.dataType || "IFCLABEL"}
+          value={data.dataType || ""}
           onValueChange={(value) => onChange("dataType", value)}
           placeholder="Search data types..."
           searchPlaceholder="Search 60+ data types..."

@@ -1,6 +1,6 @@
 import { XMLParser } from "fast-xml-parser"
 import type { GraphNode, GraphEdge, RestrictionNodeData } from "./graph-types"
-import { DEFAULT_LAYOUT_CONFIG } from "./node-layout"
+import { DEFAULT_LAYOUT_CONFIG, calculateNodePosition, type LayoutConfig } from "./node-layout"
 
 export interface ParsedIdsGraph {
   nodes: GraphNode[]
@@ -147,12 +147,14 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
     const name = getSimpleValue(entity?.name)
     const predefinedType = getSimpleValue(entity?.predefinedType)
 
-    const position = getFacetPosition({
-      baseY: ctx.baseY,
-      specPosition: ctx.specPosition,
-      count: ctx.applicabilityCountRef(),
-      target: "applicability",
-    })
+    const position = calculateNodePosition(
+      "entity",
+      "applicability",
+      ctx.nodes,
+      ctx.edges,
+      ctx.specId,
+      getLayoutConfig(ctx)
+    )
 
     const entityId = createNodeId(ctx.counters, "entity")
     const node: GraphNode = {
@@ -179,7 +181,7 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
         baseName: getSimpleValue(property?.baseName) || "",
-        dataType: property?.dataType || property?.datatype || "IFCLABEL",
+        dataType: extractDataType(property),
       },
       valueNode: property?.value,
     })
@@ -228,12 +230,14 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
 
   const partOfs = toArray(applicability.partOf)
   partOfs.forEach(partOf => {
-    const position = getFacetPosition({
-      baseY: ctx.baseY,
-      specPosition: ctx.specPosition,
-      count: ctx.applicabilityCountRef(),
-      target: "applicability",
-    })
+    const position = calculateNodePosition(
+      "partOf",
+      "applicability",
+      ctx.nodes,
+      ctx.edges,
+      ctx.specId,
+      getLayoutConfig(ctx)
+    )
 
     const nodeId = createNodeId(ctx.counters, "partOf")
     const node: GraphNode = {
@@ -262,7 +266,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
         baseName: getSimpleValue(property?.baseName) || "",
-        dataType: property?.dataType || property?.datatype || "IFCLABEL",
+        dataType: extractDataType(property),
       },
       valueNode: property?.value,
     })
@@ -311,13 +315,14 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
 
   const partOfs = toArray(requirements.partOf)
   partOfs.forEach(partOf => {
-    const position = getFacetPosition({
-      baseY: ctx.baseY,
-      specPosition: ctx.specPosition,
-      count: ctx.requirementsCountRef(),
-      target: "requirements",
-      applicabilityCount: ctx.applicabilityCountRef(),
-    })
+    const position = calculateNodePosition(
+      "partOf",
+      "requirements",
+      ctx.nodes,
+      ctx.edges,
+      ctx.specId,
+      getLayoutConfig(ctx)
+    )
 
     const nodeId = createNodeId(ctx.counters, "partOf")
     const node: GraphNode = {
@@ -353,17 +358,14 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
     valueNode,
   } = input
 
-  const position = getFacetPosition({
-    baseY: ctx.baseY,
-    specPosition: ctx.specPosition,
-    count: targetHandle === "applicability"
-      ? ctx.applicabilityCountRef()
-      : ("requirementsCountRef" in ctx ? ctx.requirementsCountRef() : 0),
-    target: targetHandle,
-    applicabilityCount: targetHandle === "requirements" && "applicabilityCountRef" in ctx
-      ? ctx.applicabilityCountRef()
-      : undefined,
-  })
+  const position = calculateNodePosition(
+    type,
+    targetHandle,
+    ctx.nodes,
+    ctx.edges,
+    ctx.specId,
+    getLayoutConfig(ctx)
+  )
 
   const nodeId = createNodeId(ctx.counters, type as keyof IdCounters & string)
   const node: GraphNode = {
@@ -524,30 +526,20 @@ function parseRestriction(restriction: any): RestrictionNodeData | null {
   return null
 }
 
-function getFacetPosition(args: {
-  baseY: number
-  specPosition: { x: number; y: number }
-  count: number
-  target: "applicability" | "requirements"
-  applicabilityCount?: number
-}): { x: number; y: number } {
-  const { baseY, specPosition, count, target, applicabilityCount } = args
-  const x = DEFAULT_LAYOUT_CONFIG.baseX
-  const spacing = DEFAULT_LAYOUT_CONFIG.verticalSpacing
-  const groupGap = DEFAULT_LAYOUT_CONFIG.groupGap
-
-  if (target === "applicability") {
-    return {
-      x,
-      y: baseY + count * spacing,
-    }
-  }
-
-  const offset = (applicabilityCount ?? 0) * spacing
+function getLayoutConfig(ctx: ApplicabilityContext | RequirementsContext): LayoutConfig {
   return {
-    x,
-    y: baseY + offset + groupGap + count * spacing,
+    ...DEFAULT_LAYOUT_CONFIG,
+    specPosition: ctx.specPosition,
+    baseX: DEFAULT_LAYOUT_CONFIG.baseX,
+    baseY: ctx.baseY,
   }
+}
+
+function extractDataType(property: any): string {
+  const dataType = getSimpleValue(property?.dataType)
+    || getSimpleValue(property?.datatype)
+
+  return dataType ? dataType.toUpperCase() : ""
 }
 
 function calculateRestrictionPosition(facetPosition: { x: number; y: number }, specPosition: { x: number; y: number }) {
