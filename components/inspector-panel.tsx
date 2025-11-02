@@ -527,9 +527,9 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
               category: isRecommended ? 'Recommended' : 'All Types'
             }
           })}
-          value={data.dataType || "IFCLABEL"}
-          onValueChange={(value) => onChange("dataType", value)}
-          placeholder="Search data types..."
+          value={data.dataType || ""}
+          onValueChange={(value) => onChange("dataType", value === "" ? undefined : value)}
+          placeholder="Search data types... (optional)"
           searchPlaceholder="Search 60+ data types..."
           emptyText="No data types found"
           showCategories={true}
@@ -555,7 +555,10 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
   )
 }
 
-function getPlaceholderForDataType(dataType: string): string {
+function getPlaceholderForDataType(dataType?: string): string {
+  if (!dataType) {
+    return "Enter value..."
+  }
   switch (dataType) {
     case "IFCBOOLEAN":
       return "true or false"
