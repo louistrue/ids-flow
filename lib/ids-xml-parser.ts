@@ -90,16 +90,34 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
 
     const applicability = spec.applicability || spec.Applicability
     if (applicability) {
-      parseApplicability(applicability, {
-        specId,
-        nodes,
-        edges,
-        counters,
-        baseY: sectionBaseY,
-        specPosition: specNode.position,
-        applicabilityCountRef: () => applicabilityCount,
-        incrementApplicability: () => { applicabilityCount += 1 },
-      })
+      // Check if applicability section exists but is empty (has attributes but no children)
+      const hasEntities = Array.isArray(applicability.entity) || applicability.entity
+      const hasProperties = Array.isArray(applicability.property) || applicability.property
+      const hasAttributes = Array.isArray(applicability.attribute) || applicability.attribute
+      const hasClassifications = Array.isArray(applicability.classification) || applicability.classification
+      const hasMaterials = Array.isArray(applicability.material) || applicability.material
+      const hasPartOf = Array.isArray(applicability.partOf) || applicability.partOf
+
+      const isEmptyApplicability = !hasEntities && !hasProperties && !hasAttributes &&
+        !hasClassifications && !hasMaterials && !hasPartOf
+
+      if (isEmptyApplicability) {
+        // Store empty applicability info in spec node
+        specNode.data.hasEmptyApplicability = true
+        specNode.data.applicabilityMinOccurs = applicability.minOccurs || applicability.minoccurs || undefined
+        specNode.data.applicabilityMaxOccurs = applicability.maxOccurs || applicability.maxoccurs || undefined
+      } else {
+        parseApplicability(applicability, {
+          specId,
+          nodes,
+          edges,
+          counters,
+          baseY: sectionBaseY,
+          specPosition: specNode.position,
+          applicabilityCountRef: () => applicabilityCount,
+          incrementApplicability: () => { applicabilityCount += 1 },
+        })
+      }
     }
 
     const requirements = spec.requirements || spec.Requirements
@@ -181,7 +199,7 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
         baseName: getSimpleValue(property?.baseName) || "",
-        dataType: extractDataType(property),
+        dataType: extractDataType(property, property?.value),
       },
       valueNode: property?.value,
     })
@@ -266,7 +284,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
         baseName: getSimpleValue(property?.baseName) || "",
-        dataType: extractDataType(property),
+        dataType: extractDataType(property, property?.value),
       },
       valueNode: property?.value,
     })
@@ -381,7 +399,7 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
 
   const valueExtraction = parseValueNode(valueNode)
   if (valueExtraction.simpleValue !== undefined && valueExtraction.simpleValue !== "") {
-    ;(node.data as any).value = valueExtraction.simpleValue
+    ; (node.data as any).value = valueExtraction.simpleValue
   }
 
   if (valueExtraction.restriction) {
@@ -400,9 +418,11 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
 
     addSimpleEdge(ctx.edges, ctx.counters, nodeId, restrictionNodeId)
     addEdge(ctx.edges, ctx.counters, restrictionNodeId, ctx.specId, targetHandle)
+  } else {
+    // Only add direct facet → spec edge when there's no restriction
+    // (restrictions already create facet → restriction → spec chain)
+    addEdge(ctx.edges, ctx.counters, nodeId, ctx.specId, targetHandle)
   }
-
-  addEdge(ctx.edges, ctx.counters, nodeId, ctx.specId, targetHandle)
 
   if (targetHandle === "applicability") {
     ctx.incrementApplicability()
@@ -449,7 +469,11 @@ function parseValueNode(node: any): { simpleValue?: string; restriction?: Restri
     }
   }
 
-  const restriction = node.restriction ?? node.Restriction
+  const restriction = node.restriction
+    ?? node.Restriction
+    ?? node['xs:restriction']
+    ?? node['xs:Restriction']
+
   if (restriction) {
     const parsedRestriction = parseRestriction(restriction)
     if (parsedRestriction) {
@@ -481,45 +505,79 @@ function parseValueNode(node: any): { simpleValue?: string; restriction?: Restri
 function parseRestriction(restriction: any): RestrictionNodeData | null {
   if (!restriction) return null
 
-  const enumerations = toArray(restriction.enumeration).map((entry: any) => {
-    if (entry?.value !== undefined) {
-      return String(entry.value)
-    }
-    return getSimpleValue(entry)
-  }).filter((value): value is string => !!value)
+  // Handle enumeration restrictions (most common)
+  // Try multiple possible enumeration paths (with/without namespace prefixes)
+  const enumerationArray = toArray(restriction.enumeration
+    ?? restriction.Enumeration
+    ?? restriction['xs:enumeration']
+    ?? restriction['xs:Enumeration'])
 
-  if (enumerations.length > 0) {
-    return {
-      restrictionType: "enumeration",
-      values: Array.from(new Set(enumerations)),
+  if (enumerationArray.length > 0) {
+    const enumerations = enumerationArray.map((entry: any) => {
+      // Handle value as attribute (most common: <xs:enumeration value="VALUE" />)
+      if (entry?.value !== undefined) {
+        return String(entry.value).trim()
+      }
+      // Handle value as text content
+      return getSimpleValue(entry)?.trim()
+    }).filter((value): value is string => !!value && value !== "")
+
+    if (enumerations.length > 0) {
+      return {
+        restrictionType: "enumeration",
+        values: Array.from(new Set(enumerations)),
+      }
     }
   }
 
-  const pattern = restriction.pattern?.value ?? getSimpleValue(restriction.pattern)
+  // Handle pattern restrictions
+  const pattern = restriction.pattern?.value
+    ?? getSimpleValue(restriction.pattern)
+    ?? restriction['xs:pattern']?.value
+    ?? getSimpleValue(restriction['xs:pattern'])
+
   if (pattern) {
     return {
       restrictionType: "pattern",
-      pattern,
+      pattern: String(pattern).trim(),
     }
   }
 
-  const minValue = restriction.minInclusive?.value ?? getSimpleValue(restriction.minInclusive)
-  const maxValue = restriction.maxInclusive?.value ?? getSimpleValue(restriction.maxInclusive)
+  // Handle bounds restrictions
+  const minValue = restriction.minInclusive?.value
+    ?? getSimpleValue(restriction.minInclusive)
+    ?? restriction['xs:minInclusive']?.value
+    ?? getSimpleValue(restriction['xs:minInclusive'])
+
+  const maxValue = restriction.maxInclusive?.value
+    ?? getSimpleValue(restriction.maxInclusive)
+    ?? restriction['xs:maxInclusive']?.value
+    ?? getSimpleValue(restriction['xs:maxInclusive'])
+
   if (minValue || maxValue) {
     return {
       restrictionType: "bounds",
-      minValue: minValue || undefined,
-      maxValue: maxValue || undefined,
+      minValue: minValue ? String(minValue).trim() : undefined,
+      maxValue: maxValue ? String(maxValue).trim() : undefined,
     }
   }
 
-  const minLength = restriction.minLength?.value ?? getSimpleValue(restriction.minLength)
-  const maxLength = restriction.maxLength?.value ?? getSimpleValue(restriction.maxLength)
+  // Handle length restrictions
+  const minLength = restriction.minLength?.value
+    ?? getSimpleValue(restriction.minLength)
+    ?? restriction['xs:minLength']?.value
+    ?? getSimpleValue(restriction['xs:minLength'])
+
+  const maxLength = restriction.maxLength?.value
+    ?? getSimpleValue(restriction.maxLength)
+    ?? restriction['xs:maxLength']?.value
+    ?? getSimpleValue(restriction['xs:maxLength'])
+
   if (minLength || maxLength) {
     return {
       restrictionType: "length",
-      minLength: minLength || undefined,
-      maxLength: maxLength || undefined,
+      minLength: minLength ? String(minLength).trim() : undefined,
+      maxLength: maxLength ? String(maxLength).trim() : undefined,
     }
   }
 
@@ -535,11 +593,17 @@ function getLayoutConfig(ctx: ApplicabilityContext | RequirementsContext): Layou
   }
 }
 
-function extractDataType(property: any): string {
+function extractDataType(property: any, valueNode?: any): string | undefined {
   const dataType = getSimpleValue(property?.dataType)
     || getSimpleValue(property?.datatype)
 
-  return dataType ? dataType.toUpperCase() : "IFCLABEL"
+  if (dataType) {
+    return dataType.toUpperCase()
+  }
+
+  // Return undefined if no dataType is explicitly specified - leaving it empty is valid per IDS spec
+  // Do NOT infer dataType from restrictions - users should specify it explicitly if needed
+  return undefined
 }
 
 function calculateRestrictionPosition(facetPosition: { x: number; y: number }, specPosition: { x: number; y: number }) {

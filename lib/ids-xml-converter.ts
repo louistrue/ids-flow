@@ -80,6 +80,8 @@ function groupNodesBySpecification(
       return sourceNode
     })
     .filter((node): node is GraphNode => node !== undefined)
+    // Deduplicate by node ID to avoid duplicates from both direct and restriction edges
+    .filter((node, index, self) => self.findIndex(n => n.id === node.id) === index)
 
   return { applicabilityNodes, requirementNodes }
 }
@@ -123,37 +125,49 @@ function buildSpecification(
     description: specData.description || "Generated from IDS Flow",
   })
 
-  // Build applicability section
-  const appl = spec.ele("ids:applicability")
+  // Build applicability section - either with facets or empty (if originally empty)
+  if (applicabilityNodes.length > 0) {
+    const appl = spec.ele("ids:applicability")
 
-  // Find entity nodes in applicability
-  const entityNodes = applicabilityNodes.filter(node => node.type === 'entity')
-  if (entityNodes.length > 0) {
-    // Use first entity as primary entity
-    buildEntityFacet(entityNodes[0], appl)
-  }
-
-  // Add other applicability facets
-  for (const node of applicabilityNodes) {
-    switch (node.type) {
-      case 'partOf':
-        buildPartOfFacet(node, appl)
-        break
-      case 'classification':
-        buildClassificationFacet(node, appl, undefined, edges, nodes)
-        break
-      case 'material':
-        buildMaterialFacet(node, appl, undefined, edges, nodes)
-        break
-      case 'property':
-        // Properties in applicability are treated as conditions
-        buildPropertyFacet(node, appl, undefined, edges, nodes)
-        break
-      case 'attribute':
-        // Attributes in applicability are treated as conditions
-        buildAttributeFacet(node, appl, undefined, edges, nodes)
-        break
+    // Find entity nodes in applicability
+    const entityNodes = applicabilityNodes.filter(node => node.type === 'entity')
+    if (entityNodes.length > 0) {
+      // Use first entity as primary entity
+      buildEntityFacet(entityNodes[0], appl)
     }
+
+    // Add other applicability facets
+    for (const node of applicabilityNodes) {
+      switch (node.type) {
+        case 'partOf':
+          buildPartOfFacet(node, appl)
+          break
+        case 'classification':
+          buildClassificationFacet(node, appl, undefined, edges, nodes)
+          break
+        case 'material':
+          buildMaterialFacet(node, appl, undefined, edges, nodes)
+          break
+        case 'property':
+          // Properties in applicability are treated as conditions
+          buildPropertyFacet(node, appl, undefined, edges, nodes)
+          break
+        case 'attribute':
+          // Attributes in applicability are treated as conditions
+          buildAttributeFacet(node, appl, undefined, edges, nodes)
+          break
+      }
+    }
+  } else if (specData.hasEmptyApplicability) {
+    // Preserve empty applicability section with attributes (wildcard pattern)
+    const applAttrs: any = {}
+    if (specData.applicabilityMinOccurs) {
+      applAttrs.minOccurs = specData.applicabilityMinOccurs
+    }
+    if (specData.applicabilityMaxOccurs) {
+      applAttrs.maxOccurs = specData.applicabilityMaxOccurs
+    }
+    spec.ele("ids:applicability", applAttrs)
   }
 
   // Build requirements section
@@ -197,9 +211,13 @@ function buildEntityFacet(node: GraphNode, parent: any) {
 
 function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
-  const attrs: any = {
-    dataType: data.dataType || "IFCLABEL",
+  const attrs: any = {}
+  
+  // Only include dataType if it exists (optional per IDS spec)
+  if (data.dataType) {
+    attrs.dataType = data.dataType
   }
+  
   if (cardinality) {
     attrs.cardinality = cardinality
   }

@@ -117,28 +117,25 @@ export function validateGraphClientSide(
         const applicabilityEdges = edges.filter(
             edge => edge.target === specNode.id && edge.targetHandle === 'applicability'
         )
-        if (applicabilityEdges.length === 0) {
-            issues.push({
-                severity: 'warning',
-                message: `Specification "${(specNode.data as any).name || 'unnamed'}" has no applicability facets`,
-                nodeId: specNode.id,
-                nodeType: 'spec',
-            })
+        
+        // Skip validation for completely empty applicability (intentional wildcard pattern)
+        // Only validate if there are some applicability facets but missing entity
+        if (applicabilityEdges.length > 0) {
+            // Check if applicability has at least one entity
+            const applicabilityNodeIds = applicabilityEdges.map(e => e.source)
+            const hasEntity = applicabilityNodeIds.some(id =>
+                nodes.find(n => n.id === id && n.type === 'entity')
+            )
+            if (!hasEntity) {
+                issues.push({
+                    severity: 'warning',
+                    message: `Specification "${(specNode.data as any).name || 'unnamed'}" applicability should include at least one entity`,
+                    nodeId: specNode.id,
+                    nodeType: 'spec',
+                })
+            }
         }
-
-        // Check if applicability has at least one entity
-        const applicabilityNodeIds = applicabilityEdges.map(e => e.source)
-        const hasEntity = applicabilityNodeIds.some(id =>
-            nodes.find(n => n.id === id && n.type === 'entity')
-        )
-        if (!hasEntity) {
-            issues.push({
-                severity: 'warning',
-                message: `Specification "${(specNode.data as any).name || 'unnamed'}" applicability should include at least one entity`,
-                nodeId: specNode.id,
-                nodeType: 'spec',
-            })
-        }
+        // If applicabilityEdges.length === 0, skip validation (empty applicability is valid as wildcard)
     }
 
     const hasErrors = issues.some(issue => issue.severity === 'error')

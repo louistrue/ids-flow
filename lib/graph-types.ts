@@ -20,6 +20,9 @@ export interface SpecificationNodeData {
   name: string
   ifcVersion: string
   description: string
+  hasEmptyApplicability?: boolean  // True if applicability exists but has no facets (wildcard pattern)
+  applicabilityMinOccurs?: string  // Preserve minOccurs from empty applicability
+  applicabilityMaxOccurs?: string  // Preserve maxOccurs from empty applicability
 }
 
 export interface EntityNodeData {
@@ -30,7 +33,7 @@ export interface EntityNodeData {
 export interface PropertyNodeData {
   propertySet: string
   baseName: string
-  dataType: string
+  dataType?: string  // Optional - valid per IDS spec to omit dataType
   value?: string
 }
 
