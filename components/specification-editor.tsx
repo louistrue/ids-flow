@@ -402,6 +402,7 @@ export function SpecificationEditor() {
         }
 
         // Update the canvas with imported data
+        takeSnapshot()
         setNodes(canvasData.nodes)
         setEdges(canvasData.edges)
         setSelectedNode(null) // Clear selection
@@ -423,7 +424,7 @@ export function SpecificationEditor() {
 
     // Reset the input so the same file can be imported again
     event.target.value = ''
-  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode])
+  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode, takeSnapshot])
 
   const handleIdsFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -435,6 +436,7 @@ export function SpecificationEditor() {
         const content = e.target?.result as string
         const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion } = convertIdsXmlToGraph(content)
 
+        takeSnapshot()
         setNodes(importedNodes)
         setEdges(importedEdges)
         setSelectedNode(null)
@@ -453,7 +455,7 @@ export function SpecificationEditor() {
 
     reader.readAsText(file)
     event.target.value = ''
-  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode])
+  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode, takeSnapshot])
 
   const handleNodeMove = useCallback((nodeId: string, position: { x: number; y: number }) => {
     setNodes((nds) =>

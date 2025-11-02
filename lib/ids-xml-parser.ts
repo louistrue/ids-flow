@@ -400,9 +400,9 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
 
     addSimpleEdge(ctx.edges, ctx.counters, nodeId, restrictionNodeId)
     addEdge(ctx.edges, ctx.counters, restrictionNodeId, ctx.specId, targetHandle)
-  } else {
-    addEdge(ctx.edges, ctx.counters, nodeId, ctx.specId, targetHandle)
   }
+
+  addEdge(ctx.edges, ctx.counters, nodeId, ctx.specId, targetHandle)
 
   if (targetHandle === "applicability") {
     ctx.incrementApplicability()
@@ -539,7 +539,7 @@ function extractDataType(property: any): string {
   const dataType = getSimpleValue(property?.dataType)
     || getSimpleValue(property?.datatype)
 
-  return dataType ? dataType.toUpperCase() : ""
+  return dataType ? dataType.toUpperCase() : "IFCLABEL"
 }
 
 function calculateRestrictionPosition(facetPosition: { x: number; y: number }, specPosition: { x: number; y: number }) {
