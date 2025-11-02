@@ -539,7 +539,7 @@ function extractDataType(property: any): string {
   const dataType = getSimpleValue(property?.dataType)
     || getSimpleValue(property?.datatype)
 
-  return dataType ? dataType.toUpperCase() : "IFCLABEL"
+  return dataType ? dataType.toUpperCase() : ""
 }
 
 function calculateRestrictionPosition(facetPosition: { x: number; y: number }, specPosition: { x: number; y: number }) {
