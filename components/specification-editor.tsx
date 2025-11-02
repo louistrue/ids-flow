@@ -17,16 +17,24 @@ import { GraphCanvas } from "./graph-canvas"
 import type { GraphNode, GraphEdge, NodeData } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
+import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
 import { useUndoRedo } from "@/lib/use-undo-redo"
 
 export function SpecificationEditor() {
+  const normalizeIfcVersion = useCallback((value: unknown): IFCVersion | undefined => {
+    if (typeof value !== "string") return undefined
+    const supported: IFCVersion[] = ["IFC2X3", "IFC4", "IFC4X3_ADD2"]
+    return supported.includes(value as IFCVersion) ? (value as IFCVersion) : undefined
+  }, [])
+
   const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
   const [edges, setEdges] = useState<GraphEdge[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
-  const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
+  const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
+  const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
 
   // IDS Validation hook
   const {
@@ -375,13 +383,7 @@ export function SpecificationEditor() {
     }
   }, [nodes, edges])
 
-  const importCanvas = useCallback(() => {
-    if (fileInputRef) {
-      fileInputRef.click()
-    }
-  }, [fileInputRef])
-
-  const handleFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleJsonFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -405,8 +407,9 @@ export function SpecificationEditor() {
         setSelectedNode(null) // Clear selection
 
         // Update IFC version if present in metadata
-        if (canvasData.metadata?.ifcVersion) {
-          setIfcVersion(canvasData.metadata.ifcVersion)
+        const detectedVersion = normalizeIfcVersion(canvasData.metadata?.ifcVersion)
+        if (detectedVersion) {
+          setIfcVersion(detectedVersion)
         }
 
         alert(`Canvas imported successfully! Loaded ${canvasData.nodes.length} nodes and ${canvasData.edges.length} edges.`)
@@ -420,7 +423,37 @@ export function SpecificationEditor() {
 
     // Reset the input so the same file can be imported again
     event.target.value = ''
-  }, [])
+  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode])
+
+  const handleIdsFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string
+        const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion } = convertIdsXmlToGraph(content)
+
+        setNodes(importedNodes)
+        setEdges(importedEdges)
+        setSelectedNode(null)
+
+        const detectedVersion = normalizeIfcVersion(importedIfcVersion)
+        if (detectedVersion) {
+          setIfcVersion(detectedVersion)
+        }
+
+        alert(`IDS imported successfully! Loaded ${importedNodes.length} nodes and ${importedEdges.length} edges.`)
+      } catch (error) {
+        console.error("IDS import failed:", error)
+        alert(`IDS import failed: ${error instanceof Error ? error.message : 'Invalid IDS file format'}`)
+      }
+    }
+
+    reader.readAsText(file)
+    event.target.value = ''
+  }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode])
 
   const handleNodeMove = useCallback((nodeId: string, position: { x: number; y: number }) => {
     setNodes((nds) =>
@@ -536,19 +569,40 @@ export function SpecificationEditor() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="outline" size="sm" className="gap-2 bg-card" onClick={importCanvas}>
-              <Upload className="h-4 w-4" />
-              Import
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 bg-card">
+                  <Upload className="h-4 w-4" />
+                  Import
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => jsonFileInputRef?.click()}>
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Import Canvas (.json)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Import IDS (.ids)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <ThemeToggle />
           </div>
 
           <input
-            ref={setFileInputRef}
+            ref={setJsonFileInputRef}
             type="file"
             accept=".json"
-            onChange={handleFileImport}
+            onChange={handleJsonFileImport}
+            style={{ display: 'none' }}
+          />
+          <input
+            ref={setIdsFileInputRef}
+            type="file"
+            accept=".ids,.xml"
+            onChange={handleIdsFileImport}
             style={{ display: 'none' }}
           />
         </div>
