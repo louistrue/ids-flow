@@ -15,7 +15,7 @@ interface CustomSchemaData {
   propertySets: CustomPropertySet[]
 }
 
-const STORAGE_KEY = 'ids-flow-custom-schema'
+const STORAGE_KEY = 'idsedit-custom-schema'
 
 function getStorageData(): CustomSchemaData {
   try {

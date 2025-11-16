@@ -45,7 +45,7 @@ import {
   type CustomPropertySet
 } from "@/lib/custom-schema-store"
 import type { ValidationState } from "@/lib/use-ids-validation"
-import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw } from "lucide-react"
+import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw, MousePointerClick, Info, Zap, PlusCircle, Link2, Eye, ExternalLink, BookOpen } from "lucide-react"
 
 interface InspectorPanelProps {
   selectedNode: Node<any> | null
@@ -72,13 +72,212 @@ export function InspectorPanel({
 }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
-      <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col">
+      <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col overflow-hidden">
         <div className="p-4 border-b border-sidebar-border flex-shrink-0">
           <h2 className="text-lg font-semibold text-sidebar-foreground">Inspector</h2>
         </div>
-        <div className="flex items-center justify-center flex-1 p-6">
-          <p className="text-sm text-muted-foreground text-center">Select a node to view and edit its properties</p>
-        </div>
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6 pb-8 space-y-6">
+            {/* Header */}
+            <div className="text-center space-y-3">
+              <div className="flex justify-center">
+                <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/20">
+                  <Eye className="h-10 w-10 text-blue-500" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-sidebar-foreground">
+                  Node Inspector
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Select a node to view and edit its properties
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Quick Start Guide */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-yellow-500" />
+                <h4 className="text-sm font-semibold text-sidebar-foreground">Quick Start</h4>
+              </div>
+              <div className="space-y-2">
+                <div className="flex gap-3 p-3 rounded-lg bg-accent/5 border border-border/50">
+                  <PlusCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-sidebar-foreground">Add Nodes</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Drag facet nodes from the left palette onto the canvas to build your IDS specification
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-3 rounded-lg bg-accent/5 border border-border/50">
+                  <MousePointerClick className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-sidebar-foreground">Select & Inspect</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Click on any node to view its details and edit properties in this panel
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-3 rounded-lg bg-accent/5 border border-border/50">
+                  <Link2 className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-sidebar-foreground">Connect Nodes</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Drag from connection ports to create relationships between facets
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Node Types */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4 text-blue-500" />
+                <h4 className="text-sm font-semibold text-sidebar-foreground">Available Facets</h4>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-md bg-purple-500/10 border border-purple-500/20">
+                  <p className="font-medium text-purple-700 dark:text-purple-400">Specification</p>
+                  <p className="text-muted-foreground mt-0.5">Root node</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-blue-500/10 border border-blue-500/20">
+                  <p className="font-medium text-blue-700 dark:text-blue-400">Entity</p>
+                  <p className="text-muted-foreground mt-0.5">IFC object type</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-green-500/10 border border-green-500/20">
+                  <p className="font-medium text-green-700 dark:text-green-400">Property</p>
+                  <p className="text-muted-foreground mt-0.5">Property sets</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+                  <p className="font-medium text-yellow-700 dark:text-yellow-400">Attribute</p>
+                  <p className="text-muted-foreground mt-0.5">Object attributes</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-orange-500/10 border border-orange-500/20">
+                  <p className="font-medium text-orange-700 dark:text-orange-400">Classification</p>
+                  <p className="text-muted-foreground mt-0.5">Classification codes</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-pink-500/10 border border-pink-500/20">
+                  <p className="font-medium text-pink-700 dark:text-pink-400">Material</p>
+                  <p className="text-muted-foreground mt-0.5">Material types</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-indigo-500/10 border border-indigo-500/20">
+                  <p className="font-medium text-indigo-700 dark:text-indigo-400">Part Of</p>
+                  <p className="text-muted-foreground mt-0.5">Spatial relations</p>
+                </div>
+                <div className="p-2.5 rounded-md bg-red-500/10 border border-red-500/20">
+                  <p className="font-medium text-red-700 dark:text-red-400">Restriction</p>
+                  <p className="text-muted-foreground mt-0.5">Value constraints</p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Tips */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-sidebar-foreground">💡 Tips</h4>
+              <div className="space-y-1.5 text-xs text-muted-foreground">
+                <p className="flex items-start gap-2">
+                  <span className="text-accent mt-1">•</span>
+                  <span>Use <kbd className="px-1.5 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">Ctrl+Z</kbd> to undo changes</span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="text-accent mt-1">•</span>
+                  <span>
+                    Hold{' '}
+                    <kbd className="px-1.5 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘</kbd> /{' '}
+                    <kbd className="px-1.5 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">Ctrl</kbd>{' '}
+                    to select multiple nodes
+                  </span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="text-accent mt-1">•</span>
+                  <span>Use the target icon in the canvas controls to reset the view</span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="text-accent mt-1">•</span>
+                  <span>Connect Entity nodes to other facets for context-aware suggestions</span>
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Learning Resources */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-blue-500" />
+                <h4 className="text-sm font-semibold text-sidebar-foreground">Learn More</h4>
+              </div>
+              <div className="space-y-2">
+                <a
+                  href="https://learn-ids.lt.plus/en/ids/overview"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-accent/5 border border-border/50 hover:bg-accent/10 hover:border-border transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-md bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/20 group-hover:border-blue-500/40 transition-colors">
+                    <BookOpen className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground group-hover:text-blue-500 transition-colors">
+                      IDS Comprehensive Course
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      learn-ids.lt.plus
+                    </p>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-blue-500 transition-colors flex-shrink-0" />
+                </a>
+                <a
+                  href="https://idslight.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-accent/5 border border-border/50 hover:bg-accent/10 hover:border-border transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-md bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border border-green-500/20 group-hover:border-green-500/40 transition-colors">
+                    <ExternalLink className="h-4 w-4 text-green-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground group-hover:text-green-500 transition-colors">
+                      IDS Light (simple IDS text editor)
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      idslight.com
+                    </p>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-green-500 transition-colors flex-shrink-0" />
+                </a>
+                <a
+                  href="https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/README.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-accent/5 border border-border/50 hover:bg-accent/10 hover:border-border transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-md bg-gradient-to-br from-indigo-500/20 to-sky-500/20 flex items-center justify-center border border-indigo-500/20 group-hover:border-indigo-500/40 transition-colors">
+                    <ExternalLink className="h-4 w-4 text-indigo-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground group-hover:text-indigo-500 transition-colors">
+                      buildingSMART IDS Manual
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      github.com/buildingSMART/IDS
+                    </p>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-indigo-500 transition-colors flex-shrink-0" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
       </Card>
     )
   }

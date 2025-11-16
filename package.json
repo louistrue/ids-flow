@@ -1,5 +1,5 @@
 {
-  "name": "idsflow",
+  "name": "idsedit",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "lint": "next lint",
     "start": "next start",
     "generate-schema": "python3 scripts/psd/generate-comprehensive-property-sets.py && python3 scripts/export-complete-ifc-schema.py && python3 scripts/psd/update-schema-index.py && cp -r lib/generated/ifc-schema/* public/generated/",
+    "generate-favicons": "tsx scripts/generate-favicons.ts",
     "postinstall": "test -n \"$CI\" && echo 'Skipping schema generation in CI' || npm run generate-schema || echo 'Schema generation failed, using committed files'"
   },
   "dependencies": {

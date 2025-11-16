@@ -99,9 +99,9 @@ function buildIdsInfo(root: any, specNode: GraphNode, options: ConvertOptions) {
   }
 
   // Normalize author to email format
-  const author = options.author || specData.author || "ids-flow"
+  const author = options.author || specData.author || "idsedit"
   const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
-  const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@ids-flow.com`
+  const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@idsedit.com`
   info.ele("ids:author").txt(authorEmail)
 
   // Use provided date or current date

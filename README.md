@@ -1,4 +1,4 @@
-# IDS Flow
+# IDSedit
 
 A visual editor for creating Information Delivery Specifications (IDS) files with automatic validation.
 
@@ -16,7 +16,7 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd ids-flow
+   cd idsedit
    ```
 
 2. **Install dependencies**

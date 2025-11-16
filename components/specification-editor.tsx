@@ -21,6 +21,7 @@ import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
 import { useUndoRedo } from "@/lib/use-undo-redo"
+import { AppFooter } from "./app-footer"
 
 export function SpecificationEditor() {
   const normalizeIfcVersion = useCallback((value: unknown): IFCVersion | undefined => {
@@ -643,6 +644,8 @@ export function SpecificationEditor() {
           </Panel>
         </PanelGroup>
       </div>
+
+      <AppFooter />
     </div>
   )
 }
