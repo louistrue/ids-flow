@@ -15,7 +15,7 @@ export function AppFooter() {
       <div className="relative z-10 flex w-full flex-col gap-2 px-4 py-1.5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4 text-foreground">
           <Link
-            href="https://github.com/louistrue/idsedit"
+            href="https://github.com/louistrue/ids-flow"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="View the GitHub repository"
