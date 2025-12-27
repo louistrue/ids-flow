@@ -17,19 +17,26 @@ export function MobileDocsNav() {
   // Prevent body scroll when menu is open
   useEffect(() => {
     if (isOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+
+      return () => {
+        // Restore scroll position
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, scrollY);
+      };
     }
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    };
   }, [isOpen]);
 
   // Filter docs based on search query
@@ -69,11 +76,13 @@ export function MobileDocsNav() {
 
           {/* Bottom Drawer */}
           <div
-            className="fixed inset-x-0 bottom-0 bg-white dark:bg-slate-950 rounded-t-2xl shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 rounded-t-2xl shadow-2xl"
             style={{
               zIndex: 9999,
               maxHeight: '85vh',
-              animation: 'slideUp 0.3s ease-out'
+              animation: 'slideUp 0.3s ease-out',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
             <style jsx>{`
@@ -87,7 +96,7 @@ export function MobileDocsNav() {
               }
             `}</style>
 
-            <div className="flex flex-col h-full max-h-[85vh] bg-white dark:bg-slate-950">
+            <div className="flex flex-col bg-white dark:bg-slate-950" style={{ height: '85vh', maxHeight: '85vh' }}>
               {/* Handle Bar */}
               <div className="flex-shrink-0 flex justify-center pt-3 pb-2 bg-white dark:bg-slate-950">
                 <div className="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
@@ -96,9 +105,14 @@ export function MobileDocsNav() {
               {/* Header */}
               <div className="flex-shrink-0 px-4 pb-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <h2 className="font-semibold text-lg">Documentation</h2>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-lg px-3 py-1.5 shadow-md">
+                      <span className="text-white font-bold text-sm">IDS</span>
+                    </div>
+                    <div>
+                      <h2 className="font-semibold text-base">Documentation</h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Learn IDSedit</p>
+                    </div>
                   </div>
                   <button
                     onClick={() => setIsOpen(false)}
@@ -143,7 +157,14 @@ export function MobileDocsNav() {
               </div>
 
               {/* Navigation - Scrollable */}
-              <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-950" style={{ minHeight: 0 }}>
+              <div
+                className="flex-1 bg-white dark:bg-slate-950"
+                style={{
+                  minHeight: 0,
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
                 <nav className="px-4 py-6 space-y-6 bg-white dark:bg-slate-950">
                   {filteredConfig.length > 0 ? (
                     filteredConfig.map((section) => (

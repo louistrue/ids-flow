@@ -1,5 +1,8 @@
 import { MarkdownContent } from "@/components/docs/markdown-content";
 import { TableOfContents } from "@/components/docs/table-of-contents";
+import { InteractiveDemo } from "@/components/docs/interactive-demo";
+import { FeatureCard } from "@/components/docs/feature-card";
+import { TipBox } from "@/components/docs/tip-box";
 
 const quickStartContent = `
 ## Quick Start Guide
@@ -128,6 +131,29 @@ If you need assistance:
 - Read the [Developer Guide](/docs/developer-guide) for XML details
 `;
 
+const tutorialSteps = [
+  {
+    title: "Add a Specification Node",
+    description: "Every IDS document starts with a Specification node. This is the root container for your requirements.",
+    code: "1. Look at the Node Palette (left sidebar)\n2. Find 'Specification' under Core Nodes\n3. Click to add it to the canvas",
+  },
+  {
+    title: "Define Applicability",
+    description: "Add an Entity node to specify what elements this applies to (e.g., all walls).",
+    code: "1. Add an 'Entity' node from the palette\n2. Connect it to the Applicability port\n3. Set Name to 'IFCWALL'",
+  },
+  {
+    title: "Add Requirements",
+    description: "Add a Property node to define what information is required (e.g., fire rating).",
+    code: "1. Add a 'Property' node\n2. Connect it to Requirements port\n3. Set PropertySet: 'Pset_WallCommon'\n4. Set BaseName: 'FireRating'",
+  },
+  {
+    title: "Validate & Export",
+    description: "Validate your specification and export it as an IDS file.",
+    code: "1. Click 'Validate IDS' button\n2. Fix any errors shown\n3. Click 'Export IDS' to download",
+  },
+];
+
 export default async function QuickStartPage() {
   return (
     <div className="flex">
@@ -144,6 +170,47 @@ export default async function QuickStartPage() {
             Create your first IDS specification in minutes
           </p>
         </div>
+
+        <TipBox type="tip">
+          <strong>New to IDS?</strong> Follow the interactive tutorial below to create your first specification step-by-step. You can also explore the detailed documentation for each concept.
+        </TipBox>
+
+        <InteractiveDemo
+          title="Create Your First Specification"
+          steps={tutorialSteps}
+        />
+
+        <h2 className="text-2xl font-bold mt-12 mb-6 text-slate-900 dark:text-slate-100">
+          Key Features
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
+          <FeatureCard
+            icon="box"
+            title="Visual Graph Editor"
+            description="Drag and drop nodes to build specifications visually without writing XML"
+            color="blue"
+          />
+          <FeatureCard
+            icon="tag"
+            title="7 Facet Types"
+            description="Entity, Property, Attribute, Classification, Material, PartOf, and Restrictions"
+            color="purple"
+          />
+          <FeatureCard
+            icon="workflow"
+            title="Pre-built Templates"
+            description="15+ ready-to-use templates for common scenarios like fire safety and materials"
+            color="green"
+          />
+          <FeatureCard
+            icon="checkCircle"
+            title="Real-time Validation"
+            description="Automatic validation with detailed error messages and fix suggestions"
+            color="orange"
+          />
+        </div>
+
         <MarkdownContent content={quickStartContent} />
       </div>
 
