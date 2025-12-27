@@ -50,10 +50,10 @@ export function MobileDocsNav() {
           />
 
           {/* Sidebar */}
-          <div className="fixed inset-y-0 left-0 w-72 z-[101] shadow-2xl bg-white dark:bg-slate-950 overflow-hidden">
-            <div className="flex flex-col h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+          <div className="fixed inset-y-0 left-0 w-72 z-[101] shadow-2xl bg-white dark:bg-slate-950 max-h-screen overflow-hidden">
+            <div className="flex flex-col h-full max-h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
               {/* Header */}
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+              <div className="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -102,8 +102,8 @@ export function MobileDocsNav() {
               </div>
 
               {/* Navigation */}
-              <ScrollArea className="flex-1 bg-white dark:bg-slate-950">
-                <nav className="space-y-6 px-4 py-6 bg-white dark:bg-slate-950">
+              <ScrollArea className="flex-1 min-h-0 bg-white dark:bg-slate-950">
+                <nav className="space-y-6 px-4 py-6 bg-white dark:bg-slate-950 min-h-full">
                   {filteredConfig.length > 0 ? (
                     filteredConfig.map((section) => (
                       <div key={section.title}>
