@@ -293,8 +293,8 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
   }
 
   const cls = parent.ele("ids:classification", attrs)
-  idsSimple(cls, "ids:system", data.system)
 
+  // Per IDS XSD schema, 'value' must come before 'system'
   // Handle restrictions by checking for connected restriction nodes
   if (edges && nodes) {
     const restrictionEdge = edges.find(e => e.source === node.id)
@@ -316,6 +316,9 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
     // Simple value constraint
     idsSimple(cls, "ids:value", data.value)
   }
+
+  // System must come after value per IDS XSD schema
+  idsSimple(cls, "ids:system", data.system)
 }
 
 function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
