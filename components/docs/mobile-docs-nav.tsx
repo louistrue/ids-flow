@@ -50,7 +50,7 @@ export function MobileDocsNav() {
           />
 
           {/* Sidebar */}
-          <div className="fixed inset-y-0 left-0 w-64 bg-slate-50 dark:bg-slate-900 z-50 shadow-xl">
+          <div className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 z-50 shadow-xl border-r border-slate-200 dark:border-slate-800">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="p-4 border-b border-slate-200 dark:border-slate-800">
