@@ -20,11 +20,36 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         components={{
           // Custom rendering for links to make them open in new tabs if external
           a: ({ node, ...props }) => {
-            const href = props.href || "";
+            let href = props.href || "";
             const isExternal = href.startsWith("http");
+
+            // Transform markdown file links to proper doc routes
+            if (!isExternal && href.endsWith('.md')) {
+              // Map markdown files to their doc routes
+              const mdToRoute: Record<string, string> = {
+                'specifications.md': '/docs/specifications',
+                'ids-metadata.md': '/docs/metadata',
+                'restrictions.md': '/docs/restrictions',
+                'entity-facet.md': '/docs/facets/entity',
+                'property-facet.md': '/docs/facets/property',
+                'attribute-facet.md': '/docs/facets/attribute',
+                'classification-facet.md': '/docs/facets/classification',
+                'material-facet.md': '/docs/facets/material',
+                'partof-facet.md': '/docs/facets/partof',
+                'developer-guide.md': '/docs/developer-guide',
+              };
+
+              // Extract filename from href
+              const filename = href.split('/').pop() || '';
+              if (mdToRoute[filename]) {
+                href = mdToRoute[filename];
+              }
+            }
+
             return (
               <a
                 {...props}
+                href={href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 className="text-blue-600 dark:text-blue-400 hover:underline"

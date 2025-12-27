@@ -42,16 +42,16 @@ export function MobileDocsNav() {
 
       {/* Mobile Overlay */}
       {isOpen && (
-        <>
+        <div className="md:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/60 z-[100]"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Sidebar */}
-          <div className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 z-50 shadow-xl border-r border-slate-200 dark:border-slate-800">
-            <div className="flex flex-col h-full">
+          <div className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-950 z-[101] shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="flex flex-col h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
               {/* Header */}
               <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-4">
@@ -142,7 +142,7 @@ export function MobileDocsNav() {
               </ScrollArea>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
