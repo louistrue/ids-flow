@@ -7,6 +7,7 @@ import { FileText, Box, Tag, Layers, Package, GitBranch, Filter, Database } from
 import { Separator } from "@/components/ui/separator"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import type { IFCVersion } from "@/lib/ifc-schema"
+import { useReactFlow } from "@xyflow/react"
 
 interface NodePaletteProps {
   onAddNode: (type: string, position: { x: number; y: number }) => void
@@ -38,9 +39,28 @@ const nodeCategories = [
 ]
 
 export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
+  const reactFlow = useReactFlow()
+
   const handleAddNode = (type: string) => {
-    // Add node to center of viewport
-    onAddNode(type, { x: 400, y: 200 })
+    // Get the center of the currently visible viewport
+    const viewport = reactFlow.getViewport()
+
+    // Get the dimensions of the flow container
+    const flowBounds = document.querySelector('.react-flow')?.getBoundingClientRect()
+
+    if (flowBounds) {
+      // Calculate the center point of the visible area in screen coordinates
+      const centerX = flowBounds.width / 2
+      const centerY = flowBounds.height / 2
+
+      // Convert screen coordinates to flow coordinates
+      const position = reactFlow.screenToFlowPosition({ x: centerX, y: centerY })
+
+      onAddNode(type, position)
+    } else {
+      // Fallback to a default position if we can't get the viewport
+      onAddNode(type, { x: 400, y: 200 })
+    }
   }
 
   return (

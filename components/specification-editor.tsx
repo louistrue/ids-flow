@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
+import { ReactFlowProvider } from "@xyflow/react"
 import { Panel, PanelGroup } from "react-resizable-panels"
 import { CustomPanelResizeHandle } from "@/components/ui/panel-resize-handle"
 import { NodePalette } from "./node-palette"
@@ -612,38 +613,40 @@ export function SpecificationEditor() {
       </div>
 
       {/* Content row */}
-      <div className="flex flex-1 min-h-0">
-        <NodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
-        <PanelGroup direction="horizontal" className="flex-1">
-          <Panel defaultSize={70} minSize={30} className="relative">
-            <GraphCanvas
-              nodes={nodes}
-              edges={edges}
-              selectedNode={selectedNode}
-              onNodeSelect={setSelectedNode}
-              onNodeMove={handleNodeMove}
-              onNodeDragStart={handleNodeDragStart}
-              onConnect={handleConnect}
-              onNodesDelete={handleNodesDelete}
-              onEdgesDelete={handleEdgesDelete}
-            />
-          </Panel>
-          <CustomPanelResizeHandle />
-          <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0">
-            <InspectorPanel
-              selectedNode={selectedNode}
-              onUpdateNode={updateNodeData}
-              validationState={validationState}
-              onValidateNow={validateNow}
-              isValidating={isValidating}
-              isValidationDisabled={isValidationDisabled}
-              ifcVersion={ifcVersion}
-              nodes={nodes}
-              edges={edges}
-            />
-          </Panel>
-        </PanelGroup>
-      </div>
+      <ReactFlowProvider>
+        <div className="flex flex-1 min-h-0">
+          <NodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
+          <PanelGroup direction="horizontal" className="flex-1">
+            <Panel defaultSize={70} minSize={30} className="relative">
+              <GraphCanvas
+                nodes={nodes}
+                edges={edges}
+                selectedNode={selectedNode}
+                onNodeSelect={setSelectedNode}
+                onNodeMove={handleNodeMove}
+                onNodeDragStart={handleNodeDragStart}
+                onConnect={handleConnect}
+                onNodesDelete={handleNodesDelete}
+                onEdgesDelete={handleEdgesDelete}
+              />
+            </Panel>
+            <CustomPanelResizeHandle />
+            <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0">
+              <InspectorPanel
+                selectedNode={selectedNode}
+                onUpdateNode={updateNodeData}
+                validationState={validationState}
+                onValidateNow={validateNow}
+                isValidating={isValidating}
+                isValidationDisabled={isValidationDisabled}
+                ifcVersion={ifcVersion}
+                nodes={nodes}
+                edges={edges}
+              />
+            </Panel>
+          </PanelGroup>
+        </div>
+      </ReactFlowProvider>
 
       <AppFooter />
     </div>
