@@ -1,8 +1,11 @@
 import { MarkdownContent } from "@/components/docs/markdown-content";
 import { TableOfContents } from "@/components/docs/table-of-contents";
-import { InteractiveDemo } from "@/components/docs/interactive-demo";
 import { FeatureCard } from "@/components/docs/feature-card";
 import { TipBox } from "@/components/docs/tip-box";
+import { CodeBlock } from "@/components/docs/code-block";
+import { CollapsibleSection } from "@/components/docs/collapsible-section";
+import { TabbedContent } from "@/components/docs/tabbed-content";
+import { ExampleBox } from "@/components/docs/example-box";
 
 const quickStartContent = `
 ## Quick Start Guide
@@ -131,29 +134,6 @@ If you need assistance:
 - Read the [Developer Guide](/docs/developer-guide) for XML details
 `;
 
-const tutorialSteps = [
-  {
-    title: "Add a Specification Node",
-    description: "Every IDS document starts with a Specification node. This is the root container for your requirements.",
-    code: "1. Look at the Node Palette (left sidebar)\n2. Find 'Specification' under Core Nodes\n3. Click to add it to the canvas",
-  },
-  {
-    title: "Define Applicability",
-    description: "Add an Entity node to specify what elements this applies to (e.g., all walls).",
-    code: "1. Add an 'Entity' node from the palette\n2. Connect it to the Applicability port\n3. Set Name to 'IFCWALL'",
-  },
-  {
-    title: "Add Requirements",
-    description: "Add a Property node to define what information is required (e.g., fire rating).",
-    code: "1. Add a 'Property' node\n2. Connect it to Requirements port\n3. Set PropertySet: 'Pset_WallCommon'\n4. Set BaseName: 'FireRating'",
-  },
-  {
-    title: "Validate & Export",
-    description: "Validate your specification and export it as an IDS file.",
-    code: "1. Click 'Validate IDS' button\n2. Fix any errors shown\n3. Click 'Export IDS' to download",
-  },
-];
-
 export default async function QuickStartPage() {
   return (
     <div className="flex">
@@ -172,13 +152,92 @@ export default async function QuickStartPage() {
         </div>
 
         <TipBox type="tip">
-          <strong>New to IDS?</strong> Follow the interactive tutorial below to create your first specification step-by-step. You can also explore the detailed documentation for each concept.
+          <strong>New to IDS?</strong> Start by understanding the three key components: Specifications, Applicability, and Requirements. Then build your first spec using the examples below.
         </TipBox>
 
-        <InteractiveDemo
-          title="Create Your First Specification"
-          steps={tutorialSteps}
-        />
+        <ExampleBox
+          title="Example: Fire Rating for Walls"
+          description="This common example shows how to require all walls to have a fire rating property."
+        >
+          <div className="space-y-4">
+            <div>
+              <h5 className="font-semibold mb-2 text-slate-900 dark:text-slate-100">What you'll create:</h5>
+              <ul className="list-disc list-inside space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                <li>A specification that applies to all IfcWall elements</li>
+                <li>Requires the FireRating property from Pset_WallCommon</li>
+                <li>Validates that this property exists in your IFC model</li>
+              </ul>
+            </div>
+
+            <TabbedContent
+              tabs={[
+                {
+                  label: "Visual Steps",
+                  content: (
+                    <div className="space-y-3 text-sm">
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</div>
+                        <div>
+                          <strong>Add Specification Node</strong>
+                          <p className="text-slate-600 dark:text-slate-400">From the Node Palette, drag a "Specification" node to the canvas. Set its Name to "Wall Fire Rating Check".</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">2</div>
+                        <div>
+                          <strong>Add Entity Applicability</strong>
+                          <p className="text-slate-600 dark:text-slate-400">Drag an "Entity" node and connect it to the Applicability port. Set Name to "IFCWALL".</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</div>
+                        <div>
+                          <strong>Add Property Requirement</strong>
+                          <p className="text-slate-600 dark:text-slate-400">Drag a "Property" node and connect it to the Requirements port. Set PropertySet to "Pset_WallCommon" and BaseName to "FireRating".</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold">✓</div>
+                        <div>
+                          <strong>Validate & Export</strong>
+                          <p className="text-slate-600 dark:text-slate-400">Click "Validate IDS" to check for errors, then "Export IDS" to save your specification.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  label: "Resulting XML",
+                  content: (
+                    <CodeBlock
+                      language="xml"
+                      title="Generated IDS Output"
+                      code={`<specification name="Wall Fire Rating Check">
+  <applicability>
+    <entity>
+      <name>
+        <simpleValue>IFCWALL</simpleValue>
+      </name>
+    </entity>
+  </applicability>
+  <requirements>
+    <property>
+      <propertySet>
+        <simpleValue>Pset_WallCommon</simpleValue>
+      </propertySet>
+      <baseName>
+        <simpleValue>FireRating</simpleValue>
+      </baseName>
+    </property>
+  </requirements>
+</specification>`}
+                    />
+                  )
+                }
+              ]}
+            />
+          </div>
+        </ExampleBox>
 
         <h2 className="text-2xl font-bold mt-12 mb-6 text-slate-900 dark:text-slate-100">
           Key Features
@@ -209,6 +268,148 @@ export default async function QuickStartPage() {
             description="Automatic validation with detailed error messages and fix suggestions"
             color="orange"
           />
+        </div>
+
+        <h2 className="text-2xl font-bold mt-12 mb-6 text-slate-900 dark:text-slate-100">
+          Common Patterns
+        </h2>
+
+        <CollapsibleSection title="Using Classification Systems (Uniclass, OmniClass)" defaultOpen={true}>
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            Classification facets let you specify elements based on their classification codes rather than IFC types.
+          </p>
+          <CodeBlock
+            language="text"
+            title="Example: Uniclass for Doors"
+            code={`1. Add a Classification node to Applicability
+2. Set System to "Uniclass 2015"
+3. Set Value to "Pr_40_10_36" (doors)
+
+This will match all elements classified with this Uniclass code.`}
+          />
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Adding Value Restrictions">
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            Restrictions define specific allowed values for properties or attributes.
+          </p>
+          <TabbedContent
+            tabs={[
+              {
+                label: "Enumeration",
+                content: (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Limit values to a specific set of options (e.g., fire ratings must be "R60" or "R90"):
+                    </p>
+                    <CodeBlock
+                      code={`1. Add a Restriction node
+2. Connect it to your Property node
+3. Set type to "Enumeration"
+4. Add values: "R60", "R90", "R120"`}
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "Range",
+                content: (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Specify numeric ranges (e.g., area between 10-50 m²):
+                    </p>
+                    <CodeBlock
+                      code={`1. Add a Restriction node
+2. Connect it to your Property node
+3. Set type to "Range"
+4. Set min: 10, max: 50`}
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "Pattern",
+                content: (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Use regex patterns for text validation (e.g., naming conventions):
+                    </p>
+                    <CodeBlock
+                      code={`1. Add a Restriction node
+2. Connect it to your Attribute node
+3. Set type to "Pattern"
+4. Set pattern: "^WALL-[0-9]{3}$"`}
+                    />
+                  </div>
+                )
+              }
+            ]}
+          />
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Working with Materials">
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            Material facets check if elements have specific materials assigned.
+          </p>
+          <ExampleBox
+            title="Example: Concrete Structural Elements"
+            description="Ensure structural elements use concrete materials."
+          >
+            <CodeBlock
+              code={`Applicability:
+  - Entity: IFCBEAM, IFCCOLUMN, IFCSLAB
+
+Requirements:
+  - Material value: "Concrete"
+
+This checks that beams, columns, and slabs have concrete as their material.`}
+            />
+          </ExampleBox>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Spatial Relationships with PartOf">
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            PartOf facets filter elements based on their location in the building hierarchy.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <h5 className="font-semibold mb-2 text-slate-900 dark:text-slate-100">Building Level</h5>
+              <CodeBlock
+                code={`PartOf:
+  - Relation: IFCRELCONTAINEDINSPATIALSTRUCTURE
+  - Entity: IFCBUILDINGSTOREY
+  - Name: "Level 1"`}
+              />
+            </div>
+            <div>
+              <h5 className="font-semibold mb-2 text-slate-900 dark:text-slate-100">Specific Space</h5>
+              <CodeBlock
+                code={`PartOf:
+  - Relation: IFCRELCONTAINEDINSPATIALSTRUCTURE
+  - Entity: IFCSPACE
+  - Name: "Meeting Room A"`}
+              />
+            </div>
+          </div>
+        </CollapsibleSection>
+
+        <h2 className="text-2xl font-bold mt-12 mb-6 text-slate-900 dark:text-slate-100">
+          Quick Tips
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-8">
+          <TipBox type="tip">
+            <strong>Start Simple:</strong> Begin with one specification and one requirement. Add complexity gradually as you understand the structure.
+          </TipBox>
+          <TipBox type="info">
+            <strong>Validate Early:</strong> Click "Validate IDS" frequently to catch errors before they compound.
+          </TipBox>
+          <TipBox type="warning">
+            <strong>IFC Names:</strong> Entity names must match exact IFC class names (e.g., "IFCWALL" not "IfcWall").
+          </TipBox>
+          <TipBox type="success">
+            <strong>Use Templates:</strong> Browse the template library for ready-made specifications you can customize.
+          </TipBox>
         </div>
 
         <MarkdownContent content={quickStartContent} />
