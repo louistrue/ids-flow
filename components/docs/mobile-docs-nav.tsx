@@ -1,0 +1,136 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { docsConfig } from "@/lib/docs-config";
+import { cn } from "@/lib/utils";
+import { Menu, X, Search, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export function MobileDocsNav() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const pathname = usePathname();
+
+  // Filter docs based on search query
+  const filteredConfig = searchQuery
+    ? docsConfig
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) =>
+            item.title.toLowerCase().includes(searchQuery.toLowerCase())
+          ),
+        }))
+        .filter((section) => section.items.length > 0)
+    : docsConfig;
+
+  return (
+    <div className="md:hidden">
+      {/* Menu Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsOpen(!isOpen)}
+        className="gap-2"
+      >
+        <Menu className="h-4 w-4" />
+        Menu
+      </Button>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Sidebar */}
+          <div className="fixed inset-y-0 left-0 w-64 bg-slate-50 dark:bg-slate-900 z-50 shadow-xl">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <h2 className="font-semibold">Documentation</h2>
+                  </div>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search docs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 pr-8 h-9 text-sm"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <ScrollArea className="flex-1 px-4 py-6">
+                <nav className="space-y-6">
+                  {filteredConfig.length > 0 ? (
+                    filteredConfig.map((section) => (
+                      <div key={section.title}>
+                        <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          {section.title}
+                        </h3>
+                        <ul className="space-y-1">
+                          {section.items.map((item) => {
+                            const isActive = pathname === item.href;
+                            return (
+                              <li key={item.href}>
+                                <Link
+                                  href={item.href}
+                                  onClick={() => setIsOpen(false)}
+                                  className={cn(
+                                    "block px-2 py-1.5 text-sm rounded-md transition-colors",
+                                    isActive
+                                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-medium"
+                                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                  )}
+                                >
+                                  {item.title}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 px-2">
+                      No results found for &quot;{searchQuery}&quot;
+                    </p>
+                  )}
+                </nav>
+              </ScrollArea>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

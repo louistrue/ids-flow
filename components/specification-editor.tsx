@@ -8,8 +8,9 @@ import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw } from "lucide-react"
+import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw, HelpCircle } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
@@ -590,6 +591,19 @@ export function SpecificationEditor() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="gap-2 bg-card"
+              title="View Documentation"
+            >
+              <Link href="/docs">
+                <HelpCircle className="h-4 w-4" />
+                Help
+              </Link>
+            </Button>
 
             <ThemeToggle />
           </div>
