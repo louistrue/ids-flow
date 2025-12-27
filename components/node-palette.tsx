@@ -42,16 +42,14 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
   const reactFlow = useReactFlow()
 
   const handleAddNode = (type: string) => {
-    // Get the center of the currently visible viewport
-    const viewport = reactFlow.getViewport()
-
-    // Get the dimensions of the flow container
+    // Get the bounding rectangle of the flow container
     const flowBounds = document.querySelector('.react-flow')?.getBoundingClientRect()
 
     if (flowBounds) {
-      // Calculate the center point of the visible area in screen coordinates
-      const centerX = flowBounds.width / 2
-      const centerY = flowBounds.height / 2
+      // Calculate the center point of the visible canvas area
+      // Using the actual position on screen, accounting for sidebar offset
+      const centerX = flowBounds.left + flowBounds.width / 2
+      const centerY = flowBounds.top + flowBounds.height / 2
 
       // Convert screen coordinates to flow coordinates
       const position = reactFlow.screenToFlowPosition({ x: centerX, y: centerY })
