@@ -62,10 +62,23 @@ export function MobileDocsNav() {
                   <button
                     onClick={() => setIsOpen(false)}
                     className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    aria-label="Close menu"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
+
+                {/* Back to Editor Button */}
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 px-3 py-2 mb-4 text-sm rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Editor
+                </Link>
 
                 {/* Search Input */}
                 <div className="relative">

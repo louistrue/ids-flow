@@ -44,7 +44,7 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
   }
 
   return (
-    <Card className="w-64 h-full rounded-none border-r border-border bg-sidebar">
+    <Card className="hidden md:block w-64 h-full rounded-none border-r border-border bg-sidebar">
       <div className="p-4 border-b border-sidebar-border">
         <h2 className="text-lg font-semibold text-sidebar-foreground">Node Palette</h2>
         <p className="text-sm text-muted-foreground mt-1">Click to add nodes to canvas</p>

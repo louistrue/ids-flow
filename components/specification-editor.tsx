@@ -4,14 +4,15 @@ import { useState, useCallback, useEffect } from "react"
 import { Panel, PanelGroup } from "react-resizable-panels"
 import { CustomPanelResizeHandle } from "@/components/ui/panel-resize-handle"
 import { NodePalette } from "./node-palette"
+import { MobileNodePalette } from "./mobile-node-palette"
 import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw, HelpCircle } from "lucide-react"
+import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
@@ -504,14 +505,18 @@ export function SpecificationEditor() {
     <div className="flex flex-col h-full w-full">
       {/* Header row */}
       <div className="flex-none border-b border-border bg-background">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
-              <h1 className="text-lg font-semibold text-foreground">IDS Spec Editor</h1>
+        <div className="flex items-center justify-between p-2 md:p-4 gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-card border border-border rounded-lg px-2 py-1 md:px-4 md:py-2 shadow-lg">
+              <h1 className="text-sm md:text-lg font-semibold text-foreground">IDS Spec Editor</h1>
             </div>
-            <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
+            <div className="hidden sm:block">
+              <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Desktop Controls */}
+          <div className="hidden lg:flex items-center gap-3">
             <TemplatesDialog onApplyTemplate={applyTemplate} />
             <Button
               variant="outline"
@@ -608,6 +613,85 @@ export function SpecificationEditor() {
             <ThemeToggle />
           </div>
 
+          {/* Mobile Controls - Compact Menu */}
+          <div className="flex lg:hidden items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-card h-8 w-8 p-0"
+              onClick={undo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-card h-8 w-8 p-0"
+              onClick={redo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <RotateCw className="h-4 w-4" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-card h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="sm:hidden px-2 py-1.5">
+                  <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
+                </div>
+                <DropdownMenuSeparator className="sm:hidden" />
+                <DropdownMenuItem onClick={() => document.querySelector<HTMLButtonElement>('[data-templates-trigger]')?.click()}>
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Templates
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={arrangeAll}>
+                  <Layout className="h-4 w-4 mr-2" />
+                  Arrange All
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={cloneAsProfile}
+                  disabled={!selectedNode || selectedNode.type !== "spec"}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Clone as Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={exportCanvas}>
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Export Canvas (.json)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportIdsXml}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export IDS (.ids)
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => jsonFileInputRef?.click()}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Canvas (.json)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import IDS (.ids)
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/docs">
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Documentation
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <ThemeToggle />
+          </div>
+
           <input
             ref={setJsonFileInputRef}
             type="file"
@@ -628,6 +712,7 @@ export function SpecificationEditor() {
       {/* Content row */}
       <div className="flex flex-1 min-h-0">
         <NodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
+        <MobileNodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
         <PanelGroup direction="horizontal" className="flex-1">
           <Panel defaultSize={70} minSize={30} className="relative">
             <GraphCanvas
@@ -642,8 +727,8 @@ export function SpecificationEditor() {
               onEdgesDelete={handleEdgesDelete}
             />
           </Panel>
-          <CustomPanelResizeHandle />
-          <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0">
+          <CustomPanelResizeHandle className="hidden md:flex" />
+          <Panel defaultSize={30} minSize={20} maxSize={50} className="hidden md:block min-w-0">
             <InspectorPanel
               selectedNode={selectedNode}
               onUpdateNode={updateNodeData}
