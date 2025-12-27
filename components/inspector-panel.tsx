@@ -24,6 +24,7 @@ import {
   getPredefinedTypesForEntity,
   getPropertiesForPropertySet,
   getExpectedDataTypesForProperty,
+  getExpectedDataTypesForPropertyAsync,
   getAllSimpleTypes,
   getAllPropertySets,
   getAllEntities,
@@ -481,6 +482,10 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
       try {
         const dataTypes = await getAllSimpleTypes(ifcVersion)
         setAllDataTypes(dataTypes)
+
+        // Build property data type cache for accurate recommendations
+        // This needs to be called at least once to populate the cache
+        await getExpectedDataTypesForPropertyAsync('Reference', ifcVersion)
 
         // Get custom property sets
         const customPsets = getCustomPropertySets()
