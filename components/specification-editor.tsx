@@ -484,6 +484,21 @@ export function SpecificationEditor() {
       targetHandle,
     }
     setEdges((eds) => [...eds, newEdge])
+
+    // If connecting to requirements handle, set cardinality on the source node
+    if (targetHandle === 'requirements') {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === sourceId && !node.data.cardinality) {
+            return {
+              ...node,
+              data: { ...node.data, cardinality: "required" as const },
+            }
+          }
+          return node
+        })
+      )
+    }
   }, [takeSnapshot])
 
   const handleNodesDelete = useCallback((nodeIds: string[]) => {

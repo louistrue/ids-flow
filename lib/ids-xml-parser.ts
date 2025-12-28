@@ -382,8 +382,8 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       data: {
         entity: (getSimpleValue(partOf?.entity?.name) || "").toUpperCase(),
         relation: partOf?.relation || "",
-        // Always store cardinality for requirement facets, default to "required"
-        cardinality: (partOf?.cardinality as Cardinality) || "required",
+        // Store cardinality for requirement facets only if explicitly provided
+        ...(partOf?.cardinality ? { cardinality: partOf.cardinality as Cardinality } : {}),
       },
     }
 
@@ -428,8 +428,8 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
     position,
     data: {
       ...data,
-      // Always store cardinality for requirement facets, default to "required"
-      ...(targetHandle === "requirements" ? { cardinality: (cardinality as Cardinality) || "required" } : {}),
+      // Store cardinality for requirement facets only if explicitly provided
+      ...(cardinality && targetHandle === "requirements" ? { cardinality: cardinality as Cardinality } : {}),
     },
   }
 

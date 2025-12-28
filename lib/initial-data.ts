@@ -40,6 +40,7 @@ export const initialNodes: GraphNode[] = [
       baseName: "FireRating",
       dataType: "IFCLABEL",
       value: "",
+      cardinality: "required",
     },
   },
 ]
