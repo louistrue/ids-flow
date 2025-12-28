@@ -23,7 +23,9 @@ function getCardinalityBadge(cardinality?: Cardinality) {
 
 export function MaterialNode({ data, selected }: NodeProps) {
     const facet = getFacet("material")
-    const cardinalityBadge = getCardinalityBadge(data.cardinality as Cardinality)
+    // Only show badge for requirement facets (when cardinality is defined or explicitly set)
+    const showCardinality = data.cardinality !== undefined || data.isRequirement
+    const cardinalityBadge = showCardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
 
     return (
         <Card
@@ -35,9 +37,11 @@ export function MaterialNode({ data, selected }: NodeProps) {
                         <Package className={`h-4 w-4 ${facet.text}`} />
                     </div>
                     <h3 className="font-semibold text-sm text-foreground font-mono">{data.value || "Material"}</h3>
-                    <Badge variant={cardinalityBadge.variant} className="text-xs px-1.5 py-0" title={cardinalityBadge.title}>
-                        {cardinalityBadge.label}
-                    </Badge>
+                    {cardinalityBadge && (
+                        <Badge variant={cardinalityBadge.variant} className="text-xs px-1.5 py-0" title={cardinalityBadge.title}>
+                            {cardinalityBadge.label}
+                        </Badge>
+                    )}
                 </div>
                 <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-mono">Material</p>
