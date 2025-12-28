@@ -1,10 +1,11 @@
 import { create } from "xmlbuilder2"
-import type { GraphNode, GraphEdge, Cardinality } from "./graph-types"
+import type { GraphNode, GraphEdge, Cardinality, IdsMetadata } from "./graph-types"
 
 export interface ConvertOptions {
   pretty?: boolean
-  author?: string
-  date?: string
+  metadata?: IdsMetadata  // IDS file-level metadata
+  author?: string         // Deprecated - use metadata.author
+  date?: string           // Deprecated - use metadata.date
 }
 
 // Helper function to convert cardinality to minOccurs/maxOccurs
@@ -48,9 +49,9 @@ export function convertGraphToIdsXml(
     "xsi:schemaLocation": "http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd",
   })
 
-  // Build info section from first spec node
+  // Build info section from metadata or fallback to first spec node
   const firstSpec = specNodes[0]
-  buildIdsInfo(root, firstSpec, options)
+  buildIdsInfo(root, options, firstSpec)
 
   // Build specifications section
   const specs = root.ele("ids:specifications")
@@ -104,27 +105,46 @@ function groupNodesBySpecification(
   return { applicabilityNodes, requirementNodes }
 }
 
-function buildIdsInfo(root: any, specNode: GraphNode, options: ConvertOptions) {
+function buildIdsInfo(root: any, options: ConvertOptions, fallbackSpec: GraphNode) {
   const info = root.ele("ids:info")
+  const metadata = options.metadata
+  const specData = fallbackSpec.data as any
 
-  const specData = specNode.data as any
-  if (specData.name) {
-    info.ele("ids:title").txt(specData.name)
+  // Title (required) - use metadata, then spec name, then default
+  const title = metadata?.title || specData.name || "Untitled IDS"
+  info.ele("ids:title").txt(title)
+
+  // Optional metadata fields
+  if (metadata?.copyright) {
+    info.ele("ids:copyright").txt(metadata.copyright)
   }
 
-  if (specData.description) {
-    info.ele("ids:description").txt(specData.description)
+  if (metadata?.version) {
+    info.ele("ids:version").txt(metadata.version)
   }
 
-  // Normalize author to email format
-  const author = options.author || specData.author || "idsedit"
+  if (metadata?.description || specData.description) {
+    info.ele("ids:description").txt(metadata?.description || specData.description)
+  }
+
+  // Author (normalize to email format)
+  const author = metadata?.author || options.author || "idsedit"
   const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
   const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@idsedit.com`
   info.ele("ids:author").txt(authorEmail)
 
-  // Use provided date or current date
-  const date = options.date || new Date().toISOString().split('T')[0]
+  // Date - use metadata, options, or current date
+  const date = metadata?.date || options.date || new Date().toISOString().split('T')[0]
   info.ele("ids:date").txt(date)
+
+  // Purpose and milestone
+  if (metadata?.purpose) {
+    info.ele("ids:purpose").txt(metadata.purpose)
+  }
+
+  if (metadata?.milestone) {
+    info.ele("ids:milestone").txt(metadata.milestone)
+  }
 }
 
 function buildSpecification(
@@ -137,11 +157,25 @@ function buildSpecification(
 ) {
   const specData = specNode.data as any
 
-  const spec = parent.ele("ids:specification", {
+  const specAttrs: any = {
     name: specData.name || "Generated Specification",
     ifcVersion: specData.ifcVersion || "IFC4X3_ADD2",
-    description: specData.description || "Generated from IDS Flow",
-  })
+  }
+
+  // Add optional specification attributes
+  if (specData.identifier) {
+    specAttrs.identifier = specData.identifier
+  }
+
+  if (specData.description) {
+    specAttrs.description = specData.description
+  }
+
+  if (specData.instructions) {
+    specAttrs.instructions = specData.instructions
+  }
+
+  const spec = parent.ele("ids:specification", specAttrs)
 
   // Build applicability section - either with facets or empty (if originally empty)
   if (applicabilityNodes.length > 0) {
@@ -200,24 +234,29 @@ function buildSpecification(
   const reqs = spec.ele("ids:requirements")
 
   for (const node of requirementNodes) {
-    // Get cardinality from node data, default to "required"
-    const nodeCardinality = (node.data as any).cardinality || "required"
+    // Get cardinality and instructions from node data
+    const nodeData = node.data as any
+    const nodeCardinality = nodeData.cardinality || "required"
+    const nodeInstructions = nodeData.instructions
 
     switch (node.type) {
+      case 'entity':
+        buildEntityFacet(node, reqs, nodeCardinality, nodeInstructions)
+        break
       case 'property':
-        buildPropertyFacet(node, reqs, nodeCardinality, edges, nodes)
+        buildPropertyFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'attribute':
-        buildAttributeFacet(node, reqs, nodeCardinality, edges, nodes)
+        buildAttributeFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'classification':
-        buildClassificationFacet(node, reqs, nodeCardinality, edges, nodes)
+        buildClassificationFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'material':
-        buildMaterialFacet(node, reqs, nodeCardinality, edges, nodes)
+        buildMaterialFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'partOf':
-        buildPartOfFacet(node, reqs, nodeCardinality)
+        buildPartOfFacet(node, reqs, nodeCardinality, nodeInstructions)
         break
     }
   }
@@ -229,26 +268,40 @@ function idsSimple(parent: any, tag: string, text: string) {
 }
 
 // Facet converter functions
-function buildEntityFacet(node: GraphNode, parent: any) {
-  const entity = parent.ele("ids:entity")
+function buildEntityFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string) {
   const data = node.data as any
+  const attrs: any = {}
+
+  if (cardinality) {
+    attrs.cardinality = cardinality
+  }
+
+  if (instructions) {
+    attrs.instructions = instructions
+  }
+
+  const entity = parent.ele("ids:entity", attrs)
   idsSimple(entity, "ids:name", data.name.toUpperCase())
   if (data.predefinedType) {
     idsSimple(entity, "ids:predefinedType", data.predefinedType)
   }
 }
 
-function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
-  
+
   // Only include dataType if it exists (optional per IDS spec)
   if (data.dataType) {
     attrs.dataType = data.dataType
   }
-  
+
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+
+  if (instructions) {
+    attrs.instructions = instructions
   }
 
   const prop = parent.ele("ids:property", attrs)
@@ -278,11 +331,14 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 }
 
-function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+  if (instructions) {
+    attrs.instructions = instructions
   }
 
   const attr = parent.ele("ids:attribute", attrs)
@@ -311,11 +367,14 @@ function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string,
   }
 }
 
-function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+  if (instructions) {
+    attrs.instructions = instructions
   }
   if (data.uri) {
     attrs.uri = data.uri
@@ -350,11 +409,14 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
   idsSimple(cls, "ids:system", data.system)
 }
 
-function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+  if (instructions) {
+    attrs.instructions = instructions
   }
   if (data.uri) {
     attrs.uri = data.uri
@@ -385,11 +447,14 @@ function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 }
 
-function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string) {
+function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+  if (instructions) {
+    attrs.instructions = instructions
   }
   if (data.relation) {
     attrs.relation = data.relation

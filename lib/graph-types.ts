@@ -19,10 +19,24 @@ export type NodeData = Record<string, unknown> & (
 // Cardinality values for IDS specifications and requirements
 export type Cardinality = "required" | "optional" | "prohibited"
 
+// IDS file-level metadata (separate from specification-level data)
+export interface IdsMetadata {
+  title: string          // Required - overall IDS title
+  copyright?: string     // Copyright information
+  version?: string       // IDS version identifier
+  description?: string   // IDS file description
+  author?: string        // Email format
+  date?: string          // ISO date format
+  purpose?: string       // Purpose of this IDS
+  milestone?: string     // Project milestone
+}
+
 export interface SpecificationNodeData {
   name: string
   ifcVersion: string
   description: string
+  identifier?: string    // Unique identifier for this specification
+  instructions?: string  // Instructions for this specification
   hasEmptyApplicability?: boolean  // True if applicability exists but has no facets (wildcard pattern)
   applicabilityMinOccurs?: string  // Preserve minOccurs from empty applicability (deprecated - use applicabilityCardinality)
   applicabilityMaxOccurs?: string  // Preserve maxOccurs from empty applicability (deprecated - use applicabilityCardinality)
@@ -32,6 +46,8 @@ export interface SpecificationNodeData {
 export interface EntityNodeData {
   name: string
   predefinedType?: string
+  cardinality?: Cardinality  // Cardinality when used in requirements section
+  instructions?: string      // Instructions when used in requirements section
 }
 
 export interface PropertyNodeData {
@@ -40,12 +56,14 @@ export interface PropertyNodeData {
   dataType?: string  // Optional - valid per IDS spec to omit dataType
   value?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
+  instructions?: string      // Instructions for requirement facets
 }
 
 export interface AttributeNodeData {
   name: string
   value?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
+  instructions?: string      // Instructions for requirement facets
 }
 
 export interface ClassificationNodeData {
@@ -53,18 +71,21 @@ export interface ClassificationNodeData {
   value?: string
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
+  instructions?: string      // Instructions for requirement facets
 }
 
 export interface MaterialNodeData {
   value: string
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
+  instructions?: string      // Instructions for requirement facets
 }
 
 export interface PartOfNodeData {
   entity: string
   relation?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
+  instructions?: string      // Instructions for requirement facets
 }
 
 export interface RestrictionNodeData {

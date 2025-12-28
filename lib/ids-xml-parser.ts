@@ -67,6 +67,18 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
     throw new Error("IDS file contains no specifications")
   }
 
+  // Parse IDS-level metadata from <info> block
+  const metadata: IdsMetadata | undefined = root.info ? {
+    title: root.info.title || "Untitled IDS",
+    copyright: root.info.copyright,
+    version: root.info.version,
+    description: root.info.description,
+    author: root.info.author,
+    date: root.info.date,
+    purpose: root.info.purpose,
+    milestone: root.info.milestone,
+  } : undefined
+
   const counters: IdCounters = {
     spec: 0,
     entity: 0,
@@ -98,9 +110,11 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
         y: DEFAULT_LAYOUT_CONFIG.specPosition.y + specOffsetY,
       },
       data: {
-        name: spec.name || spec.title || root.info?.title || `Specification ${specIndex + 1}`,
-        ifcVersion: spec.ifcVersion || root.info?.ifcVersion || "IFC4X3_ADD2",
-        description: spec.description || root.info?.description || "",
+        name: spec.name || `Specification ${specIndex + 1}`,
+        ifcVersion: spec.ifcVersion || "IFC4X3_ADD2",
+        description: spec.description || "",
+        identifier: spec.identifier,
+        instructions: spec.instructions,
       },
     }
 
@@ -168,6 +182,7 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
     nodes,
     edges,
     ifcVersion: fallbackIfcVersion,
+    metadata,
   }
 }
 
@@ -303,6 +318,39 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
 }
 
 function parseRequirements(requirements: any, ctx: RequirementsContext) {
+  // Parse entity facets in requirements
+  const entities = toArray(requirements.entity)
+  entities.forEach(entity => {
+    const name = getSimpleValue(entity?.name)
+    const predefinedType = getSimpleValue(entity?.predefinedType)
+
+    const position = calculateNodePosition(
+      "entity",
+      "requirements",
+      ctx.nodes,
+      ctx.edges,
+      ctx.specId,
+      getLayoutConfig(ctx)
+    )
+
+    const entityId = createNodeId(ctx.counters, "entity")
+    const node: GraphNode = {
+      id: entityId,
+      type: "entity",
+      position,
+      data: {
+        name: name?.toUpperCase() || "",
+        predefinedType: predefinedType || "",
+        ...(entity?.cardinality ? { cardinality: entity.cardinality as Cardinality } : {}),
+        ...(entity?.instructions ? { instructions: entity.instructions } : {}),
+      },
+    }
+
+    ctx.nodes.push(node)
+    addEdge(ctx.edges, ctx.counters, entityId, ctx.specId, "requirements")
+    ctx.incrementRequirements()
+  })
+
   const properties = toArray(requirements.property)
   properties.forEach(property => {
     createFacetWithOptionalRestriction({
@@ -316,6 +364,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       },
       valueNode: property?.value,
       cardinality: property?.cardinality,
+      instructions: property?.instructions,
     })
   })
 
@@ -330,6 +379,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       },
       valueNode: attribute?.value,
       cardinality: attribute?.cardinality,
+      instructions: attribute?.instructions,
     })
   })
 
@@ -345,6 +395,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       },
       valueNode: classification?.value,
       cardinality: classification?.cardinality,
+      instructions: classification?.instructions,
     })
   })
 
@@ -360,6 +411,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       },
       valueNode: material?.value,
       cardinality: material?.cardinality,
+      instructions: material?.instructions,
     })
   })
 
@@ -384,6 +436,8 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         relation: partOf?.relation || "",
         // Store cardinality for requirement facets only if explicitly provided
         ...(partOf?.cardinality ? { cardinality: partOf.cardinality as Cardinality } : {}),
+        // Store instructions for requirement facets only if explicitly provided
+        ...(partOf?.instructions ? { instructions: partOf.instructions } : {}),
       },
     }
 
@@ -399,7 +453,8 @@ interface FacetCreationInput {
   type: GraphNode["type"]
   data: Record<string, unknown>
   valueNode?: any
-  cardinality?: string  // Cardinality attribute from XML
+  cardinality?: string    // Cardinality attribute from XML
+  instructions?: string   // Instructions attribute from XML
 }
 
 function createFacetWithOptionalRestriction(input: FacetCreationInput) {
@@ -410,6 +465,7 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
     data,
     valueNode,
     cardinality,
+    instructions,
   } = input
 
   const position = calculateNodePosition(
@@ -430,6 +486,8 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
       ...data,
       // Store cardinality for requirement facets only if explicitly provided
       ...(cardinality && targetHandle === "requirements" ? { cardinality: cardinality as Cardinality } : {}),
+      // Store instructions for requirement facets only if explicitly provided
+      ...(instructions && targetHandle === "requirements" ? { instructions } : {}),
     },
   }
 
