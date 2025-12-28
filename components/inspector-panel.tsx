@@ -1132,8 +1132,8 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
         if (!entityContext.entityName) {
           // Show all spatial relations if no entity connected
           const allRelations = [
-            "IFCRELAGGREGATES", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELFILLSELEMENT",
-            "IFCRELVOIDSELEMENT", "IFCRELCONNECTSPATHELEMENTS", "IFCRELCONNECTSPORTS"
+            "IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+            "IFCRELNESTS", "IFCRELVOIDSELEMENT", "IFCRELFILLSELEMENT"
           ]
           const relationOptions: SearchableSelectOption[] = allRelations.map(relation => ({
             value: relation,
@@ -1220,11 +1220,11 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="IFCRELAGGREGATES">IFCRELAGGREGATES</SelectItem>
+              <SelectItem value="IFCRELASSIGNSTOGROUP">IFCRELASSIGNSTOGROUP</SelectItem>
               <SelectItem value="IFCRELCONTAINEDINSPATIALSTRUCTURE">IFCRELCONTAINEDINSPATIALSTRUCTURE</SelectItem>
-              <SelectItem value="IFCRELFILLSELEMENT">IFCRELFILLSELEMENT</SelectItem>
+              <SelectItem value="IFCRELNESTS">IFCRELNESTS</SelectItem>
               <SelectItem value="IFCRELVOIDSELEMENT">IFCRELVOIDSELEMENT</SelectItem>
-              <SelectItem value="IFCRELCONNECTSPATHELEMENTS">IFCRELCONNECTSPATHELEMENTS</SelectItem>
-              <SelectItem value="IFCRELCONNECTSPORTS">IFCRELCONNECTSPORTS</SelectItem>
+              <SelectItem value="IFCRELFILLSELEMENT">IFCRELFILLSELEMENT</SelectItem>
             </SelectContent>
           </Select>
         )}
