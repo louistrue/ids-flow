@@ -1,10 +1,28 @@
 import { create } from "xmlbuilder2"
-import type { GraphNode, GraphEdge } from "./graph-types"
+import type { GraphNode, GraphEdge, Cardinality } from "./graph-types"
 
 export interface ConvertOptions {
   pretty?: boolean
   author?: string
   date?: string
+}
+
+// Helper function to convert cardinality to minOccurs/maxOccurs
+function occursFromCardinality(cardinality?: Cardinality): { minOccurs?: string; maxOccurs?: string } {
+  if (!cardinality || cardinality === "required") {
+    return { minOccurs: "1", maxOccurs: "unbounded" }
+  }
+
+  if (cardinality === "optional") {
+    return { minOccurs: "0", maxOccurs: "unbounded" }
+  }
+
+  if (cardinality === "prohibited") {
+    return { minOccurs: "0", maxOccurs: "0" }
+  }
+
+  // Default to required
+  return { minOccurs: "1", maxOccurs: "unbounded" }
 }
 
 export function convertGraphToIdsXml(
@@ -161,11 +179,19 @@ function buildSpecification(
   } else if (specData.hasEmptyApplicability) {
     // Preserve empty applicability section with attributes (wildcard pattern)
     const applAttrs: any = {}
-    if (specData.applicabilityMinOccurs) {
-      applAttrs.minOccurs = specData.applicabilityMinOccurs
-    }
-    if (specData.applicabilityMaxOccurs) {
-      applAttrs.maxOccurs = specData.applicabilityMaxOccurs
+
+    // Use applicabilityCardinality if available, otherwise fall back to old minOccurs/maxOccurs
+    if (specData.applicabilityCardinality) {
+      const occurs = occursFromCardinality(specData.applicabilityCardinality as Cardinality)
+      if (occurs.minOccurs) applAttrs.minOccurs = occurs.minOccurs
+      if (occurs.maxOccurs) applAttrs.maxOccurs = occurs.maxOccurs
+    } else {
+      if (specData.applicabilityMinOccurs) {
+        applAttrs.minOccurs = specData.applicabilityMinOccurs
+      }
+      if (specData.applicabilityMaxOccurs) {
+        applAttrs.maxOccurs = specData.applicabilityMaxOccurs
+      }
     }
     spec.ele("ids:applicability", applAttrs)
   }
@@ -174,21 +200,24 @@ function buildSpecification(
   const reqs = spec.ele("ids:requirements")
 
   for (const node of requirementNodes) {
+    // Get cardinality from node data, default to "required"
+    const nodeCardinality = (node.data as any).cardinality || "required"
+
     switch (node.type) {
       case 'property':
-        buildPropertyFacet(node, reqs, "required", edges, nodes)
+        buildPropertyFacet(node, reqs, nodeCardinality, edges, nodes)
         break
       case 'attribute':
-        buildAttributeFacet(node, reqs, "required", edges, nodes)
+        buildAttributeFacet(node, reqs, nodeCardinality, edges, nodes)
         break
       case 'classification':
-        buildClassificationFacet(node, reqs, "required", edges, nodes)
+        buildClassificationFacet(node, reqs, nodeCardinality, edges, nodes)
         break
       case 'material':
-        buildMaterialFacet(node, reqs, "required", edges, nodes)
+        buildMaterialFacet(node, reqs, nodeCardinality, edges, nodes)
         break
       case 'partOf':
-        buildPartOfFacet(node, reqs, "required")
+        buildPartOfFacet(node, reqs, nodeCardinality)
         break
     }
   }

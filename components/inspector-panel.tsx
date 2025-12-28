@@ -60,6 +60,68 @@ interface InspectorPanelProps {
   edges: GraphEdge[]
 }
 
+// Helper function to check if a facet node is in the requirements section
+function isInRequirementsSection(nodeId: string, edges: GraphEdge[]): boolean {
+  // Check if this node (or a restriction node it's connected to) targets a spec's requirements handle
+  const directEdge = edges.find(e => e.source === nodeId)
+  if (directEdge?.targetHandle === 'requirements') {
+    return true
+  }
+
+  // Check if connected through a restriction node
+  const restrictionEdge = edges.find(e => e.source === nodeId)
+  if (restrictionEdge) {
+    const finalEdge = edges.find(e => e.source === restrictionEdge.target)
+    if (finalEdge?.targetHandle === 'requirements') {
+      return true
+    }
+  }
+
+  return false
+}
+
+// Cardinality selector component for requirement facets
+function CardinalitySelector({ value, onChange }: { value?: string; onChange: (value: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="cardinality" className="text-sidebar-foreground">
+        Cardinality
+      </Label>
+      <Select
+        value={value || "required"}
+        onValueChange={onChange}
+      >
+        <SelectTrigger className="bg-input border-border text-foreground">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="required">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Required</span>
+              <span className="text-xs text-muted-foreground">Must have this</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="optional">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Optional</span>
+              <span className="text-xs text-muted-foreground">May have this</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="prohibited">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Prohibited</span>
+              <span className="text-xs text-muted-foreground">Must not have this</span>
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <p className="text-xs text-muted-foreground">
+        Defines whether this requirement is required, optional, or prohibited
+      </p>
+    </div>
+  )
+}
+
 export function InspectorPanel({
   selectedNode,
   onUpdateNode,
@@ -358,6 +420,42 @@ function SpecificationFields({ node, onChange, ifcVersion }: { node: Node<any>; 
         </Select>
       </div>
       <div className="space-y-2">
+        <Label htmlFor="applicabilityCardinality" className="text-sidebar-foreground">
+          Applicability Cardinality
+        </Label>
+        <Select
+          value={data.applicabilityCardinality || "required"}
+          onValueChange={(value) => onChange("applicabilityCardinality", value)}
+        >
+          <SelectTrigger className="bg-input border-border text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="required">
+              <div className="flex items-center gap-2">
+                <Badge variant="default" className="text-xs">Required</Badge>
+                <span className="text-xs text-muted-foreground">At least one must exist</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="optional">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">Optional</Badge>
+                <span className="text-xs text-muted-foreground">May or may not exist</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="prohibited">
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive" className="text-xs">Prohibited</Badge>
+                <span className="text-xs text-muted-foreground">Must not exist</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Defines whether matching entities are required, optional, or prohibited in the model
+        </p>
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="description" className="text-sidebar-foreground">
           Description
         </Label>
@@ -464,6 +562,7 @@ function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChang
 
 function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Use comprehensive property sets from the full schema
   const [propertySetOptions, setPropertySetOptions] = useState<SearchableSelectOption[]>([])
@@ -603,6 +702,13 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
 
   return (
     <>
+      {/* Show cardinality selector only for requirements */}
+      {isRequirement && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
       <div className="space-y-2">
         <Label htmlFor="propertySet" className="text-sidebar-foreground">
           Property Set
@@ -781,6 +887,7 @@ function getPlaceholderForDataType(dataType?: string): string {
 
 function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -835,6 +942,13 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
 
   return (
     <>
+      {/* Show cardinality selector only for requirements */}
+      {isRequirement && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
       <div className="space-y-2">
         <Label htmlFor="attribute-name" className="text-sidebar-foreground">
           Attribute Name
@@ -885,6 +999,7 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
 
 function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -934,6 +1049,13 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
 
   return (
     <>
+      {/* Show cardinality selector only for requirements */}
+      {isRequirement && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
       <div className="space-y-2">
         <Label htmlFor="classification-system" className="text-sidebar-foreground">
           Classification System
@@ -1005,6 +1127,7 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
 
 function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -1054,6 +1177,13 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
 
   return (
     <>
+      {/* Show cardinality selector only for requirements */}
+      {isRequirement && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
           Material Value
@@ -1116,6 +1246,7 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
 
 function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -1168,6 +1299,13 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
 
   return (
     <>
+      {/* Show cardinality selector only for requirements */}
+      {isRequirement && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
       <div className="space-y-2">
         <Label htmlFor="partof-entity" className="text-sidebar-foreground">
           Entity Type

@@ -1,6 +1,30 @@
 import { XMLParser } from "fast-xml-parser"
-import type { GraphNode, GraphEdge, RestrictionNodeData } from "./graph-types"
+import type { GraphNode, GraphEdge, RestrictionNodeData, Cardinality } from "./graph-types"
 import { DEFAULT_LAYOUT_CONFIG, calculateNodePosition, type LayoutConfig } from "./node-layout"
+
+// Helper function to convert minOccurs/maxOccurs to cardinality
+function cardinalityFromOccurs(minOccurs?: string, maxOccurs?: string): Cardinality {
+  const min = minOccurs ? parseInt(minOccurs, 10) : 1
+  const max = maxOccurs === "unbounded" ? Infinity : (maxOccurs ? parseInt(maxOccurs, 10) : Infinity)
+
+  // Required: minOccurs=1, maxOccurs=unbounded
+  if (min === 1 && max === Infinity) {
+    return "required"
+  }
+
+  // Optional: minOccurs=0, maxOccurs=unbounded
+  if (min === 0 && max === Infinity) {
+    return "optional"
+  }
+
+  // Prohibited: minOccurs=0, maxOccurs=0
+  if (min === 0 && max === 0) {
+    return "prohibited"
+  }
+
+  // Default to required for other values
+  return "required"
+}
 
 export interface ParsedIdsGraph {
   nodes: GraphNode[]
@@ -104,8 +128,12 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
       if (isEmptyApplicability) {
         // Store empty applicability info in spec node
         specNode.data.hasEmptyApplicability = true
-        specNode.data.applicabilityMinOccurs = applicability.minOccurs || applicability.minoccurs || undefined
-        specNode.data.applicabilityMaxOccurs = applicability.maxOccurs || applicability.maxoccurs || undefined
+        const minOccurs = applicability.minOccurs || applicability.minoccurs
+        const maxOccurs = applicability.maxOccurs || applicability.maxoccurs
+        specNode.data.applicabilityMinOccurs = minOccurs || undefined
+        specNode.data.applicabilityMaxOccurs = maxOccurs || undefined
+        // Convert to cardinality for easier UI handling
+        specNode.data.applicabilityCardinality = cardinalityFromOccurs(minOccurs, maxOccurs)
       } else {
         parseApplicability(applicability, {
           specId,
@@ -287,6 +315,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         dataType: extractDataType(property, property?.value),
       },
       valueNode: property?.value,
+      cardinality: property?.cardinality,
     })
   })
 
@@ -300,6 +329,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         name: getSimpleValue(attribute?.name) || "",
       },
       valueNode: attribute?.value,
+      cardinality: attribute?.cardinality,
     })
   })
 
@@ -314,6 +344,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         uri: classification?.uri || "",
       },
       valueNode: classification?.value,
+      cardinality: classification?.cardinality,
     })
   })
 
@@ -328,6 +359,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         uri: material?.uri || "",
       },
       valueNode: material?.value,
+      cardinality: material?.cardinality,
     })
   })
 
@@ -350,6 +382,8 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       data: {
         entity: (getSimpleValue(partOf?.entity?.name) || "").toUpperCase(),
         relation: partOf?.relation || "",
+        // Store cardinality for requirement facets
+        ...(partOf?.cardinality ? { cardinality: partOf.cardinality as Cardinality } : {}),
       },
     }
 
@@ -365,6 +399,7 @@ interface FacetCreationInput {
   type: GraphNode["type"]
   data: Record<string, unknown>
   valueNode?: any
+  cardinality?: string  // Cardinality attribute from XML
 }
 
 function createFacetWithOptionalRestriction(input: FacetCreationInput) {
@@ -374,6 +409,7 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
     type,
     data,
     valueNode,
+    cardinality,
   } = input
 
   const position = calculateNodePosition(
@@ -392,6 +428,8 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
     position,
     data: {
       ...data,
+      // Store cardinality for requirement facets
+      ...(cardinality && targetHandle === "requirements" ? { cardinality: cardinality as Cardinality } : {}),
     },
   }
 
