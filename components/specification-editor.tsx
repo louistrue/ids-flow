@@ -15,7 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
-import type { GraphNode, GraphEdge, NodeData } from "@/lib/graph-types"
+import type { GraphNode, GraphEdge, NodeData, IdsMetadata } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
@@ -37,6 +37,7 @@ export function SpecificationEditor() {
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
+  const [idsMetadata, setIdsMetadata] = useState<IdsMetadata | undefined>(undefined)
 
   // IDS Validation hook
   const {
@@ -366,6 +367,7 @@ export function SpecificationEditor() {
     try {
       const xml = convertGraphToIdsXml(nodes, edges, {
         pretty: true,
+        metadata: idsMetadata,
         author: "IDS Flow Editor",
         date: new Date().toISOString().split('T')[0]
       })
@@ -436,12 +438,13 @@ export function SpecificationEditor() {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string
-        const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion } = convertIdsXmlToGraph(content)
+        const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion, metadata: importedMetadata } = convertIdsXmlToGraph(content)
 
         takeSnapshot()
         setNodes(importedNodes)
         setEdges(importedEdges)
         setSelectedNode(null)
+        setIdsMetadata(importedMetadata)
 
         const detectedVersion = normalizeIfcVersion(importedIfcVersion)
         if (detectedVersion) {

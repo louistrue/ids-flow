@@ -376,7 +376,7 @@ export function InspectorPanel({
         <div className="p-4 space-y-4 min-w-0">
           {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
-          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
@@ -456,6 +456,21 @@ function SpecificationFields({ node, onChange, ifcVersion }: { node: Node<any>; 
         </p>
       </div>
       <div className="space-y-2">
+        <Label htmlFor="identifier" className="text-sidebar-foreground">
+          Identifier (Optional)
+        </Label>
+        <Input
+          id="identifier"
+          value={data.identifier || ""}
+          onChange={(e) => onChange("identifier", e.target.value)}
+          placeholder="Unique ID for this specification"
+          className="bg-input border-border text-foreground font-mono"
+        />
+        <p className="text-xs text-muted-foreground">
+          Unique identifier for this specification (e.g., SPEC-001)
+        </p>
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="description" className="text-sidebar-foreground">
           Description
         </Label>
@@ -466,12 +481,28 @@ function SpecificationFields({ node, onChange, ifcVersion }: { node: Node<any>; 
           className="bg-input border-border text-foreground min-h-[100px]"
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="instructions" className="text-sidebar-foreground">
+          Instructions (Optional)
+        </Label>
+        <Textarea
+          id="instructions"
+          value={data.instructions || ""}
+          onChange={(e) => onChange("instructions", e.target.value)}
+          placeholder="Guidance for how to verify this specification..."
+          className="bg-input border-border text-foreground min-h-[80px]"
+        />
+        <p className="text-xs text-muted-foreground">
+          Instructions for verifying this specification
+        </p>
+      </div>
     </>
   )
 }
 
-function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
+function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const isRequirement = isInRequirementsSection(node.id, edges)
 
   // Load comprehensive entities from schema
   const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
@@ -510,6 +541,30 @@ function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChang
 
   return (
     <>
+      {/* Show cardinality and instructions for requirements */}
+      {isRequirement && (
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="entity-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="entity-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this entity requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this entity requirement
+            </p>
+          </div>
+        </>
+      )}
       <div className="space-y-2">
         <Label htmlFor="name" className="text-sidebar-foreground">
           Entity Name
@@ -704,10 +759,27 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
     <>
       {/* Show cardinality selector only for requirements */}
       {isRequirement && (
-        <CardinalitySelector
-          value={data.cardinality}
-          onChange={(value) => onChange("cardinality", value)}
-        />
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="property-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="property-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this property requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this property requirement
+            </p>
+          </div>
+        </>
       )}
       <div className="space-y-2">
         <Label htmlFor="propertySet" className="text-sidebar-foreground">
@@ -944,10 +1016,27 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
     <>
       {/* Show cardinality selector only for requirements */}
       {isRequirement && (
-        <CardinalitySelector
-          value={data.cardinality}
-          onChange={(value) => onChange("cardinality", value)}
-        />
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="attribute-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="attribute-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this attribute requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this attribute requirement
+            </p>
+          </div>
+        </>
       )}
       <div className="space-y-2">
         <Label htmlFor="attribute-name" className="text-sidebar-foreground">
@@ -1051,10 +1140,27 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
     <>
       {/* Show cardinality selector only for requirements */}
       {isRequirement && (
-        <CardinalitySelector
-          value={data.cardinality}
-          onChange={(value) => onChange("cardinality", value)}
-        />
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="classification-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="classification-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this classification requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this classification requirement
+            </p>
+          </div>
+        </>
       )}
       <div className="space-y-2">
         <Label htmlFor="classification-system" className="text-sidebar-foreground">
@@ -1179,10 +1285,27 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
     <>
       {/* Show cardinality selector only for requirements */}
       {isRequirement && (
-        <CardinalitySelector
-          value={data.cardinality}
-          onChange={(value) => onChange("cardinality", value)}
-        />
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="material-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="material-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this material requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this material requirement
+            </p>
+          </div>
+        </>
       )}
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
@@ -1301,10 +1424,27 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
     <>
       {/* Show cardinality selector only for requirements */}
       {isRequirement && (
-        <CardinalitySelector
-          value={data.cardinality}
-          onChange={(value) => onChange("cardinality", value)}
-        />
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="partof-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Textarea
+              id="partof-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for verifying this part of requirement..."
+              className="bg-input border-border text-foreground min-h-[60px]"
+            />
+            <p className="text-xs text-muted-foreground">
+              Guidance for checking this part of relationship requirement
+            </p>
+          </div>
+        </>
       )}
       <div className="space-y-2">
         <Label htmlFor="partof-entity" className="text-sidebar-foreground">
