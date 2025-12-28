@@ -23,7 +23,7 @@ function getCardinalityBadge(cardinality?: Cardinality) {
 
 export function PropertyNode({ data, selected }: NodeProps) {
   const facet = getFacet("property")
-  const cardinalityBadge = data.cardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
+  const cardinalityBadge = getCardinalityBadge(data.cardinality as Cardinality)
 
   return (
     <Card
@@ -35,11 +35,9 @@ export function PropertyNode({ data, selected }: NodeProps) {
             <Tag className={`h-4 w-4 ${facet.text}`} />
           </div>
           <h3 className="font-semibold text-sm text-foreground font-mono">{data.baseName}</h3>
-          {cardinalityBadge && (
-            <Badge variant={cardinalityBadge.variant} className="text-xs px-1.5 py-0" title={cardinalityBadge.title}>
-              {cardinalityBadge.label}
-            </Badge>
-          )}
+          <Badge variant={cardinalityBadge.variant} className="text-xs px-1.5 py-0" title={cardinalityBadge.title}>
+            {cardinalityBadge.label}
+          </Badge>
           {data.entityContext && (
             <Badge variant="secondary" className="ml-auto text-xs">
               <Filter className="h-3 w-3 mr-1" />
