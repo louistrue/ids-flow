@@ -1,10 +1,29 @@
 import { create } from "xmlbuilder2"
-import type { GraphNode, GraphEdge } from "./graph-types"
+import type { GraphNode, GraphEdge, Cardinality, IdsMetadata } from "./graph-types"
 
 export interface ConvertOptions {
   pretty?: boolean
-  author?: string
-  date?: string
+  metadata?: IdsMetadata  // IDS file-level metadata
+  author?: string         // Deprecated - use metadata.author
+  date?: string           // Deprecated - use metadata.date
+}
+
+// Helper function to convert cardinality to minOccurs/maxOccurs
+function occursFromCardinality(cardinality?: Cardinality): { minOccurs?: string; maxOccurs?: string } {
+  if (!cardinality || cardinality === "required") {
+    return { minOccurs: "1", maxOccurs: "unbounded" }
+  }
+
+  if (cardinality === "optional") {
+    return { minOccurs: "0", maxOccurs: "unbounded" }
+  }
+
+  if (cardinality === "prohibited") {
+    return { minOccurs: "0", maxOccurs: "0" }
+  }
+
+  // Default to required
+  return { minOccurs: "1", maxOccurs: "unbounded" }
 }
 
 export function convertGraphToIdsXml(
@@ -30,9 +49,9 @@ export function convertGraphToIdsXml(
     "xsi:schemaLocation": "http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd",
   })
 
-  // Build info section from first spec node
+  // Build info section from metadata or fallback to first spec node
   const firstSpec = specNodes[0]
-  buildIdsInfo(root, firstSpec, options)
+  buildIdsInfo(root, options, firstSpec)
 
   // Build specifications section
   const specs = root.ele("ids:specifications")
@@ -86,27 +105,63 @@ function groupNodesBySpecification(
   return { applicabilityNodes, requirementNodes }
 }
 
-function buildIdsInfo(root: any, specNode: GraphNode, options: ConvertOptions) {
+function buildIdsInfo(root: any, options: ConvertOptions, fallbackSpec: GraphNode) {
   const info = root.ele("ids:info")
+  const metadata = options.metadata
+  const specData = fallbackSpec.data as any
 
-  const specData = specNode.data as any
-  if (specData.name) {
-    info.ele("ids:title").txt(specData.name)
+  // Title (required) - use metadata, then spec name, then default
+  const title = metadata?.title || specData.name || "Untitled IDS"
+  info.ele("ids:title").txt(title)
+
+  // Optional metadata fields
+  if (metadata?.copyright) {
+    info.ele("ids:copyright").txt(metadata.copyright)
   }
 
-  if (specData.description) {
-    info.ele("ids:description").txt(specData.description)
+  if (metadata?.version) {
+    info.ele("ids:version").txt(metadata.version)
   }
 
-  // Normalize author to email format
-  const author = options.author || specData.author || "idsedit"
-  const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
-  const authorEmail = cleanAuthor.includes('@') ? cleanAuthor : `${cleanAuthor}@idsedit.com`
-  info.ele("ids:author").txt(authorEmail)
+  if (metadata?.description || specData.description) {
+    info.ele("ids:description").txt(metadata?.description || specData.description)
+  }
 
-  // Use provided date or current date
-  const date = options.date || new Date().toISOString().split('T')[0]
-  info.ele("ids:date").txt(date)
+  // Author (optional - only include if provided, must be valid email format per XSD pattern: [^@]+@[^\.]+\..+)
+  const author = metadata?.author || options.author
+  if (author) {
+    const cleanAuthor = author.replace(/\s+/g, '').toLowerCase()
+    // Ensure valid email format - if no @, add @idsedit.com; if invalid format, skip
+    let authorEmail: string
+    if (cleanAuthor.includes('@')) {
+      // Validate email pattern: [^@]+@[^\.]+\..+
+      const emailPattern = /^[^@]+@[^\.]+\..+$/
+      if (emailPattern.test(cleanAuthor)) {
+        authorEmail = cleanAuthor
+        info.ele("ids:author").txt(authorEmail)
+      }
+      // If invalid format, skip author element (optional field)
+    } else {
+      // No @ found, append @idsedit.com
+      authorEmail = `${cleanAuthor}@idsedit.com`
+      info.ele("ids:author").txt(authorEmail)
+    }
+  }
+
+  // Date (optional - only include if provided)
+  const date = metadata?.date || options.date
+  if (date) {
+    info.ele("ids:date").txt(date)
+  }
+
+  // Purpose and milestone
+  if (metadata?.purpose) {
+    info.ele("ids:purpose").txt(metadata.purpose)
+  }
+
+  if (metadata?.milestone) {
+    info.ele("ids:milestone").txt(metadata.milestone)
+  }
 }
 
 function buildSpecification(
@@ -119,76 +174,122 @@ function buildSpecification(
 ) {
   const specData = specNode.data as any
 
-  const spec = parent.ele("ids:specification", {
+  // Build specification attributes
+  const specAttrs: any = {
     name: specData.name || "Generated Specification",
     ifcVersion: specData.ifcVersion || "IFC4X3_ADD2",
-    description: specData.description || "Generated from IDS Flow",
-  })
+  }
+
+  // Optional attributes
+  if (specData.description) {
+    specAttrs.description = specData.description
+  }
+  if (specData.identifier) {
+    specAttrs.identifier = specData.identifier
+  }
+  if (specData.instructions) {
+    specAttrs.instructions = specData.instructions
+  }
+
+  const spec = parent.ele("ids:specification", specAttrs)
 
   // Build applicability section - either with facets or empty (if originally empty)
   if (applicabilityNodes.length > 0) {
     const appl = spec.ele("ids:applicability")
 
-    // Find entity nodes in applicability
-    const entityNodes = applicabilityNodes.filter(node => node.type === 'entity')
-    if (entityNodes.length > 0) {
-      // Use first entity as primary entity
-      buildEntityFacet(entityNodes[0], appl)
+    // XSD Required Order: entity → partOf → classification → attribute → property → material
+    // Sort nodes by type to ensure correct order
+    const typeOrder: Record<string, number> = {
+      'entity': 1,
+      'partOf': 2,
+      'classification': 3,
+      'attribute': 4,
+      'property': 5,
+      'material': 6
     }
 
-    // Add other applicability facets
-    for (const node of applicabilityNodes) {
+    const sortedNodes = [...applicabilityNodes].sort((a, b) => {
+      const orderA = typeOrder[a.type] || 99
+      const orderB = typeOrder[b.type] || 99
+      return orderA - orderB
+    })
+
+    // Build facets in correct order
+    for (const node of sortedNodes) {
       switch (node.type) {
+        case 'entity':
+          buildEntityFacet(node, appl)
+          break
         case 'partOf':
           buildPartOfFacet(node, appl)
           break
         case 'classification':
           buildClassificationFacet(node, appl, undefined, edges, nodes)
           break
-        case 'material':
-          buildMaterialFacet(node, appl, undefined, edges, nodes)
+        case 'attribute':
+          // Attributes in applicability are treated as conditions
+          buildAttributeFacet(node, appl, undefined, edges, nodes)
           break
         case 'property':
           // Properties in applicability are treated as conditions
           buildPropertyFacet(node, appl, undefined, edges, nodes)
           break
-        case 'attribute':
-          // Attributes in applicability are treated as conditions
-          buildAttributeFacet(node, appl, undefined, edges, nodes)
+        case 'material':
+          buildMaterialFacet(node, appl, undefined, edges, nodes)
           break
       }
     }
   } else if (specData.hasEmptyApplicability) {
     // Preserve empty applicability section with attributes (wildcard pattern)
     const applAttrs: any = {}
-    if (specData.applicabilityMinOccurs) {
-      applAttrs.minOccurs = specData.applicabilityMinOccurs
-    }
-    if (specData.applicabilityMaxOccurs) {
-      applAttrs.maxOccurs = specData.applicabilityMaxOccurs
+
+    // Use applicabilityCardinality if available, otherwise fall back to old minOccurs/maxOccurs
+    if (specData.applicabilityCardinality) {
+      const occurs = occursFromCardinality(specData.applicabilityCardinality as Cardinality)
+      if (occurs.minOccurs) applAttrs.minOccurs = occurs.minOccurs
+      if (occurs.maxOccurs) applAttrs.maxOccurs = occurs.maxOccurs
+    } else {
+      if (specData.applicabilityMinOccurs) {
+        applAttrs.minOccurs = specData.applicabilityMinOccurs
+      }
+      if (specData.applicabilityMaxOccurs) {
+        applAttrs.maxOccurs = specData.applicabilityMaxOccurs
+      }
     }
     spec.ele("ids:applicability", applAttrs)
   }
 
   // Build requirements section
-  const reqs = spec.ele("ids:requirements")
+  const reqsAttrs: any = {}
+  if (specData.requirementsDescription) {
+    reqsAttrs.description = specData.requirementsDescription
+  }
+  const reqs = spec.ele("ids:requirements", reqsAttrs)
 
   for (const node of requirementNodes) {
+    // Get cardinality and instructions from node data
+    const nodeData = node.data as any
+    const nodeCardinality = nodeData.cardinality || "required"
+    const nodeInstructions = nodeData.instructions
+
     switch (node.type) {
+      case 'entity':
+        buildEntityFacet(node, reqs, nodeCardinality, nodeInstructions)
+        break
       case 'property':
-        buildPropertyFacet(node, reqs, "required", edges, nodes)
+        buildPropertyFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'attribute':
-        buildAttributeFacet(node, reqs, "required", edges, nodes)
+        buildAttributeFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'classification':
-        buildClassificationFacet(node, reqs, "required", edges, nodes)
+        buildClassificationFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'material':
-        buildMaterialFacet(node, reqs, "required", edges, nodes)
+        buildMaterialFacet(node, reqs, nodeCardinality, nodeInstructions, edges, nodes)
         break
       case 'partOf':
-        buildPartOfFacet(node, reqs, "required")
+        buildPartOfFacet(node, reqs, nodeCardinality, nodeInstructions)
         break
     }
   }
@@ -200,26 +301,43 @@ function idsSimple(parent: any, tag: string, text: string) {
 }
 
 // Facet converter functions
-function buildEntityFacet(node: GraphNode, parent: any) {
-  const entity = parent.ele("ids:entity")
+function buildEntityFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string) {
   const data = node.data as any
+  const attrs: any = {}
+
+  // Instructions attribute for requirement entities (optional)
+  if (instructions) {
+    attrs.instructions = instructions
+  }
+
+  const entity = parent.ele("ids:entity", attrs)
   idsSimple(entity, "ids:name", data.name.toUpperCase())
   if (data.predefinedType) {
     idsSimple(entity, "ids:predefinedType", data.predefinedType)
   }
 }
 
-function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
-  
+
   // Only include dataType if it exists (optional per IDS spec)
   if (data.dataType) {
     attrs.dataType = data.dataType
   }
-  
+
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+
+  // URI attribute for requirement properties (optional)
+  if (data.uri) {
+    attrs.uri = data.uri
+  }
+
+  // Instructions attribute for requirement properties (optional)
+  if (instructions || data.instructions) {
+    attrs.instructions = instructions || data.instructions
   }
 
   const prop = parent.ele("ids:property", attrs)
@@ -249,11 +367,16 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 }
 
-function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
     attrs.cardinality = cardinality
+  }
+
+  // Instructions attribute for requirement attributes (optional)
+  if (instructions || data.instructions) {
+    attrs.instructions = instructions || data.instructions
   }
 
   const attr = parent.ele("ids:attribute", attrs)
@@ -282,7 +405,7 @@ function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string,
   }
 }
 
-function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -290,6 +413,11 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
   }
   if (data.uri) {
     attrs.uri = data.uri
+  }
+
+  // Instructions attribute for requirement classifications (optional)
+  if (instructions || data.instructions) {
+    attrs.instructions = instructions || data.instructions
   }
 
   const cls = parent.ele("ids:classification", attrs)
@@ -321,7 +449,7 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
   idsSimple(cls, "ids:system", data.system)
 }
 
-function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
+function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -329,6 +457,11 @@ function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
   if (data.uri) {
     attrs.uri = data.uri
+  }
+
+  // Instructions attribute for requirement materials (optional)
+  if (instructions || data.instructions) {
+    attrs.instructions = instructions || data.instructions
   }
 
   const mat = parent.ele("ids:material", attrs)
@@ -356,7 +489,7 @@ function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 }
 
-function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string) {
+function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string) {
   const data = node.data as any
   const attrs: any = {}
   if (cardinality) {
@@ -364,6 +497,11 @@ function buildPartOfFacet(node: GraphNode, parent: any, cardinality?: string) {
   }
   if (data.relation) {
     attrs.relation = data.relation
+  }
+
+  // Instructions attribute for requirement partOf (optional)
+  if (instructions || data.instructions) {
+    attrs.instructions = instructions || data.instructions
   }
 
   const partOf = parent.ele("ids:partOf", attrs)

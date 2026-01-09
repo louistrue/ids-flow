@@ -11,9 +11,14 @@ export interface IFCEntity {
   description?: string
 }
 
+export interface IFCProperty {
+  name: string
+  dataType: string
+}
+
 export interface IFCPropertySet {
   name: string
-  properties: string[]
+  properties: IFCProperty[]
   applicableEntities: string[]
 }
 
@@ -111,7 +116,10 @@ function convertEntities(entities: IFCEntityDefinition[]): IFCEntity[] {
 function convertPropertySets(propertySets: IFCPropertySetDefinition[]): IFCPropertySet[] {
   return propertySets.map(pset => ({
     name: pset.name,
-    properties: pset.properties.map(prop => prop.name),
+    properties: pset.properties.map(prop => ({
+      name: prop.name,
+      dataType: prop.dataType
+    })),
     applicableEntities: pset.applicableEntities
   }))
 }
@@ -162,98 +170,7 @@ export const PREDEFINED_PROPERTY_DATATYPES: Record<string, string[]> = {
   "PitchAngle": ["IFCPLANEANGLEMEASURE", "IFCREAL"],
 }
 
-// Legacy compatibility: Keep existing property sets for backward compatibility
-export const IFC_PROPERTY_SETS: IFCPropertySet[] = [
-  {
-    name: "Pset_WallCommon",
-    properties: [
-      "Reference",
-      "AcousticRating",
-      "FireRating",
-      "Combustible",
-      "SurfaceSpreadOfFlame",
-      "ThermalTransmittance",
-      "IsExternal",
-      "ExtendToStructure",
-      "LoadBearing",
-      "Compartmentation",
-    ],
-    applicableEntities: ["IFCWALL"],
-  },
-  {
-    name: "Pset_SlabCommon",
-    properties: [
-      "Reference",
-      "AcousticRating",
-      "FireRating",
-      "Combustible",
-      "SurfaceSpreadOfFlame",
-      "ThermalTransmittance",
-      "IsExternal",
-      "LoadBearing",
-      "PitchAngle",
-    ],
-    applicableEntities: ["IFCSLAB"],
-  },
-  {
-    name: "Pset_ColumnCommon",
-    properties: ["Reference", "FireRating", "IsExternal", "LoadBearing", "Status"],
-    applicableEntities: ["IFCCOLUMN"],
-  },
-  {
-    name: "Pset_BeamCommon",
-    properties: ["Reference", "FireRating", "IsExternal", "LoadBearing", "Span", "Slope"],
-    applicableEntities: ["IFCBEAM"],
-  },
-  {
-    name: "Pset_DoorCommon",
-    properties: [
-      "Reference",
-      "FireRating",
-      "AcousticRating",
-      "SecurityRating",
-      "IsExternal",
-      "Infiltration",
-      "ThermalTransmittance",
-      "GlazingAreaFraction",
-      "HandicapAccessible",
-      "FireExit",
-      "SelfClosing",
-    ],
-    applicableEntities: ["IFCDOOR"],
-  },
-  {
-    name: "Pset_WindowCommon",
-    properties: [
-      "Reference",
-      "FireRating",
-      "AcousticRating",
-      "SecurityRating",
-      "IsExternal",
-      "Infiltration",
-      "ThermalTransmittance",
-      "GlazingAreaFraction",
-      "SmokeStop",
-    ],
-    applicableEntities: ["IFCWINDOW"],
-  },
-  {
-    name: "Pset_SpaceCommon",
-    properties: [
-      "Reference",
-      "Category",
-      "FloorCovering",
-      "WallCovering",
-      "CeilingCovering",
-      "SkirtingBoard",
-      "GrossPlannedArea",
-      "NetPlannedArea",
-      "PubliclyAccessible",
-      "HandicapAccessible",
-    ],
-    applicableEntities: ["IFCSPACE"],
-  },
-]
+// Legacy property sets constant removed - we now use complete JSON data from generated files
 
 // Legacy compatibility: Keep existing data types for backward compatibility
 export const IFC_DATA_TYPES: IFCDataType[] = [
@@ -286,15 +203,15 @@ export function validatePredefinedType(entityName: string, predefinedType: strin
 }
 
 export function validatePropertySet(propertySetName: string): boolean {
-  // Check legacy property sets
-  return IFC_PROPERTY_SETS.some((pset) => pset.name === propertySetName)
+  // Validation now happens asynchronously with loaded data
+  // For synchronous validation, accept all property sets
+  return true
 }
 
 export function validateProperty(propertySetName: string, propertyName: string): boolean {
-  // Check legacy property sets
-  const pset = IFC_PROPERTY_SETS.find((p) => p.name === propertySetName)
-  if (!pset) return true // No validation if property set not found
-  return pset.properties.includes(propertyName)
+  // Validation now happens asynchronously with loaded data
+  // For synchronous validation, accept all properties
+  return true
 }
 
 export function validateDataType(dataType: string): boolean {
@@ -357,9 +274,10 @@ export function getPropertySetsForEntity(entityName: string): string[] {
 }
 
 export function getPropertiesForPropertySet(propertySetName: string): string[] {
-  // Check legacy property sets
-  const pset = IFC_PROPERTY_SETS.find((p) => p.name === propertySetName)
-  return pset?.properties || []
+  // This is a legacy synchronous function
+  // Properties are now loaded asynchronously from JSON files
+  // Return empty array - callers should use async version or loaded property sets
+  return []
 }
 
 // Async functions for comprehensive schema access
@@ -442,25 +360,16 @@ export async function getMaterialTypesForEntity(entityName: string, version: IFC
 }
 
 export async function getSpatialRelationsForEntity(entityName: string, version: IFCVersion): Promise<string[]> {
-  // For now, return common spatial relations
-  // In a full implementation, this would filter based on entity applicability
-  // Note: entityName is normalized to uppercase for consistency
-  const normalizedEntityName = entityName.toUpperCase()
+  // Return valid IDS PartOf relation types per IDS XSD schema
+  // All 6 relations are valid regardless of entity - they represent different IFC relationship types
+  // Note: entityName parameter is kept for API compatibility but not used for filtering
   return [
-    "Contains",
-    "ContainedIn",
-    "AdjacentTo",
-    "Above",
-    "Below",
-    "LeftOf",
-    "RightOf",
-    "FrontOf",
-    "Behind",
-    "Inside",
-    "Outside",
-    "Overlaps",
-    "Touches",
-    "Intersects"
+    "IFCRELAGGREGATES",
+    "IFCRELASSIGNSTOGROUP",
+    "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+    "IFCRELNESTS",
+    "IFCRELVOIDSELEMENT",
+    "IFCRELFILLSELEMENT"
   ]
 }
 
@@ -488,8 +397,46 @@ export async function getSchemaStats(): Promise<{ version: string; entityCount: 
   }))
 }
 
+// Build a cache of property name to data types from loaded property sets
+const propertyDataTypeCache = new Map<string, Set<string>>()
+let cacheBuilt = false
+
+async function buildPropertyDataTypeCache(version: IFCVersion) {
+  if (cacheBuilt) return
+
+  try {
+    const allPropertySets = await getAllPropertySets(version)
+
+    for (const pset of allPropertySets) {
+      for (const prop of pset.properties) {
+        if (!propertyDataTypeCache.has(prop.name)) {
+          propertyDataTypeCache.set(prop.name, new Set())
+        }
+        propertyDataTypeCache.get(prop.name)!.add(prop.dataType)
+      }
+    }
+
+    cacheBuilt = true
+  } catch (error) {
+    console.warn('Failed to build property data type cache:', error)
+  }
+}
+
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {
+  // First check cache from loaded property sets
+  if (propertyDataTypeCache.has(propertyName)) {
+    return Array.from(propertyDataTypeCache.get(propertyName)!)
+  }
+
+  // Fallback to old hardcoded mapping (for any properties not in the loaded schema)
+  // This is only used before the cache is built or for truly custom properties
   return PREDEFINED_PROPERTY_DATATYPES[propertyName]
+}
+
+// Async version that builds cache first
+export async function getExpectedDataTypesForPropertyAsync(propertyName: string, version: IFCVersion): Promise<string[] | undefined> {
+  await buildPropertyDataTypeCache(version)
+  return getExpectedDataTypesForProperty(propertyName)
 }
 
 export function isPropertyDataTypeValid(propertyName: string, dataType: string): { valid: boolean; expectedTypes?: string[] } {

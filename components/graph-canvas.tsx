@@ -4,7 +4,7 @@ import { useCallback, useMemo, useEffect, useState, useRef } from "react"
 import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
 import { Map } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
-import { getEntityContext } from "@/lib/graph-utils"
+import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
 import { EntityNode } from "./nodes/entity-node"
 import { PropertyNode } from "./nodes/property-node"
@@ -51,6 +51,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   const baseNodes: Node[] = useMemo(() =>
     nodes.map(node => {
       const entityContext = getEntityContext(node.id, nodes, edges)
+      const inRequirements = isInRequirementsSection(node.id, edges)
       return {
         id: node.id,
         type: node.type,
@@ -58,6 +59,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         data: {
           ...node.data,
           entityContext: entityContext.entityName,
+          isInRequirements: inRequirements,
         },
       }
     }), [nodes, edges]

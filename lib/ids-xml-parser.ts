@@ -1,11 +1,36 @@
 import { XMLParser } from "fast-xml-parser"
-import type { GraphNode, GraphEdge, RestrictionNodeData } from "./graph-types"
+import type { GraphNode, GraphEdge, RestrictionNodeData, Cardinality, IdsMetadata } from "./graph-types"
 import { DEFAULT_LAYOUT_CONFIG, calculateNodePosition, type LayoutConfig } from "./node-layout"
 
 export interface ParsedIdsGraph {
   nodes: GraphNode[]
   edges: GraphEdge[]
   ifcVersion?: string
+  metadata?: IdsMetadata
+}
+
+// Helper function to convert minOccurs/maxOccurs to cardinality
+function cardinalityFromOccurs(minOccurs?: string, maxOccurs?: string): Cardinality {
+  const min = minOccurs ? parseInt(minOccurs, 10) : 1
+  const max = maxOccurs === "unbounded" ? Infinity : (maxOccurs ? parseInt(maxOccurs, 10) : Infinity)
+
+  // Required: minOccurs=1, maxOccurs=unbounded
+  if (min === 1 && max === Infinity) {
+    return "required"
+  }
+
+  // Optional: minOccurs=0, maxOccurs=unbounded
+  if (min === 0 && max === Infinity) {
+    return "optional"
+  }
+
+  // Prohibited: minOccurs=0, maxOccurs=0
+  if (min === 0 && max === 0) {
+    return "prohibited"
+  }
+
+  // Default to required for other values
+  return "required"
 }
 
 interface IdCounters {
@@ -43,6 +68,18 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
     throw new Error("IDS file contains no specifications")
   }
 
+  // Parse IDS-level metadata from <info> block
+  const metadata: IdsMetadata | undefined = root.info ? {
+    title: root.info.title || "Untitled IDS",
+    copyright: root.info.copyright,
+    version: root.info.version,
+    description: root.info.description,
+    author: root.info.author,
+    date: root.info.date,
+    purpose: root.info.purpose,
+    milestone: root.info.milestone,
+  } : undefined
+
   const counters: IdCounters = {
     spec: 0,
     entity: 0,
@@ -74,9 +111,11 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
         y: DEFAULT_LAYOUT_CONFIG.specPosition.y + specOffsetY,
       },
       data: {
-        name: spec.name || spec.title || root.info?.title || `Specification ${specIndex + 1}`,
-        ifcVersion: spec.ifcVersion || root.info?.ifcVersion || "IFC4X3_ADD2",
-        description: spec.description || root.info?.description || "",
+        name: spec.name || `Specification ${specIndex + 1}`,
+        ifcVersion: spec.ifcVersion || "IFC4X3_ADD2",
+        description: spec.description || "",
+        identifier: spec.identifier,
+        instructions: spec.instructions,
       },
     }
 
@@ -104,8 +143,12 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
       if (isEmptyApplicability) {
         // Store empty applicability info in spec node
         specNode.data.hasEmptyApplicability = true
-        specNode.data.applicabilityMinOccurs = applicability.minOccurs || applicability.minoccurs || undefined
-        specNode.data.applicabilityMaxOccurs = applicability.maxOccurs || applicability.maxoccurs || undefined
+        const minOccurs = applicability.minOccurs || applicability.minoccurs
+        const maxOccurs = applicability.maxOccurs || applicability.maxoccurs
+        specNode.data.applicabilityMinOccurs = minOccurs || undefined
+        specNode.data.applicabilityMaxOccurs = maxOccurs || undefined
+        // Convert to cardinality for easier UI handling
+        specNode.data.applicabilityCardinality = cardinalityFromOccurs(minOccurs, maxOccurs)
       } else {
         parseApplicability(applicability, {
           specId,
@@ -140,6 +183,7 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
     nodes,
     edges,
     ifcVersion: fallbackIfcVersion,
+    metadata,
   }
 }
 
@@ -275,6 +319,39 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
 }
 
 function parseRequirements(requirements: any, ctx: RequirementsContext) {
+  // Parse entity facets in requirements
+  const entities = toArray(requirements.entity)
+  entities.forEach(entity => {
+    const name = getSimpleValue(entity?.name)
+    const predefinedType = getSimpleValue(entity?.predefinedType)
+
+    const position = calculateNodePosition(
+      "entity",
+      "requirements",
+      ctx.nodes,
+      ctx.edges,
+      ctx.specId,
+      getLayoutConfig(ctx)
+    )
+
+    const entityId = createNodeId(ctx.counters, "entity")
+    const node: GraphNode = {
+      id: entityId,
+      type: "entity",
+      position,
+      data: {
+        name: name?.toUpperCase() || "",
+        predefinedType: predefinedType || "",
+        ...(entity?.cardinality ? { cardinality: entity.cardinality as Cardinality } : {}),
+        ...(entity?.instructions ? { instructions: entity.instructions } : {}),
+      },
+    }
+
+    ctx.nodes.push(node)
+    addEdge(ctx.edges, ctx.counters, entityId, ctx.specId, "requirements")
+    ctx.incrementRequirements()
+  })
+
   const properties = toArray(requirements.property)
   properties.forEach(property => {
     createFacetWithOptionalRestriction({
@@ -285,6 +362,9 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
         propertySet: getSimpleValue(property?.propertySet) || "",
         baseName: getSimpleValue(property?.baseName) || "",
         dataType: extractDataType(property, property?.value),
+        ...(property?.cardinality ? { cardinality: property.cardinality as Cardinality } : {}),
+        ...(property?.uri ? { uri: property.uri } : {}),
+        ...(property?.instructions ? { instructions: property.instructions } : {}),
       },
       valueNode: property?.value,
     })
@@ -298,6 +378,8 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       type: "attribute",
       data: {
         name: getSimpleValue(attribute?.name) || "",
+        ...(attribute?.cardinality ? { cardinality: attribute.cardinality as Cardinality } : {}),
+        ...(attribute?.instructions ? { instructions: attribute.instructions } : {}),
       },
       valueNode: attribute?.value,
     })
@@ -311,7 +393,9 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       type: "classification",
       data: {
         system: getSimpleValue(classification?.system) || "",
-        uri: classification?.uri || "",
+        ...(classification?.uri ? { uri: classification.uri } : {}),
+        ...(classification?.cardinality ? { cardinality: classification.cardinality as Cardinality } : {}),
+        ...(classification?.instructions ? { instructions: classification.instructions } : {}),
       },
       valueNode: classification?.value,
     })
@@ -325,7 +409,9 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       type: "material",
       data: {
         value: getSimpleValue(material?.value) || "",
-        uri: material?.uri || "",
+        ...(material?.uri ? { uri: material.uri } : {}),
+        ...(material?.cardinality ? { cardinality: material.cardinality as Cardinality } : {}),
+        ...(material?.instructions ? { instructions: material.instructions } : {}),
       },
       valueNode: material?.value,
     })
@@ -350,6 +436,8 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       data: {
         entity: (getSimpleValue(partOf?.entity?.name) || "").toUpperCase(),
         relation: partOf?.relation || "",
+        ...(partOf?.cardinality ? { cardinality: partOf.cardinality as Cardinality } : {}),
+        ...(partOf?.instructions ? { instructions: partOf.instructions } : {}),
       },
     }
 

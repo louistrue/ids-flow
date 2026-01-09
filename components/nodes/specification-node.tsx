@@ -4,7 +4,21 @@ import { type NodeProps } from "@xyflow/react"
 import { Card } from "@/components/ui/card"
 import { FileText } from "lucide-react"
 import { PortLabelRow } from "./port-label-row"
-import { type SpecificationNodeData } from "@/lib/graph-types"
+import { type SpecificationNodeData, type Cardinality } from "@/lib/graph-types"
+
+// Helper to get applicability cardinality display
+function getApplicabilityBadge(cardinality?: Cardinality) {
+  if (!cardinality || cardinality === "required") {
+    return { label: "R", title: "Required", color: "bg-emerald-500 text-white" }
+  }
+  if (cardinality === "optional") {
+    return { label: "O", title: "Optional", color: "bg-amber-500 text-white" }
+  }
+  if (cardinality === "prohibited") {
+    return { label: "P", title: "Prohibited", color: "bg-red-500 text-white" }
+  }
+  return { label: "R", title: "Required", color: "bg-emerald-500 text-white" }
+}
 
 export function SpecificationNode({ data, selected }: NodeProps) {
   const nodeData = data as unknown as SpecificationNodeData & {
@@ -12,6 +26,8 @@ export function SpecificationNode({ data, selected }: NodeProps) {
     highlightColor?: string
     highlightSourceId?: string
   }
+  const applicabilityBadge = getApplicabilityBadge(nodeData.applicabilityCardinality)
+
   return (
     <Card
       className={`w-[280px] bg-card border-2 transition-all ${selected ? "border-primary ring-2 ring-primary/40" : "border-border"}`}
@@ -25,6 +41,12 @@ export function SpecificationNode({ data, selected }: NodeProps) {
             <h3 className="font-semibold text-sm text-foreground truncate">{nodeData.name}</h3>
             <p className="text-xs text-muted-foreground">{nodeData.ifcVersion}</p>
           </div>
+          <span 
+            className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded ${applicabilityBadge.color}`}
+            title={applicabilityBadge.title}
+          >
+            {applicabilityBadge.label}
+          </span>
         </div>
         {nodeData.description && (
           <div className="mb-3 p-2 bg-muted/30 rounded border border-border">
