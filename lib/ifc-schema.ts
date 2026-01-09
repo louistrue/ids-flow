@@ -360,25 +360,16 @@ export async function getMaterialTypesForEntity(entityName: string, version: IFC
 }
 
 export async function getSpatialRelationsForEntity(entityName: string, version: IFCVersion): Promise<string[]> {
-  // For now, return common spatial relations
-  // In a full implementation, this would filter based on entity applicability
-  // Note: entityName is normalized to uppercase for consistency
-  const normalizedEntityName = entityName.toUpperCase()
+  // Return valid IDS PartOf relation types per IDS XSD schema
+  // All 6 relations are valid regardless of entity - they represent different IFC relationship types
+  // Note: entityName parameter is kept for API compatibility but not used for filtering
   return [
-    "Contains",
-    "ContainedIn",
-    "AdjacentTo",
-    "Above",
-    "Below",
-    "LeftOf",
-    "RightOf",
-    "FrontOf",
-    "Behind",
-    "Inside",
-    "Outside",
-    "Overlaps",
-    "Touches",
-    "Intersects"
+    "IFCRELAGGREGATES",
+    "IFCRELASSIGNSTOGROUP",
+    "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+    "IFCRELNESTS",
+    "IFCRELVOIDSELEMENT",
+    "IFCRELFILLSELEMENT"
   ]
 }
 

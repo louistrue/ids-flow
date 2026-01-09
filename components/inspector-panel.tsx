@@ -32,7 +32,6 @@ import {
   getAttributesForEntity,
   getClassificationSystemsForEntity,
   getMaterialTypesForEntity,
-  getSpatialRelationsForEntity,
   IFC_DATA_TYPES,
   type IFCVersion,
 } from "@/lib/ifc-schema"
@@ -319,7 +318,7 @@ export function InspectorPanel({
           {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
+          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
           {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
         </div>
       </ScrollArea>
@@ -1114,89 +1113,100 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
   )
 }
 
-function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
+function PartOfFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
   const data = node.data as any // Type assertion for now
 
-  // Get entity context from graph connections
-  const entityContext = React.useMemo(() => {
-    return getEntityContext(node.id, nodes, edges)
-  }, [node.id, nodes, edges])
+  // Load all entities dynamically (like EntityFields does)
+  const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
+  const [entitiesLoading, setEntitiesLoading] = useState(true)
 
-  // Load spatial relations based on entity context
+  useEffect(() => {
+    const loadEntities = async () => {
+      try {
+        const entities = await getAllEntities(ifcVersion)
+        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+          value: entity.name,
+          label: entity.name,
+          description: entity.description,
+          category: entity.category
+        }))
+        setAllEntities(entityOptions)
+      } catch (error) {
+        console.warn('Failed to load comprehensive entities:', error)
+        // Fallback to legacy entities
+        const legacyEntities = getEntitiesForVersion(ifcVersion)
+        setAllEntities(legacyEntities.map(entity => ({
+          value: entity,
+          label: entity,
+          description: `IFC ${ifcVersion} entity: ${entity}`,
+          category: 'Other'
+        })))
+      } finally {
+        setEntitiesLoading(false)
+      }
+    }
+
+    loadEntities()
+  }, [ifcVersion])
+
+  // Load spatial relations - always show all 6 valid IDS relations
+  // PartOf relations are NOT filtered by applicability entity - all relations are valid
   const [relationOptions, setRelationOptions] = useState<SearchableSelectOption[]>([])
-  const [loading, setLoading] = useState(true)
+  const [relationsLoading, setRelationsLoading] = useState(true)
 
   useEffect(() => {
     const loadSpatialRelations = async () => {
       try {
-        if (!entityContext.entityName) {
-          // Show all spatial relations if no entity connected
-          const allRelations = [
-            "IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE",
-            "IFCRELNESTS", "IFCRELVOIDSELEMENT", "IFCRELFILLSELEMENT"
-          ]
-          const relationOptions: SearchableSelectOption[] = allRelations.map(relation => ({
-            value: relation,
-            label: relation,
-            description: 'Spatial relation',
-            category: 'All Relations'
-          }))
-          setRelationOptions(relationOptions)
-        } else {
-          // Show only applicable spatial relations for connected entity
-          const entityRelations = await getSpatialRelationsForEntity(entityContext.entityName, ifcVersion)
-          const relationOptions: SearchableSelectOption[] = entityRelations.map(relation => ({
-            value: relation,
-            label: relation,
-            description: 'Applicable to ' + entityContext.entityName,
-            category: 'Entity Specific'
-          }))
-          setRelationOptions(relationOptions)
-        }
+        // Always return all valid IDS PartOf relations regardless of entity context
+        const allRelations = [
+          "IFCRELAGGREGATES",
+          "IFCRELASSIGNSTOGROUP",
+          "IFCRELCONTAINEDINSPATIALSTRUCTURE",
+          "IFCRELNESTS",
+          "IFCRELVOIDSELEMENT",
+          "IFCRELFILLSELEMENT"
+        ]
+        const relationOptions: SearchableSelectOption[] = allRelations.map(relation => ({
+          value: relation,
+          label: relation,
+          description: 'Valid IDS PartOf relation',
+          category: 'All Relations'
+        }))
+        setRelationOptions(relationOptions)
       } catch (error) {
         console.warn('Failed to load spatial relations:', error)
         setRelationOptions([])
       } finally {
-        setLoading(false)
+        setRelationsLoading(false)
       }
     }
 
     loadSpatialRelations()
-  }, [entityContext.entityName, ifcVersion])
-
-  const entities = getEntitiesForVersion(ifcVersion)
+  }, [ifcVersion])
 
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="partof-entity" className="text-sidebar-foreground">
           Entity Type
+          {entitiesLoading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
         </Label>
-        <Select
+        <SearchableSelect
+          options={allEntities}
           value={data.entity || ""}
           onValueChange={(value) => onChange("entity", value)}
-        >
-          <SelectTrigger className="bg-input border-border text-foreground font-mono">
-            <SelectValue placeholder="Select entity" />
-          </SelectTrigger>
-          <SelectContent>
-            {entities.map((entity) => (
-              <SelectItem key={entity} value={entity} className="font-mono">
-                {entity}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="Search entities..."
+          searchPlaceholder="Search 876+ entities..."
+          emptyText="No entities found"
+          showCategories={true}
+          maxHeight={400}
+          disabled={entitiesLoading}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="partof-relation" className="text-sidebar-foreground">
           Relation Type (Optional)
-          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
-          {entityContext.entityName && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              (Filtered for {entityContext.entityName})
-            </span>
-          )}
+          {relationsLoading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
         </Label>
         {relationOptions.length > 0 ? (
           <SearchableSelect
@@ -1204,11 +1214,11 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
             value={data.relation || ""}
             onValueChange={(value) => onChange("relation", value)}
             placeholder="Search relations..."
-            searchPlaceholder={entityContext.entityName ? `Search relations for ${entityContext.entityName}...` : "Search relations..."}
+            searchPlaceholder="Search relations..."
             emptyText="No relations found"
             showCategories={true}
             maxHeight={300}
-            disabled={loading}
+            disabled={relationsLoading}
           />
         ) : (
           <Select
