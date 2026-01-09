@@ -8,6 +8,7 @@ import { NodePalette } from "./node-palette"
 import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
+import { IdsExportDialog } from "./ids-export-dialog"
 import { Button } from "./ui/button"
 import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -15,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import type { IFCVersion } from "@/lib/ifc-schema"
 import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
-import type { GraphNode, GraphEdge, NodeData } from "@/lib/graph-types"
+import type { GraphNode, GraphEdge, NodeData, IdsMetadata } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
@@ -37,6 +38,7 @@ export function SpecificationEditor() {
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
 
   // IDS Validation hook
   const {
@@ -362,12 +364,11 @@ export function SpecificationEditor() {
     }
   }, [nodes, edges, ifcVersion])
 
-  const exportIdsXml = useCallback(() => {
+  const handleExportWithMetadata = useCallback((metadata?: IdsMetadata) => {
     try {
       const xml = convertGraphToIdsXml(nodes, edges, {
         pretty: true,
-        author: "IDS Flow Editor",
-        date: new Date().toISOString().split('T')[0]
+        ...(metadata && { metadata })
       })
 
       const blob = new Blob([xml], { type: "application/xml" })
@@ -384,6 +385,10 @@ export function SpecificationEditor() {
       alert(`IDS export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }, [nodes, edges])
+
+  const exportIdsXml = useCallback(() => {
+    setExportDialogOpen(true)
+  }, [])
 
   const handleJsonFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -649,6 +654,11 @@ export function SpecificationEditor() {
       </ReactFlowProvider>
 
       <AppFooter />
+      <IdsExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        onExport={handleExportWithMetadata}
+      />
     </div>
   )
 }
@@ -663,7 +673,7 @@ function getDefaultNodeData(type: string) {
       }
     case "entity":
       return {
-        name: "",
+        name: "IFCWALL",
         predefinedType: "",
       }
     case "property":

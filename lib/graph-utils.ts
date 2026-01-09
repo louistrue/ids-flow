@@ -83,3 +83,25 @@ export function getEntityContext(
 
   return { entityName, specNodeId }
 }
+
+/**
+ * Check if a node is connected to a specification's requirements section
+ */
+export function isInRequirementsSection(nodeId: string, edges: GraphEdge[]): boolean {
+  // Check if this node (or a restriction node it's connected to) targets a spec's requirements handle
+  const directEdge = edges.find(e => e.source === nodeId)
+  if (directEdge?.targetHandle === 'requirements') {
+    return true
+  }
+
+  // Check if connected through a restriction node
+  const restrictionEdge = edges.find(e => e.source === nodeId)
+  if (restrictionEdge) {
+    const restrictionTargetEdge = edges.find(e => e.source === restrictionEdge.target)
+    if (restrictionTargetEdge?.targetHandle === 'requirements') {
+      return true
+    }
+  }
+
+  return false
+}

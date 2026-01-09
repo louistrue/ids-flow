@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
+import { CollapsibleSection } from "@/components/ui/collapsible-section"
 import {
   getEntitiesForVersion,
   getPredefinedTypesForEntity,
@@ -57,6 +58,68 @@ interface InspectorPanelProps {
   ifcVersion?: IFCVersion
   nodes: GraphNode[]
   edges: GraphEdge[]
+}
+
+// Helper function to check if a facet node is in the requirements section
+function isInRequirementsSection(nodeId: string, edges: GraphEdge[]): boolean {
+  // Check if this node (or a restriction node it's connected to) targets a spec's requirements handle
+  const directEdge = edges.find(e => e.source === nodeId)
+  if (directEdge?.targetHandle === 'requirements') {
+    return true
+  }
+
+  // Check if connected through a restriction node
+  const restrictionEdge = edges.find(e => e.source === nodeId)
+  if (restrictionEdge) {
+    const finalEdge = edges.find(e => e.source === restrictionEdge.target)
+    if (finalEdge?.targetHandle === 'requirements') {
+      return true
+    }
+  }
+
+  return false
+}
+
+// Cardinality selector component for requirement facets
+function CardinalitySelector({ value, onChange }: { value?: string; onChange: (value: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="cardinality" className="text-sidebar-foreground">
+        Cardinality
+      </Label>
+      <Select
+        value={value || "required"}
+        onValueChange={onChange}
+      >
+        <SelectTrigger className="bg-input border-border text-foreground">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="required">
+            <div className="flex items-center gap-2">
+              <Badge variant="default" className="text-xs">Required</Badge>
+              <span className="text-xs text-muted-foreground">Must have this</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="optional">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">Optional</Badge>
+              <span className="text-xs text-muted-foreground">May have this</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="prohibited">
+            <div className="flex items-center gap-2">
+              <Badge variant="destructive" className="text-xs">Prohibited</Badge>
+              <span className="text-xs text-muted-foreground">Must not have this</span>
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <p className="text-xs text-muted-foreground">
+        Defines whether this requirement is required, optional, or prohibited
+      </p>
+    </div>
+  )
 }
 
 export function InspectorPanel({
@@ -287,7 +350,7 @@ export function InspectorPanel({
   }
 
   return (
-    <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col">
+    <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col overflow-hidden">
       <div className="p-4 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -309,16 +372,16 @@ export function InspectorPanel({
           <ValidationIssues issues={validationState.clientIssues} />
         )}
       </div>
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4 min-w-0">
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-4 pb-8 space-y-4 min-w-0">
           {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
-          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
         </div>
       </ScrollArea>
@@ -364,15 +427,127 @@ function SpecificationFields({ node, onChange, ifcVersion }: { node: Node<any>; 
           id="description"
           value={data.description || ""}
           onChange={(e) => onChange("description", e.target.value)}
-          className="bg-input border-border text-foreground min-h-[100px]"
+          className="bg-input border-border text-foreground min-h-[80px]"
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="applicabilityCardinality" className="text-sidebar-foreground">
+          Applicability Cardinality
+        </Label>
+        <Select
+          value={data.applicabilityCardinality || "required"}
+          onValueChange={(value) => onChange("applicabilityCardinality", value)}
+        >
+          <SelectTrigger className="bg-input border-border text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="required">
+              <div className="flex items-center gap-2">
+                <Badge variant="default" className="text-xs">Required</Badge>
+                <span className="text-xs text-muted-foreground">At least one must exist</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="optional">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">Optional</Badge>
+                <span className="text-xs text-muted-foreground">May or may not exist</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="prohibited">
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive" className="text-xs">Prohibited</Badge>
+                <span className="text-xs text-muted-foreground">Must not exist</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Defines whether matching entities are required, optional, or prohibited in the model
+        </p>
+      </div>
+
+      <CollapsibleSection title="IDS Metadata (Optional)">
+        <div className="space-y-2">
+          <Label htmlFor="identifier" className="text-sidebar-foreground text-xs">
+            Identifier
+          </Label>
+          <Input
+            id="identifier"
+            value={data.identifier || ""}
+            onChange={(e) => onChange("identifier", e.target.value)}
+            placeholder="Machine-readable ID"
+            className="bg-input border-border text-foreground font-mono text-sm"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="version" className="text-sidebar-foreground text-xs">
+            Version
+          </Label>
+          <Input
+            id="version"
+            value={data.version || ""}
+            onChange={(e) => onChange("version", e.target.value)}
+            placeholder="e.g., 1.0.0"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="copyright" className="text-sidebar-foreground text-xs">
+            Copyright
+          </Label>
+          <Input
+            id="copyright"
+            value={data.copyright || ""}
+            onChange={(e) => onChange("copyright", e.target.value)}
+            placeholder="e.g., © 2024 Company Name"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="purpose" className="text-sidebar-foreground text-xs">
+            Purpose
+          </Label>
+          <Input
+            id="purpose"
+            value={data.purpose || ""}
+            onChange={(e) => onChange("purpose", e.target.value)}
+            placeholder="e.g., Fire Safety Compliance"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="milestone" className="text-sidebar-foreground text-xs">
+            Milestone
+          </Label>
+          <Input
+            id="milestone"
+            value={data.milestone || ""}
+            onChange={(e) => onChange("milestone", e.target.value)}
+            placeholder="e.g., Design Development"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="instructions" className="text-sidebar-foreground text-xs">
+            Instructions
+          </Label>
+          <Textarea
+            id="instructions"
+            value={data.instructions || ""}
+            onChange={(e) => onChange("instructions", e.target.value)}
+            placeholder="Instructions for IFC authors..."
+            className="bg-input border-border text-foreground min-h-[60px]"
+          />
+        </div>
+      </CollapsibleSection>
     </>
   )
 }
 
-function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
+function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Load comprehensive entities from schema
   const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
@@ -451,6 +626,26 @@ function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChang
           </Select>
         </div>
       )}
+      {inRequirements && (
+        <>
+          <CardinalitySelector
+            value={data.cardinality}
+            onChange={(value) => onChange("cardinality", value)}
+          />
+          <div className="space-y-2">
+            <Label htmlFor="entity-instructions" className="text-sidebar-foreground">
+              Instructions (Optional)
+            </Label>
+            <Input
+              id="entity-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        </>
+      )}
       {data.name && (
         <div className="flex items-center gap-2 p-2 rounded-lg bg-accent/10">
           <CheckCircle2 className="h-4 w-4 text-accent" />
@@ -463,6 +658,7 @@ function EntityFields({ node, onChange, ifcVersion }: { node: Node<any>; onChang
 
 function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Use comprehensive property sets from the full schema
   const [propertySetOptions, setPropertySetOptions] = useState<SearchableSelectOption[]>([])
@@ -754,6 +950,40 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
           <p className="text-xs text-muted-foreground">This property will be used as an applicability condition</p>
         )}
       </div>
+      {inRequirements && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
+      <CollapsibleSection title="Advanced Options">
+        <div className="space-y-2">
+          <Label htmlFor="property-uri" className="text-sidebar-foreground text-xs">
+            URI
+          </Label>
+          <Input
+            id="property-uri"
+            value={data.uri || ""}
+            onChange={(e) => onChange("uri", e.target.value)}
+            placeholder="https://example.com/property"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        {inRequirements && (
+          <div className="space-y-2">
+            <Label htmlFor="property-instructions" className="text-sidebar-foreground text-xs">
+              Instructions
+            </Label>
+            <Input
+              id="property-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        )}
+      </CollapsibleSection>
     </>
   )
 }
@@ -780,6 +1010,7 @@ function getPlaceholderForDataType(dataType?: string): string {
 
 function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -878,12 +1109,35 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
           className="bg-input border-border text-foreground"
         />
       </div>
+      {inRequirements && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
+      <CollapsibleSection title="Advanced Options">
+        {inRequirements && (
+          <div className="space-y-2">
+            <Label htmlFor="attribute-instructions" className="text-sidebar-foreground text-xs">
+              Instructions
+            </Label>
+            <Input
+              id="attribute-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        )}
+      </CollapsibleSection>
     </>
   )
 }
 
 function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -986,24 +1240,47 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
           className="bg-input border-border text-foreground font-mono"
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="classification-uri" className="text-sidebar-foreground">
-          URI (Optional)
-        </Label>
-        <Input
-          id="classification-uri"
-          value={data.uri || ""}
-          onChange={(e) => onChange("uri", e.target.value)}
-          placeholder="https://example.com/classification"
-          className="bg-input border-border text-foreground"
+      {inRequirements && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
         />
-      </div>
+      )}
+      <CollapsibleSection title="Advanced Options">
+        <div className="space-y-2">
+          <Label htmlFor="classification-uri" className="text-sidebar-foreground text-xs">
+            URI
+          </Label>
+          <Input
+            id="classification-uri"
+            value={data.uri || ""}
+            onChange={(e) => onChange("uri", e.target.value)}
+            placeholder="https://example.com/classification"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        {inRequirements && (
+          <div className="space-y-2">
+            <Label htmlFor="classification-instructions" className="text-sidebar-foreground text-xs">
+              Instructions
+            </Label>
+            <Input
+              id="classification-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        )}
+      </CollapsibleSection>
     </>
   )
 }
 
 function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Get entity context from graph connections
   const entityContext = React.useMemo(() => {
@@ -1097,24 +1374,47 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
           </Select>
         )}
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="material-uri" className="text-sidebar-foreground">
-          URI (Optional)
-        </Label>
-        <Input
-          id="material-uri"
-          value={data.uri || ""}
-          onChange={(e) => onChange("uri", e.target.value)}
-          placeholder="https://example.com/material"
-          className="bg-input border-border text-foreground"
+      {inRequirements && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
         />
-      </div>
+      )}
+      <CollapsibleSection title="Advanced Options">
+        <div className="space-y-2">
+          <Label htmlFor="material-uri" className="text-sidebar-foreground text-xs">
+            URI
+          </Label>
+          <Input
+            id="material-uri"
+            value={data.uri || ""}
+            onChange={(e) => onChange("uri", e.target.value)}
+            placeholder="https://example.com/material"
+            className="bg-input border-border text-foreground"
+          />
+        </div>
+        {inRequirements && (
+          <div className="space-y-2">
+            <Label htmlFor="material-instructions" className="text-sidebar-foreground text-xs">
+              Instructions
+            </Label>
+            <Input
+              id="material-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        )}
+      </CollapsibleSection>
     </>
   )
 }
 
-function PartOfFields({ node, onChange, ifcVersion }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion }) {
+function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
   const data = node.data as any // Type assertion for now
+  const inRequirements = isInRequirementsSection(node.id, edges)
 
   // Load all entities dynamically (like EntityFields does)
   const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
@@ -1239,6 +1539,28 @@ function PartOfFields({ node, onChange, ifcVersion }: { node: Node<any>; onChang
           </Select>
         )}
       </div>
+      {inRequirements && (
+        <CardinalitySelector
+          value={data.cardinality}
+          onChange={(value) => onChange("cardinality", value)}
+        />
+      )}
+      <CollapsibleSection title="Advanced Options">
+        {inRequirements && (
+          <div className="space-y-2">
+            <Label htmlFor="partof-instructions" className="text-sidebar-foreground text-xs">
+              Instructions
+            </Label>
+            <Input
+              id="partof-instructions"
+              value={data.instructions || ""}
+              onChange={(e) => onChange("instructions", e.target.value)}
+              placeholder="Instructions for IFC authors..."
+              className="bg-input border-border text-foreground"
+            />
+          </div>
+        )}
+      </CollapsibleSection>
     </>
   )
 }
