@@ -121,4 +121,4 @@ The application is designed to deploy on Vercel:
 
 ## License
 
-MIT License
+AGPL-3 License
