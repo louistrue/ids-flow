@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Github } from "lucide-react"
+import { Github, BookOpen } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const coffeeIcon = "/icons8-buy-me-a-coffee-100.png"
@@ -14,6 +14,14 @@ export function AppFooter() {
     <footer className="hidden md:block border-t border-border bg-background/80 text-xs text-muted-foreground relative overflow-hidden">
       <div className="relative z-10 flex w-full flex-col gap-2 px-4 py-1.5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4 text-foreground">
+          <Link
+            href="/docs"
+            aria-label="View documentation"
+            className="flex items-center gap-1.5 transition-colors hover:text-primary"
+          >
+            <BookOpen size={16} aria-hidden="true" />
+            <span className="font-medium">Documentation</span>
+          </Link>
           <Link
             href="https://github.com/louistrue/ids-flow"
             target="_blank"

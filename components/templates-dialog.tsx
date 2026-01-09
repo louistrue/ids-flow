@@ -72,9 +72,9 @@ export function TemplatesDialog({ onApplyTemplate }: TemplatesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size="sm" className="gap-2">
+        <Button variant="default" size="sm" className="gap-2" data-templates-trigger>
           <FileText className="h-4 w-4" />
-          Templates
+          <span className="hidden md:inline">Templates</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[80vh] bg-card">
