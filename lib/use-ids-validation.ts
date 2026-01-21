@@ -142,7 +142,7 @@ export function useIdsValidation(
         validateNow,
         clearValidation,
         isValidating: validationState.status === 'loading',
-        hasErrors: validationState.status === 'error' || (validationState.result?.status !== 0),
+        hasErrors: validationState.status === 'error' || (validationState.result !== null && validationState.result.status !== 0),
         isDisabled,
     }
 }
