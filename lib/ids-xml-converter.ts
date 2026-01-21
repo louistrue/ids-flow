@@ -224,18 +224,18 @@ function buildSpecification(
           buildPartOfFacet(node, appl)
           break
         case 'classification':
-          buildClassificationFacet(node, appl, undefined, edges, nodes)
+          buildClassificationFacet(node, appl, undefined, undefined, edges, nodes)
           break
         case 'attribute':
           // Attributes in applicability are treated as conditions
-          buildAttributeFacet(node, appl, undefined, edges, nodes)
+          buildAttributeFacet(node, appl, undefined, undefined, edges, nodes)
           break
         case 'property':
           // Properties in applicability are treated as conditions
-          buildPropertyFacet(node, appl, undefined, edges, nodes)
+          buildPropertyFacet(node, appl, undefined, undefined, edges, nodes)
           break
         case 'material':
-          buildMaterialFacet(node, appl, undefined, edges, nodes)
+          buildMaterialFacet(node, appl, undefined, undefined, edges, nodes)
           break
       }
     }
