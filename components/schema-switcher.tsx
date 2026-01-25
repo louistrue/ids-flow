@@ -12,7 +12,7 @@ interface SchemaSwitcherProps {
 const versionConfig: Record<IFCVersion, { label: string; badge: string; badgeVariant: "outline" | "default" | "secondary" }> = {
   IFC2X3: { label: "IFC2x3", badge: "Legacy", badgeVariant: "outline" },
   IFC4: { label: "IFC4", badge: "Stable", badgeVariant: "secondary" },
-  IFC4X3_ADD2: { label: "IFC4X3", badge: "Latest", badgeVariant: "default" },
+  IFC4X3_ADD2: { label: "IFC4X3 ADD2", badge: "Latest", badgeVariant: "default" },
 }
 
 export function SchemaSwitcher({ version, onVersionChange }: SchemaSwitcherProps) {
@@ -24,7 +24,7 @@ export function SchemaSwitcher({ version, onVersionChange }: SchemaSwitcherProps
         Schema
       </span>
       <Select value={version} onValueChange={(value) => onVersionChange(value as IFCVersion)}>
-        <SelectTrigger className="h-full border-0 rounded-none bg-transparent px-3 gap-2 text-sm font-medium min-w-[120px] focus:ring-0 focus:ring-offset-0">
+        <SelectTrigger className="h-full border-0 rounded-none bg-transparent px-3 gap-2 text-sm font-medium min-w-[140px] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1">
           <div className="flex items-center gap-2">
             <span>{config.label}</span>
             <Badge variant={config.badgeVariant} className="text-[10px] px-1.5 py-0">
