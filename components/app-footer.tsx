@@ -11,8 +11,8 @@ export function AppFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="hidden md:block border-t border-border bg-background/80 text-xs text-muted-foreground relative overflow-hidden">
-      <div className="relative z-10 flex w-full flex-col gap-2 px-4 py-1.5 lg:flex-row lg:items-center lg:justify-between">
+    <footer className="hidden md:flex shrink-0 border-t border-border bg-background text-xs text-muted-foreground">
+      <div className="flex w-full flex-col gap-2 px-4 py-1.5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4 text-foreground">
           <Link
             href="/docs"
@@ -90,31 +90,6 @@ export function AppFooter() {
         </div>
       </div>
 
-      <style jsx>{`
-        footer::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: linear-gradient(
-            90deg,
-            color-mix(in oklch, var(--primary) 25%, transparent),
-            transparent,
-            color-mix(in oklch, var(--primary) 25%, transparent)
-          );
-          opacity: 0.35;
-          animation: footerWave 24s linear infinite;
-          pointer-events: none;
-        }
-
-        @keyframes footerWave {
-          0% {
-            transform: translateX(-25%);
-          }
-          100% {
-            transform: translateX(25%);
-          }
-        }
-      `}</style>
     </footer>
   )
 }

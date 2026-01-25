@@ -2,7 +2,7 @@ import { SpecificationEditor } from "@/components/specification-editor"
 
 export default function Home() {
   return (
-    <main className="h-screen w-full">
+    <main className="h-dvh w-full overflow-hidden">
       <SpecificationEditor />
     </main>
   )
