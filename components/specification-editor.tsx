@@ -5,13 +5,12 @@ import { ReactFlowProvider } from "@xyflow/react"
 import { Panel, PanelGroup } from "react-resizable-panels"
 import { CustomPanelResizeHandle } from "@/components/ui/panel-resize-handle"
 import { NodePalette } from "./node-palette"
-import { MobileNodePalette } from "./mobile-node-palette"
 import { InspectorPanel } from "./inspector-panel"
 import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { IdsExportDialog } from "./ids-export-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Workflow, Layout, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
+import { Copy, Download, Upload, FileText, Layout, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
@@ -508,126 +507,141 @@ export function SpecificationEditor() {
   }, [takeSnapshot])
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
-      <div className="flex-none border-b border-border bg-background">
-        <div className="flex items-center justify-between p-2 md:p-4 gap-2">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="bg-card border border-border rounded-lg px-2 py-1 md:px-4 md:py-2 shadow-lg">
-              <h1 className="text-sm md:text-lg font-semibold text-foreground">IDS Spec Editor</h1>
+      <header className="flex-none border-b border-border bg-background">
+        <div className="flex items-center h-14 px-3 gap-3">
+          {/* Left: Brand + Schema */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="bg-card border border-border rounded-lg px-3 py-1.5 shadow-sm">
+              <h1 className="text-sm font-semibold text-foreground whitespace-nowrap">IDS Spec Editor</h1>
             </div>
             <div className="hidden sm:block">
               <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
             </div>
           </div>
 
+          {/* Center spacer - pushes controls to the right on desktop */}
+          <div className="flex-1 min-w-0" />
+
           {/* Desktop Controls */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-1.5">
             <TemplatesDialog onApplyTemplate={applyTemplate} />
+
+            <div className="w-px h-6 bg-border mx-1" />
+
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 bg-card"
+              className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={undo}
               disabled={!canUndo}
               title="Undo (Ctrl+Z)"
             >
-              <RotateCcw className="h-4 w-4" />
-              Undo
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">Undo</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 bg-card"
+              className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={redo}
               disabled={!canRedo}
               title="Redo (Ctrl+Shift+Z)"
             >
-              <RotateCw className="h-4 w-4" />
-              Redo
+              <RotateCw className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">Redo</span>
             </Button>
+
+            <div className="w-px h-6 bg-border mx-1" />
+
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 bg-card"
+              className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={arrangeAll}
+              title="Auto-arrange all nodes"
             >
-              <Layout className="h-4 w-4" />
-              Arrange All
+              <Layout className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">Arrange All</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 bg-card"
+              className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={cloneAsProfile}
               disabled={!selectedNode || selectedNode.type !== "spec"}
+              title="Clone selected specification as profile variant"
             >
-              <Copy className="h-4 w-4" />
-              Clone as Profile
+              <Copy className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">Clone as Profile</span>
             </Button>
+
+            <div className="w-px h-6 bg-border mx-1" />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 bg-card">
-                  <Download className="h-4 w-4" />
-                  Export
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 px-2.5 bg-card">
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">Export</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportCanvas}>
-                  <Workflow className="h-4 w-4 mr-2" />
-                  Export Canvas (.json)
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={exportIdsXml}>
                   <FileText className="h-4 w-4 mr-2" />
                   Export IDS (.ids)
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportCanvas}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Canvas (.json)
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 bg-card">
-                  <Upload className="h-4 w-4" />
-                  Import
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 px-2.5 bg-card">
+                  <Upload className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">Import</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => jsonFileInputRef?.click()}>
-                  <Workflow className="h-4 w-4 mr-2" />
-                  Import Canvas (.json)
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
                   <FileText className="h-4 w-4 mr-2" />
                   Import IDS (.ids)
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => jsonFileInputRef?.click()}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Canvas (.json)
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <div className="w-px h-6 bg-border mx-1" />
 
             <Button
               asChild
               variant="outline"
               size="sm"
-              className="gap-2 bg-card"
+              className="gap-1.5 h-8 px-2.5 bg-card"
               title="View Documentation"
             >
               <Link href="/docs">
-                <HelpCircle className="h-4 w-4" />
-                Help
+                <HelpCircle className="h-3.5 w-3.5" />
+                <span className="hidden xl:inline">Help</span>
               </Link>
             </Button>
-
             <ThemeToggle />
           </div>
 
-          {/* Mobile Controls - Compact Menu */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Tablet/Mobile Controls */}
+          <div className="flex lg:hidden items-center gap-1.5">
             <Button
               variant="outline"
               size="sm"
               className="bg-card h-8 w-8 p-0"
               onClick={undo}
               disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
+              title="Undo"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -637,7 +651,7 @@ export function SpecificationEditor() {
               className="bg-card h-8 w-8 p-0"
               onClick={redo}
               disabled={!canRedo}
-              title="Redo (Ctrl+Shift+Z)"
+              title="Redo"
             >
               <RotateCw className="h-4 w-4" />
             </Button>
@@ -647,16 +661,11 @@ export function SpecificationEditor() {
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-52">
                 <div className="sm:hidden px-2 py-1.5">
                   <SchemaSwitcher version={ifcVersion} onVersionChange={setIfcVersion} />
                 </div>
                 <DropdownMenuSeparator className="sm:hidden" />
-                <DropdownMenuItem onClick={() => document.querySelector<HTMLButtonElement>('[data-templates-trigger]')?.click()}>
-                  <Workflow className="h-4 w-4 mr-2" />
-                  Templates
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={arrangeAll}>
                   <Layout className="h-4 w-4 mr-2" />
                   Arrange All
@@ -669,32 +678,33 @@ export function SpecificationEditor() {
                   Clone as Profile
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={exportCanvas}>
-                  <Workflow className="h-4 w-4 mr-2" />
-                  Export Canvas (.json)
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={exportIdsXml}>
                   <FileText className="h-4 w-4 mr-2" />
                   Export IDS (.ids)
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportCanvas}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Canvas (.json)
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Import IDS (.ids)
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => jsonFileInputRef?.click()}>
                   <Upload className="h-4 w-4 mr-2" />
                   Import Canvas (.json)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import IDS (.ids)
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/docs">
                     <HelpCircle className="h-4 w-4 mr-2" />
-                    Documentation
+                    Help
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <TemplatesDialog onApplyTemplate={applyTemplate} />
             <ThemeToggle />
           </div>
 
@@ -703,24 +713,24 @@ export function SpecificationEditor() {
             type="file"
             accept=".json"
             onChange={handleJsonFileImport}
-            style={{ display: 'none' }}
+            className="hidden"
           />
           <input
             ref={setIdsFileInputRef}
             type="file"
             accept=".ids,.xml"
             onChange={handleIdsFileImport}
-            style={{ display: 'none' }}
+            className="hidden"
           />
         </div>
-      </div>
+      </header>
 
-      {/* Content row */}
+      {/* Content row - takes remaining space */}
       <ReactFlowProvider>
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           <NodePalette onAddNode={addNode} ifcVersion={ifcVersion} />
-          <PanelGroup direction="horizontal" className="flex-1">
-            <Panel defaultSize={70} minSize={30} className="relative">
+          <PanelGroup direction="horizontal" className="flex-1 min-w-0">
+            <Panel defaultSize={70} minSize={30} className="relative min-h-0">
               <GraphCanvas
                 nodes={nodes}
                 edges={edges}
@@ -734,7 +744,7 @@ export function SpecificationEditor() {
               />
             </Panel>
             <CustomPanelResizeHandle />
-            <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0">
+            <Panel defaultSize={30} minSize={20} maxSize={50} className="min-w-0 min-h-0">
               <InspectorPanel
                 selectedNode={selectedNode}
                 onUpdateNode={updateNodeData}
@@ -751,6 +761,7 @@ export function SpecificationEditor() {
         </div>
       </ReactFlowProvider>
 
+      {/* Footer - fixed at bottom */}
       <AppFooter />
       <IdsExportDialog
         open={exportDialogOpen}
