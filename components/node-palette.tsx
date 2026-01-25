@@ -63,18 +63,14 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
 
   return (
     <Card className="hidden md:flex md:flex-col w-56 shrink-0 rounded-none border-r border-border bg-sidebar">
-      <div className="shrink-0 px-3 py-2 border-b border-sidebar-border">
-        <h2 className="text-sm font-semibold text-sidebar-foreground">Node Palette</h2>
-        <p className="text-xs text-muted-foreground">Click to add nodes to canvas</p>
-      </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-3 space-y-4">
+        <div className="p-2 space-y-3">
           {nodeCategories.map((category) => (
             <div key={category.title}>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
                 {category.title}
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {category.nodes.map((node) => {
                   const Icon = node.icon
                   const facet = FACET_COLORS[node.type as keyof typeof FACET_COLORS]
@@ -82,12 +78,12 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
                     <Button
                       key={node.type}
                       variant="ghost"
-                      className="node-palette-btn w-full justify-start gap-3 h-auto py-3 hover:bg-sidebar-accent transition-all"
+                      className="node-palette-btn w-full justify-start gap-2 h-auto py-2 hover:bg-sidebar-accent transition-all"
                       data-facet={node.type}
                       onClick={() => handleAddNode(node.type)}
                     >
-                      <Icon className={`h-4 w-4 ${facet?.text ?? "text-primary"} transition-transform group-hover:scale-110`} />
-                      <span className="text-sm text-sidebar-foreground">{node.label}</span>
+                      <Icon className={`h-3.5 w-3.5 ${facet?.text ?? "text-primary"} transition-transform group-hover:scale-110`} />
+                      <span className="text-xs text-sidebar-foreground">{node.label}</span>
                     </Button>
                   )
                 })}

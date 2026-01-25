@@ -136,12 +136,8 @@ export function InspectorPanel({
   if (!selectedNode) {
     return (
       <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col overflow-hidden">
-        <div className="px-3 py-2 border-b border-sidebar-border flex-shrink-0">
-          <h2 className="text-sm font-semibold text-sidebar-foreground">Inspector</h2>
-          <p className="text-xs text-muted-foreground">Select a node to inspect</p>
-        </div>
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-3 space-y-4">
+          <div className="p-2 space-y-3">
             {/* Header */}
             <div className="text-center space-y-2">
               <div className="flex justify-center">
@@ -310,29 +306,24 @@ export function InspectorPanel({
 
   return (
     <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col overflow-hidden">
-      <div className="px-3 py-2 border-b border-sidebar-border flex-shrink-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-semibold text-sidebar-foreground">Inspector</h2>
-            <p className="text-xs text-muted-foreground capitalize">{selectedNode.type} Node</p>
-          </div>
-          {/* Compact Validation Badge */}
-          {validationState && (
-            <ValidationBadge
-              validationState={validationState}
-              onValidateNow={onValidateNow}
-              isValidating={isValidating}
-              isDisabled={isValidationDisabled}
-            />
-          )}
-        </div>
-        {/* Validation Issues (if any) */}
-        {validationState && validationState.clientIssues && validationState.clientIssues.length > 0 && (
-          <ValidationIssues issues={validationState.clientIssues} />
-        )}
-      </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-3 space-y-4 min-w-0">
+        <div className="p-2 space-y-3 min-w-0">
+          {/* Node type indicator with validation */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-sidebar-border">
+            <span className="text-xs font-medium text-sidebar-foreground capitalize">{selectedNode.type}</span>
+            {validationState && (
+              <ValidationBadge
+                validationState={validationState}
+                onValidateNow={onValidateNow}
+                isValidating={isValidating}
+                isDisabled={isValidationDisabled}
+              />
+            )}
+          </div>
+          {/* Validation Issues (if any) */}
+          {validationState && validationState.clientIssues && validationState.clientIssues.length > 0 && (
+            <ValidationIssues issues={validationState.clientIssues} />
+          )}
           {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
           {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
