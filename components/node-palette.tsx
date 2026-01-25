@@ -62,13 +62,13 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
   }
 
   return (
-    <Card className="hidden md:flex md:flex-col w-64 shrink-0 rounded-none border-r border-border bg-sidebar">
-      <div className="shrink-0 p-4 border-b border-sidebar-border">
-        <h2 className="text-lg font-semibold text-sidebar-foreground">Node Palette</h2>
-        <p className="text-sm text-muted-foreground mt-1">Click to add nodes to canvas</p>
+    <Card className="hidden md:flex md:flex-col w-56 shrink-0 rounded-none border-r border-border bg-sidebar">
+      <div className="shrink-0 px-3 py-2 border-b border-sidebar-border">
+        <h2 className="text-sm font-semibold text-sidebar-foreground">Node Palette</h2>
+        <p className="text-xs text-muted-foreground">Click to add nodes to canvas</p>
       </div>
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-4 space-y-6">
+        <div className="p-3 space-y-4">
           {nodeCategories.map((category) => (
             <div key={category.title}>
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
