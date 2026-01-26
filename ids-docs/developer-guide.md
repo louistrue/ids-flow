@@ -314,7 +314,7 @@ foreach (var result in results)
 - [IDS Software Implementations](https://technical.buildingsmart.org/ids-software-implementations/)
 
 ### IFC Documentation
-- [IFC4x3 Documentation](https://ifc43-docs.standards.buildingsmart.org/)
+- [IFC4x3 Documentation](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/)
 - [IFC4 Documentation](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/)
 - [IFC2x3 Documentation](https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/)
 

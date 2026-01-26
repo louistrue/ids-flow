@@ -165,8 +165,8 @@ The Classification Facet checks this entire chain to match your criteria.
 - [buildingSMART Data Dictionary](https://search.bsdd.buildingsmart.org/) - Classification URIs
 
 ### IFC Documentation
-- [IfcClassification](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcClassification.htm)
-- [IfcClassificationReference](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcClassificationReference.htm)
+- [IfcClassification](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassification.htm)
+- [IfcClassificationReference](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassificationReference.htm)
 
 ## Learn More
 

@@ -158,7 +158,7 @@ Value: Not empty
 ## IFC Schema Reference
 
 For complete attribute definitions by class:
-- [IFC4x3 Entity Definitions](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcRoot.htm)
+- [IFC4x3 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRoot.htm)
 - [IFC4 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/schema/ifckernel/lexical/ifcroot.htm)
 
 ## Learn More

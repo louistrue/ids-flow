@@ -107,8 +107,8 @@ You can use pattern matching for predefined types:
 ## IFC Class Reference
 
 For complete lists of IFC classes and predefined types:
-- [IFC4x3 Entity Index](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/annex-b1.html)
-- [IFC4 Entity Index](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/alphabeticalorder-entities.htm)
+- [IFC4x3 Entity Index](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/annex-b1.html)
+- [IFC4 Entity Index](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/annex/annex-b/alphabeticalorder_entities.htm)
 
 ## Learn More
 

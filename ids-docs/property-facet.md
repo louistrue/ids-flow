@@ -155,8 +155,8 @@ Data Type: IfcLabel
 ## Property Set Reference
 
 For complete property set definitions:
-- [IFC4x3 Property Sets](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/annex-b3.html)
-- [IFC4 Property Sets](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/alphabeticalorder-property-sets.htm)
+- [IFC4x3 Property Sets](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/annex-b3.html)
+- [IFC4 Property Sets](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/annex/annex-b/alphabeticalorder_psets.htm)
 
 ## Learn More
 
