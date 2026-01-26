@@ -173,21 +173,19 @@ IDSedit exports fully compliant IDS files:
 
 ```mermaid
 flowchart LR
-    A[IDSedit<br/>Author] --> B[IDS File<br/>.ids]
-    B --> C[IDS Checker<br/>Tool]
-    D[IFC Model<br/>.ifc] --> C
-    C --> E[Report<br/>BCF / HTML]
+    A["IDSedit (Author)"] --> B["IDS File (.ids)"]
+    B --> C["IDS Checker"]
+    D["IFC Model (.ifc)"] --> C
+    C --> E["Report (BCF/HTML)"]
 ```
 
 ### IDS-Compatible Checking Tools
 
-| Tool | Type | Description |
-|------|------|-------------|
-| **BIMcollab ZOOM** | Desktop | Free IDS checking with BCF output |
-| **Solibri** | Desktop | Enterprise model checking |
-| **IfcOpenShell** | Library | Python library for IDS checking |
-| **Xbim** | Library | .NET library for IDS checking |
-| **BlenderBIM** | Plugin | Open-source Blender addon |
+For a comprehensive list of open-source IDS checking tools and libraries, visit:
+
+**[modelcheck.opensource.construction](https://modelcheck.opensource.construction/)**
+
+This community-maintained resource lists available tools for validating IFC models against IDS specifications.
 
 ### BCF Integration
 
