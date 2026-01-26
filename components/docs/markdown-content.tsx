@@ -6,6 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 import "highlight.js/styles/github-dark.css";
+import { MermaidDiagram } from "./mermaid-diagram";
 
 interface MarkdownContentProps {
   content: string;
@@ -60,6 +61,13 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
           code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match;
+            const language = match ? match[1] : null;
+
+            // Handle mermaid diagrams
+            if (language === "mermaid") {
+              const chart = String(children).replace(/\n$/, "");
+              return <MermaidDiagram chart={chart} />;
+            }
 
             if (isInline) {
               return (

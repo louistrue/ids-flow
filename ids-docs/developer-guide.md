@@ -171,22 +171,12 @@ IDSedit exports fully compliant IDS files:
 
 ### Model Checking Pipeline
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   IDSedit   │────▶│  IDS File   │────▶│ IDS Checker │
-│  (Author)   │     │   (.ids)    │     │   (Tool)    │
-└─────────────┘     └─────────────┘     └──────┬──────┘
-                                               │
-                    ┌─────────────┐             │
-                    │  IFC Model  │─────────────┘
-                    │   (.ifc)    │
-                    └─────────────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │   Report    │
-                    │  (BCF/HTML) │
-                    └─────────────┘
+```mermaid
+flowchart LR
+    A[IDSedit<br/>Author] --> B[IDS File<br/>.ids]
+    B --> C[IDS Checker<br/>Tool]
+    D[IFC Model<br/>.ifc] --> C
+    C --> E[Report<br/>BCF / HTML]
 ```
 
 ### IDS-Compatible Checking Tools
