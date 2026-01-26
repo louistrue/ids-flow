@@ -87,7 +87,7 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
   return (
     <div
       ref={containerRef}
-      className="my-6 flex justify-center overflow-x-auto"
+      className="mermaid my-6 overflow-x-auto"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
