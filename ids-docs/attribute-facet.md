@@ -1,6 +1,4 @@
-# Attribute Facet
-
-The **Attribute Facet** filters or requires elements based on their IFC attributes - the fundamental data fields defined directly on IFC entities by the schema. Unlike properties which are extensible, attributes are fixed for each IFC class.
+Filter or require elements based on IFC attributes - the fundamental data fields defined directly on IFC entities. Unlike properties, attributes are fixed for each IFC class.
 
 ## Parameters
 

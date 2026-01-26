@@ -1,6 +1,4 @@
-# Value Restrictions
-
-When configuring facet parameters in IDSedit, you can specify exact values or use **restrictions** for more flexible matching. Restrictions allow you to define patterns, ranges, enumerations, and length constraints.
+Define flexible value matching using patterns, ranges, enumerations, and length constraints. Restrictions extend simple value matching for more complex requirements.
 
 ## Restriction Types
 

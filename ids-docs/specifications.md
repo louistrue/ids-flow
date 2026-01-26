@@ -1,6 +1,4 @@
-# Specifications in IDSedit
-
-A **Specification** defines a validation rule for IFC models. In IDSedit, specifications are represented as visual nodes in the flow editor.
+A **Specification** defines a validation rule for IFC models. Each specification contains applicability criteria and requirements that elements must meet.
 
 ## Structure of a Specification
 

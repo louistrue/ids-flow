@@ -1,6 +1,4 @@
-# IDS Metadata
-
-IDS files include metadata to help users understand the purpose and scope of the specifications. IDSedit makes it easy to configure both file-level and specification-level metadata.
+IDS files include metadata describing the purpose and scope of your specifications. Configure both file-level and specification-level metadata in IDSedit.
 
 ## File Metadata
 

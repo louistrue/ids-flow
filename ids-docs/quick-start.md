@@ -1,5 +1,3 @@
-# Quick Start Guide
-
 Get started with IDSedit in minutes. This guide walks you through creating your first Information Delivery Specification.
 
 ## Creating Your First Specification
@@ -50,6 +48,6 @@ Let's create a specification that requires all walls to have a fire rating prope
 
 - Learn about [Specifications](/docs/specifications) in detail
 - Explore the different [Facet Types](/docs/facets/entity)
-- Check the [Developer Guide](/docs/developer-guide) for technical details
+- Check the [Integration Guide](/docs/integration-guide) for technical details
 
 For detailed information about the IDS standard, visit the [official buildingSMART IDS documentation](https://github.com/buildingSMART/IDS/tree/development/Documentation).

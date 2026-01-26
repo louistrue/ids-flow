@@ -1,6 +1,4 @@
-# Entity Facet
-
-The **Entity Facet** filters or requires elements based on their IFC class type. This is typically the starting point for most specifications as it defines what kind of elements you're targeting.
+Filter or require elements based on their IFC class type. The Entity Facet is typically the starting point for most specifications.
 
 ## Parameters
 

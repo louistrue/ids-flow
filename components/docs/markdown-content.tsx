@@ -37,7 +37,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
                 'classification-facet.md': '/docs/facets/classification',
                 'material-facet.md': '/docs/facets/material',
                 'partof-facet.md': '/docs/facets/partof',
-                'developer-guide.md': '/docs/developer-guide',
+                'integration-guide.md': '/docs/integration-guide',
               };
 
               // Extract filename from href

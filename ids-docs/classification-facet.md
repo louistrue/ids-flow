@@ -1,6 +1,4 @@
-# Classification Facet
-
-The **Classification Facet** filters or requires elements based on classification system references. Classifications provide standardized ways to categorize building elements across projects and organizations.
+Filter or require elements based on classification system references. Classifications like Uniclass, OmniClass, and others provide standardized ways to categorize building elements.
 
 ## Parameters
 

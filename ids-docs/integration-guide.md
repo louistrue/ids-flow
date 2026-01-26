@@ -1,6 +1,4 @@
-# Developer Guide
-
-Technical information for developers working with IDSedit, integrating IDS files into workflows, or building IDS-compatible tools.
+Technical reference for IDS file structure, checking tool integration, and programmatic workflows.
 
 ## IDS File Format
 

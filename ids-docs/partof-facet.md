@@ -1,6 +1,4 @@
-# PartOf Facet
-
-The **PartOf Facet** filters or requires elements based on their relationship to other elements in the model hierarchy. This is useful for validating spatial containment, system membership, and assembly structures.
+Filter or require elements based on their relationship to other elements in the model hierarchy. Useful for spatial containment, system membership, and assembly structures.
 
 ## Parameters
 

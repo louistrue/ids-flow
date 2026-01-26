@@ -1,6 +1,4 @@
-# Welcome to IDSedit
-
-IDSedit is a visual editor for creating and managing **Information Delivery Specifications (IDS)** - a [buildingSMART standard](https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids/) for specifying and validating information requirements in IFC models.
+IDSedit is a visual editor for creating **Information Delivery Specifications (IDS)** - a [buildingSMART standard](https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids/) for specifying and validating information requirements in IFC models.
 
 ## What is IDS?
 
@@ -22,7 +20,7 @@ Key concepts:
 ## Learn More
 
 - [Quick Start Guide](quick-start.md) - Get up and running with IDSedit
-- [Developer Guide](developer-guide.md) - Technical details for developers
+- [Integration Guide](integration-guide.md) - IDS file format and workflow integration
 
 ### Official IDS Resources
 

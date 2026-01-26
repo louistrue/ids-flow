@@ -85,12 +85,12 @@ export const docsConfig: DocSection[] = [
     ],
   },
   {
-    title: "Developer Resources",
+    title: "Integration",
     items: [
       {
-        title: "Developer Guide",
-        href: "/docs/developer-guide",
-        mdFile: "developer-guide.md",
+        title: "Integration Guide",
+        href: "/docs/integration-guide",
+        mdFile: "integration-guide.md",
       },
     ],
   },

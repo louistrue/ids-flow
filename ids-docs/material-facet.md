@@ -1,6 +1,4 @@
-# Material Facet
-
-The **Material Facet** filters or requires elements based on their material assignments. Materials in IFC can be assigned in various ways - from simple single materials to complex layered compositions.
+Filter or require elements based on their material assignments. IFC supports single materials, layered sets, profiles, and constituent sets.
 
 ## Parameters
 

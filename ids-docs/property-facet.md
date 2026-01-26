@@ -1,6 +1,4 @@
-# Property Facet
-
-The **Property Facet** specifies requirements for IFC properties - the most common way to attach custom data to model elements. Properties are organized into Property Sets (Psets) and can contain various data types.
+Specify requirements for IFC properties, the most common way to attach custom data to model elements. Properties are organized into Property Sets (Psets) with various data types.
 
 ## Parameters
 
