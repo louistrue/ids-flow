@@ -182,11 +182,9 @@ flowchart TD
 
 ### IDS-Compatible Checking Tools
 
-For a comprehensive list of open-source IDS checking tools and libraries, visit:
-
 **[modelcheck.opensource.construction](https://modelcheck.opensource.construction/)**
 
-This community-maintained resource lists available tools for validating IFC models against IDS specifications.
+An open-source web-based modelchecker that validates IFC models against basic rules and IDS specifications. Upload your IFC and IDS files to check compliance directly in the browser.
 
 ### BCF Integration
 
