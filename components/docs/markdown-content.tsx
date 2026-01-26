@@ -139,6 +139,25 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
               {...props}
             />
           ),
+          // Lists with proper styling
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc pl-6 my-4 space-y-2"
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              className="list-decimal pl-6 my-4 space-y-2"
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => (
+            <li
+              className="text-slate-700 dark:text-slate-300"
+              {...props}
+            />
+          ),
         }}
       >
         {content}
