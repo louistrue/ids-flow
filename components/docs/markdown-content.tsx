@@ -6,6 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 import "highlight.js/styles/github-dark.css";
+import { MermaidDiagram } from "./mermaid-diagram";
 
 interface MarkdownContentProps {
   content: string;
@@ -36,7 +37,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
                 'classification-facet.md': '/docs/facets/classification',
                 'material-facet.md': '/docs/facets/material',
                 'partof-facet.md': '/docs/facets/partof',
-                'developer-guide.md': '/docs/developer-guide',
+                'integration-guide.md': '/docs/integration-guide',
               };
 
               // Extract filename from href
@@ -60,6 +61,17 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
           code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match;
+            const language = match ? match[1] : null;
+
+            // Handle mermaid diagrams - break out of prose constraints
+            if (language === "mermaid") {
+              const chart = String(children).replace(/\n$/, "");
+              return (
+                <div className="not-prose">
+                  <MermaidDiagram chart={chart} />
+                </div>
+              );
+            }
 
             if (isInline) {
               return (
@@ -124,6 +136,25 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
           blockquote: ({ node, ...props }) => (
             <blockquote
               className="border-l-4 border-blue-500 pl-4 italic my-4 text-slate-600 dark:text-slate-400"
+              {...props}
+            />
+          ),
+          // Lists with proper styling
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc pl-6 my-4 space-y-2"
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              className="list-decimal pl-6 my-4 space-y-2"
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => (
+            <li
+              className="text-slate-700 dark:text-slate-300"
               {...props}
             />
           ),

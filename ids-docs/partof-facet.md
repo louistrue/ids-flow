@@ -1,59 +1,165 @@
-# PartOf facet
-
-This facet either identifies objects that are part-of another (applicability), or require that they are (requirement).
-
-While objects in IFC can have multiple relationships to other objects. IDS part-of recursively navigates the following types to determine if an entity is part-of another:
-
-- The **IFCRELAGGREGATES** relationship describes how multiple smaller sub-objects can be aggregated into a single bigger object. For example, many building storeys make up a building. Alternatively, many beams, floor boards, and joints make up a slab. Or perhaps many brackets, mullions, and steel plates make up an assembly.
-- The **IFCRELASSIGNSTOGROUP** relationship describes how multiple objects can be grouped into a collection of objects any use-case. For example, ducts, AHUs, fans, and louvres may all be grouped into a single distribution system.  Alternatively, cables, distribution boards, and GPOs may be grouped into a single circuit. Or perhaps spaces are grouped into zones, or maintainable assets are grouped into an inventory.
-- The **IFCRELCONTAINEDINSPATIALSTRUCTURE** relationship describes how multiple objects can be located in a particular location. For example, a pump might be in a space, a column might be on the level 2 building storey, or some street furniture might be on the building site. Every object must have a single primary location container in IFC, even though they may be referenced in multiple locations (such as a multi-storey column). This relationship only targets the primary location container.
-- The **IFCRELNESTS** relationship describes how a physical object may be connected to a larger host object, typically through a physical connection such as a pre-drilled hole or connection terminal. When the host moves, the attached nested objects move with it.
-- The **IFCRELVOIDSELEMENT** relationship describes how a void belongs to an element.
-- The **IFCRELFILLSELEMENT** relationship describes how an element fills a void, making it part of the void.
-
-When the `relation` parameter is not specified, then all 6 are to be considered (recursively) to identify containing entities, otherwise only the specified relation type should be considered (also recursively).
-
-![Example of part of identification](Graphics/partof-Relations.png)
+Filter or require elements based on their relationship to other elements in the model hierarchy. Useful for spatial containment, system membership, and assembly structures.
 
 ## Parameters
 
-| Parameter    | Required | Type            | Meaning                                                                                                                                                                                                                                                                                     |
-| ------------ | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Entity**   | ✔️     | An entity facet | Any valid IDS `entityType`, nested in the XML (e.g. "IFCSYSTEM"). The IFC class of the larger object matches the required entity. Expressed in UPPERCASE.                                                                                                                                   |
-| **Relation** | ❌       | string          | One relationship chosen from the 6 supported types listed above. If omitted any valid IFC relationship structure that directly or indirectly, and transitively (recursively) has to be evaluated, if specified only the given type must be evaluated (recursively). Expressed in UPPERCASE. |
-                                                                                                                                                                                                       
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| **Entity** | Yes | The IFC class of the parent element |
+| **Relation** | No | Specific relationship type to check |
 
-## 'Part Of' facet interpretation
+## Using in IDSedit
 
-### Applicability
+### As Applicability
 
-| PartOf Entity | PartOf Relation*                  | IDS Interpretation                                    |
-| ------------- | --------------------------------- | ----------------------------------------------------- |
-| IFCSPACE      | -                                 | Applies to all objects being a part of an *IfcSpace*. |
-| IFCSPACE      | IFCRELCONTAINEDINSPATIALSTRUCTURE | Applies to all objects contained within an *IfcSpace*, as defined by the *IfcRelContainedInSpatialStructure* relation. |
+Filter elements that are part of another element:
 
-### Requirements
+1. Add a PartOf Facet to the Applicability section
+2. Select the parent Entity type
+3. Optionally specify the Relation type
 
-| IDS Cardinality | PartOf Entity | PartOf Relation*                  | Configuration Allowed? | IDS Interpretation                                                                                          |
-| --------------- | ------------- | --------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| REQUIRED        | IFCSPACE      | -                                 | ✅                     | Applicable objects must have a relation to the *IfcSpace* entity (traversing all valid relationships).      |
-| REQUIRED        | IFCSPACE      | IFCRELCONTAINEDINSPATIALSTRUCTURE | ✅                     | Applicable objects must have the *IfcRelContainedInSpatialStructure* relation to the *IfcSpace* entity.     |
-| OPTIONAL        | IFCSPACE      | -                                 | ❌                     | Not allowed. No added value in specifying that it can be a part or not.                                     |
-| OPTIONAL        | IFCSPACE      | IFCRELCONTAINEDINSPATIALSTRUCTURE | ❌                     | Not allowed. No added value in specifying that it can be a part or not.                                     |
-| PROHIBITED      | IFCSPACE      | -                                 | ✅                     | Applicable objects must not have any relation to *IfcSpace* associated.                                     |
-| PROHIBITED      | IFCSPACE      | IFCRELCONTAINEDINSPATIALSTRUCTURE | ✅                     | Applicable objects must not have the *IfcRelContainedInSpatialStructure* relation to *IfcSpace* associated. |
+**Example:** Target all elements contained in spaces by setting Entity to `IfcSpace`
 
-\* the field is an XML attribute
+### As Requirement
 
+Require elements to be part of a larger element:
 
-## Examples
+1. Add a PartOf Facet to the Requirements section
+2. Configure the required parent entity type
 
-| Applicability Intention                                          | Requirement Intention                                        | Facet Definition                                                |
-| ---------------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- |
-| Any entity that is directly composing a curtain wall             | The entity (e.g. mullion) must be part of a curtain wall     | Relation="IFCRELAGGREGATES", Entity="IFCCURTAINWALL"            |
-| Any entity that is directly or indirectly part of a curtain wall | The entity (e.g. mullion) must be part of a curtain wall     | Entity="IFCCURTAINWALL"                                         |
-| Any entity that is part of a distribution system                 | The entity (e.g. duct) must be part of a distribution system | Relation="IFCRELASSIGNSTOGROUP", Entity="IFCDISTRIBUTIONSYSTEM" |
-| Any entity that is located in a space                            | The entity (e.g. pump) must be located in a space            | Relation="IFCRELCONTAINEDINSPATIALSTRUCTURE", Entity="IFCSPACE" |
-| Any entity that is hosted by a wall                              | The entity (e.g. window) must be fixed on a wall             | Relation="IFCRELNESTS", Entity="IFCWALL"                        |
+## Supported Relationships
 
+The PartOf Facet can check six types of IFC relationships:
 
+### IfcRelAggregates
+
+Describes how objects are composed of smaller parts:
+
+| Parent | Children | Example |
+|--------|----------|---------|
+| `IfcBuilding` | `IfcBuildingStorey` | Building contains storeys |
+| `IfcBuildingStorey` | `IfcSpace` | Storey contains spaces |
+| `IfcElementAssembly` | `IfcBeam`, `IfcColumn` | Steel assembly contains members |
+| `IfcCurtainWall` | `IfcPlate`, `IfcMember` | Curtain wall contains panels |
+
+### IfcRelContainedInSpatialStructure
+
+Describes spatial location of elements:
+
+| Container | Elements | Example |
+|-----------|----------|---------|
+| `IfcBuildingStorey` | `IfcWall`, `IfcDoor` | Elements on a floor level |
+| `IfcSpace` | `IfcFurniture` | Furniture in a room |
+| `IfcSite` | `IfcBuilding` | Buildings on a site |
+
+### IfcRelAssignsToGroup
+
+Groups elements by function or system:
+
+| Group | Members | Example |
+|-------|---------|---------|
+| `IfcSystem` | `IfcDistributionElement` | HVAC system components |
+| `IfcZone` | `IfcSpace` | Thermal zones |
+| `IfcGroup` | Any element | Custom groupings |
+
+### IfcRelNests
+
+Physical attachment to a host:
+
+| Host | Nested | Example |
+|------|--------|---------|
+| `IfcDistributionPort` | `IfcSensor` | Sensor attached to port |
+| `IfcElement` | `IfcDiscreteAccessory` | Bracket attached to beam |
+
+### IfcRelVoidsElement
+
+Void/opening relationships:
+
+| Element | Void | Example |
+|---------|------|---------|
+| `IfcWall` | `IfcOpeningElement` | Door opening in wall |
+| `IfcSlab` | `IfcOpeningElement` | Stair opening in floor |
+
+### IfcRelFillsElement
+
+Elements that fill voids:
+
+| Void | Filling | Example |
+|------|---------|---------|
+| `IfcOpeningElement` | `IfcDoor` | Door in opening |
+| `IfcOpeningElement` | `IfcWindow` | Window in opening |
+
+## Recursive Traversal
+
+The PartOf Facet traverses relationships **recursively**. This means:
+
+```text
+IfcSite
+  └── IfcBuilding (via IfcRelAggregates)
+        └── IfcBuildingStorey (via IfcRelAggregates)
+              └── IfcWall (via IfcRelContainedInSpatialStructure)
+```
+
+If you query for elements that are part of `IfcSite`, the wall will match because the relationship chain leads back to the site.
+
+## Common Use Cases
+
+### Require Spatial Assignment
+
+Ensure all elements are assigned to a building storey:
+
+```text
+Entity Facet: IfcBuildingElement (applicability)
+PartOf Facet: Entity = IfcBuildingStorey (requirement)
+```
+
+### Filter by System Membership
+
+Target elements in a specific system type:
+
+```text
+PartOf Facet: Entity = IfcSystem, Relation = IfcRelAssignsToGroup
+```
+
+### Validate Space Containment
+
+Require furniture to be in spaces:
+
+```text
+Entity Facet: IfcFurniture
+PartOf Facet: Entity = IfcSpace, Relation = IfcRelContainedInSpatialStructure
+```
+
+### Assembly Validation
+
+Target elements that are part of curtain walls:
+
+```text
+PartOf Facet: Entity = IfcCurtainWall, Relation = IfcRelAggregates
+```
+
+### Zone Assignment
+
+Require spaces to be in thermal zones:
+
+```text
+Entity Facet: IfcSpace
+PartOf Facet: Entity = IfcZone, Relation = IfcRelAssignsToGroup
+```
+
+## Technical Notes
+
+- When **Relation is not specified**, all 6 relationship types are checked
+- Relationships are traversed **recursively** up the hierarchy
+- Entity names are **case-insensitive**
+- Relation names must match exactly (uppercase)
+- **Prohibited** cardinality means elements must NOT be part of the specified entity
+
+## IFC Documentation
+
+- [IfcRelAggregates](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRelAggregates.htm)
+- [IfcRelContainedInSpatialStructure](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRelContainedInSpatialStructure.htm)
+- [IfcRelAssignsToGroup](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRelAssignsToGroup.htm)
+
+## Learn More
+
+For detailed specification information, see the [official PartOf Facet documentation](https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/partof-facet.md) from buildingSMART.

@@ -131,7 +131,7 @@ You can also:
 If you need assistance:
 - Review the detailed [Facet Type documentation](/docs/facets/entity)
 - Check the [Restrictions guide](/docs/restrictions) for value constraints
-- Read the [Developer Guide](/docs/developer-guide) for XML details
+- Read the [Integration Guide](/docs/integration-guide) for XML details
 `;
 
 export default async function QuickStartPage() {

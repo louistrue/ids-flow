@@ -138,8 +138,6 @@
   html,
   body {
     @apply bg-background text-foreground;
-    overflow: hidden;
-    height: 100%;
   }
 }
 
@@ -335,4 +333,35 @@
 /* Hide ReactFlow attribution */
 .react-flow__attribution {
   display: none !important;
+}
+
+/* Mermaid diagram styles - prevent text truncation */
+.mermaid {
+  overflow: visible !important;
+}
+
+.mermaid svg {
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+.mermaid .node rect,
+.mermaid .node polygon,
+.mermaid .node circle {
+  overflow: visible !important;
+}
+
+.mermaid .nodeLabel,
+.mermaid .label,
+.mermaid .edgeLabel {
+  overflow: visible !important;
+  white-space: nowrap !important;
+}
+
+.mermaid foreignObject {
+  overflow: visible !important;
+}
+
+.mermaid .label-container {
+  overflow: visible !important;
 }

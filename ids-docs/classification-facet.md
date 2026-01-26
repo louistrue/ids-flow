@@ -1,38 +1,195 @@
-# Classification facet
-
-A **Classification System** is a defined hierarchy to categorise elements. Some popular classification systems include "Uniclass 2015", "ETIM" and "CCI". Within a **System**, there is a hierarchy of short reference **Codes** that categorise elements in increasing levels of specificity, such as "EF_25_10" and "EF_25_10_25". Any object in IFC model can have a [Classification Reference](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcClassificationReference.htm).
-
-The **Classification Facet** is different to the **Entity Facet**. The **Entity Facet** is restricted to built-in IFC classes and predefined types, which may also function as a method of **Classification**. In contrast, a classification refers to a third party, non-IFC classifications.
-
-IFC models keep track of classification names, dates, versions, and other data to uniquely identify them. For this reason, **Classification** requirements should use the **Classification Facet**, as opposed to the **Property Facet**.
-
-**Classifications** are a great way to identify **Applicable** entities, or **Require** that entities should follow a nominated **Classification** system by a workflow, such as in an asset management system, work breakdown structure, or coordination requirement.
+Filter or require elements based on classification system references. Classifications like Uniclass, OmniClass, and others provide standardized ways to categorize building elements.
 
 ## Parameters
 
-| Parameter  | Required | Restrictions Allowed | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------- | -------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **System** | ✔️     | ✔️                 | The name of the classification system.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Value**  | ❌       | ✔️                 | The value of a refeference code within that classification system. It is typically an official name or a short code.                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **URI**    | ❌       | ❌                   | Uniform Resource Identifier of the class. Used to reference a standardized definition of a class, to ensure consistency of interpretation. The target resource should include a name and definition, and preferably comply with the ISO 12006-3 and ISO 23386. This is an optional attribute that is not subject to IDS checking - the IFC model does not need to have the same or any URI. One source of valid URIs is [the bSDD](https://search.bsdd.buildingsmart.org/), and an example URI is that of a "Beam": [https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBeam](https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBeam). |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| **System** | Yes | Classification system name (e.g., `Uniclass 2015`) |
+| **Value** | No | Classification code (e.g., `EF_25_10_25`) |
 
+## Using in IDSedit
 
-## Classification facet interpretation
+### As Applicability
 
-### Applicability
+Filter elements by their classification:
 
-| Classification System | Classification Value | IDS Interpretation                                                                                  |
-| --------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
-| ETIM                  | -                    | Applies to all entities classified using the *ETIM* classification system, regardless of the value. |
-| ETIM                  | EC000009             | Applies to all entities with a code *EC000009* of classification system *ETIM*.                     |
+1. Add a Classification Facet to the Applicability section
+2. Enter the classification System name
+3. Optionally specify a Value (classification code)
 
-### Requirements
+**Example:** Target elements classified as external walls in Uniclass by setting System to `Uniclass 2015` and Value to `EF_25_10_25`
 
-| IDS Cardinality | Classification System | Classification Value | URI    | Configuration Allowed? | IDS Interpretation                                                                                                                |
-| --------------- | --------------------- | -------------------- | --- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| REQUIRED        | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ✅                     | Applicable objects must have the classification system *ETIM* populated (i.e. not null).                                          |
-| REQUIRED        | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | The classification *ETIM* must have the value *EC000009* (on applicable objects).                                                 |
-| OPTIONAL        | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ❌                     | Not allowed. Optionality does not make sense - no added field to require.                                                         |
-| OPTIONAL        | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | If the classification *ETIM* exists on applicable objects, it needs to have the value *EC000009*.                                 |
-| PROHIBITED      | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ✅                     | The classification *ETIM* must not exist on applicable objects, even if empty.                                                    |
-| PROHIBITED      | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | The classification *ETIM* must not have the value *EC000009* (on applicable objects). Null is also an allowed value in this case. |
+### As Requirement
+
+Require elements to have a classification:
+
+1. Add a Classification Facet to the Requirements section
+2. Specify the required classification system
+3. Optionally require a specific code or code pattern
+
+## Major Classification Systems
+
+### Uniclass 2015 (UK)
+
+The UK standard for construction classification:
+
+| Table | Prefix | Description | Example |
+|-------|--------|-------------|---------|
+| **EF** | EF_ | Elements/Functions | `EF_25_10` (Walls) |
+| **Ss** | Ss_ | Systems | `Ss_25_10_30` (External wall systems) |
+| **Pr** | Pr_ | Products | `Pr_25_71_14` (Concrete blocks) |
+| **Ac** | Ac_ | Activities | `Ac_35_10` (Assembling) |
+| **En** | En_ | Entities | `En_10` (Sites) |
+
+**Pattern example:** `EF_25.*` matches all Uniclass wall elements
+
+### OmniClass (North America)
+
+US/Canadian construction classification:
+
+| Table | Number | Description | Example |
+|-------|--------|-------------|---------|
+| **21** | 21- | Elements | `21-02 20 10` (Exterior Walls) |
+| **22** | 22- | Work Results | `22-04 21 13` (Brick Masonry) |
+| **23** | 23- | Products | `23-13 21 11` (Concrete Block) |
+
+### CCI (Nordic)
+
+Construction Classification International:
+
+| Code | Description |
+|------|-------------|
+| `QAA` | Wall systems |
+| `QBA` | Floor systems |
+| `QCA` | Roof systems |
+
+### NL-SfB (Netherlands)
+
+Dutch construction classification based on SfB:
+
+| Code | Description |
+|------|-------------|
+| `21` | External walls |
+| `22` | Internal walls |
+| `23` | Floors |
+
+### Custom Systems
+
+You can use any classification system name. Common patterns:
+
+- Company-specific systems: `ACME Classification`
+- Project-specific systems: `Project XYZ Categories`
+
+## Value Patterns
+
+### Exact Match
+
+```text
+System: Uniclass 2015
+Value: EF_25_10_25
+```
+
+### Hierarchical Matching
+
+Match all codes in a branch using patterns:
+
+| Pattern | Matches |
+|---------|---------|
+| `EF_25.*` | All Uniclass wall elements |
+| `21-02.*` | All OmniClass exterior enclosure elements |
+| `EF_25_10.*` | All external wall sub-classifications |
+
+### Multiple Values
+
+Use enumeration restrictions to allow several codes:
+
+```text
+System: Uniclass 2015
+Value: ["EF_25_10_25", "EF_25_10_30", "EF_25_10_35"]
+```
+
+## Common Use Cases
+
+### Require Classification
+
+Ensure all elements are classified:
+
+```text
+System: Uniclass 2015
+Value: (empty - any code accepted)
+```
+
+### Discipline-Specific Classification
+
+Target structural elements:
+
+```text
+System: Uniclass 2015
+Value: Pattern "Ss_25.*" (structural systems)
+```
+
+### Product Specifications
+
+Require product-level classification:
+
+```text
+System: Uniclass 2015
+Value: Pattern "Pr_.*" (any product code)
+```
+
+### Cost Code Assignment
+
+For cost estimation workflows:
+
+```text
+System: Cost Codes
+Value: Pattern "[0-9]{4}" (4-digit cost code)
+```
+
+### Multiple System Support
+
+Elements can have multiple classifications. You can require multiple systems:
+
+- Specification 1: Uniclass 2015 classification
+- Specification 2: OmniClass classification
+
+## How Classifications Work in IFC
+
+Classifications are attached to elements via `IfcRelAssociatesClassification`:
+
+```text
+Element (IfcWall)
+  └── IfcRelAssociatesClassification
+        └── IfcClassificationReference
+              ├── Identification: "EF_25_10_25"
+              └── ReferencedSource
+                    └── IfcClassification
+                          └── Name: "Uniclass 2015"
+```
+
+The Classification Facet checks this entire chain to match your criteria.
+
+## Technical Notes
+
+- System names are matched **case-insensitively**
+- Classification values/codes are matched **case-sensitively** by default
+- Elements can have multiple classifications from different systems
+- Classification can be applied to instances or types (or both)
+- Empty Value means "must have any classification in this system"
+
+## Classification Resources
+
+### Official Sources
+
+- [Uniclass 2015](https://uniclass.thenbs.com/) - NBS maintained
+- [OmniClass](https://www.csiresources.org/standards/omniclass) - CSI maintained
+- [buildingSMART Data Dictionary](https://search.bsdd.buildingsmart.org/) - Classification URIs
+
+### IFC Documentation
+
+- [IfcClassification](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassification.htm)
+- [IfcClassificationReference](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassificationReference.htm)
+
+## Learn More
+
+For detailed specification information, see the [official Classification Facet documentation](https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/classification-facet.md) from buildingSMART.

@@ -1,58 +1,201 @@
-# Complex restrictions
+Define flexible value matching using patterns, ranges, enumerations, and length constraints. Restrictions extend simple value matching for more complex requirements.
 
-When specifying a **Facet Parameter**, you may either specify a **Simple Value** or a **Complex Restriction**. A **Simple Value** may be text, a number, or a boolean (TRUE / FALSE). In contrast, a **Complex Restriction** may represent pick lists of valid values, naming schemes and conventions, numeric ranges, or more. A restriction may be specified in four different ways:
+## Restriction Types
 
-- Enumeration
-- Pattern
-- Bounds
-- Length
+### Enumeration
 
-## Enumeration
+Allow a value to match any item from a predefined list.
 
-An **Enumeration** restriction means that the value must be one of a list of allowed values. For example, you might want to specify that a material may be either "concrete" or "steel".
+**Use case:** Limiting allowed values to a specific set.
 
-Numbers may also be specified as a list. For example, you may specify that a concrete strength grade may be either "25", "30", "35, or "40". If the user has the value of "30", then that will comply with your **Enumeration**. However, if they choose "31", then it does not.
+| Example | Allowed Values |
+|---------|----------------|
+| Fire ratings | `"1HR"`, `"2HR"`, `"3HR"` |
+| Material types | `"concrete"`, `"steel"`, `"wood"` |
+| Status codes | `"APPROVED"`, `"PENDING"`, `"REJECTED"` |
 
-Booleans may also be specified, such as "TRUE" or "FALSE". However, it is generally meaningless to specify a boolean as an enumeration because the nature of a boolean implies that the user always has to choose either "TRUE" or "FALSE".
+In IDSedit, use the enumeration editor to add multiple allowed values.
 
-Note that even if you specify a list of allowed values, the user can still only choose one value from that list.
+### Pattern (Regex)
 
-## Pattern
+Define naming conventions or value formats using regular expressions.
 
-A **Pattern** restriction represents a naming convention or naming scheme. For example, if you want to specify that door types must be named using the convention DT01, DT02, DT03, etc, you can create a pattern defining that the letters "DT" should be first, followed by two numbers.
+**Use case:** Enforcing naming standards, validating formats.
 
-Computers have a special way of defining patterns of text called **Regex**. It uses special symbols to tell the computer to expect numbers, letters, or any character. You may already be familiar with computer patterns using the "`*`" character as a wildcard. For example, you might say that the pattern "`DT*`" can be satisfied by the values "`DTA`", "`DTB`", or even "`DT01`". **Regex** is a bit more complex, but in exchange, you can be more specific about the rules in your pattern. Investing in learning **Regex** is highly recommended, given the importance of naming conventions in the AEC industry.
+#### Basic Pattern Syntax
 
-Here are some common examples you can use:
+| Symbol | Meaning | Example |
+|--------|---------|---------|
+| `.` | Any single character | `A.C` matches "ABC", "A1C" |
+| `*` | Zero or more of previous | `AB*C` matches "AC", "ABC", "ABBC" |
+| `+` | One or more of previous | `AB+C` matches "ABC", "ABBC" (not "AC") |
+| `?` | Zero or one of previous | `AB?C` matches "AC", "ABC" |
+| `^` | Start of string | `^Wall` matches "Wall-01" |
+| `$` | End of string | `Wall$` matches "External Wall" |
+| `\|` | OR operator | `(cat\|dog)` matches "cat" or "dog" |
 
-| Pattern      | Description                                                                                                                                                                                                                               | Example values that meet the pattern criteria                                                                                                                            | Example values that fail the pattern                                                                                                       |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DT01`       | When only letters and numbers are used with no symbols, then the pattern is equivalent to an exact match                                                                                                                                  | "`DT01`"                                                                                                                                                                 | Anything other than "`DT01`" will fail.                                                                                                    |
-| `DT_ABC-01`  | Apart from letters and numbers, the "`_`" and "`-`" symbols have no special meaning, so this pattern is also equivalent to an exact match.                                                                                                | "`DT_ABC-01`"                                                                                                                                                            | Anything other than "`DT_ABC-01`" will fail.                                                                                               |
-| `DT.`        | The "`.`" symbol is a wildcard for any _single_ character.                                                                                                                                                                                | "`DT1`", "`DT2`", "`DTA`", "`DTX`", "`DT+`", etc                                                                                                                         | "`DT01`" will not match because it has multiple characters after "`DT`". "`ADT1`" will not match because it starts with "`A`", not "`DT`". |
-| `DT..`       | When the "`.`" wildcard symbol is used multiple times, each time represents another _single_ character.                                                                                                                                   | "`DT01`", "`DT02`", "`DTAB`", "`DTXY`", "`DT++`", etc                                                                                                                    | "`DT1`" will not match because it doesn't have two characters after "`DT`".                                                                |
-| `DT.*`       | When the "`*`" symbol is used after the "`.`" symbol to create "`.*`", it is a wildcard for any number of characters, not just a single character. So anything starting with `DT` will match, regardless of what characters are after it. | "`DT1`", "`DT02`", "`DTA`", "`DTXYZ`", "`DT+1-BC=123`", etc                                                                                                              | Anything that doesn't start with "`DT`" will fail, such as "`ADT`", "`ABC-DT01`", etc.                                                     |
-| `.*DT.*`     | This time, the "`.*`" symbol combination is used both before and after the text "`DT`", meaning that any number of characters (including zero characters) can occur before or after the text "`DT`".                                      | "`DT`" matches because it technically has zero characters before and after it (tricky, isn't it?). "`DT1`", "`ADT`", "`ADT1`", "`ABCDT01`", and "`ABC-DT-01`" all match. | Anything which doesn't contain "`DT`" will fail, such as "`ADIT`", "`TD`", or "`D-T`".                                                     |
-| `DT[0-9]`    | The "`[0-9]`" symbol combination means that any _single_ digit between 0 and 9 is allowed after the text "`DT`".                                                                                                                          | "`DT0`", "`DT1`", "`DT2`" up to "`DT9`" will all match                                                                                                                   | Anything which doesn't have _only_ a single digit after "`DT`" will fail, like "`DT`", "`DTA`", and "`DT123`"                              |
-| `DT[0-9]*`   | When the "`*`" symbol is used after the "`[0-9]`" symbol to create "`[0-9]*`", it means that you can have any number of digits (including zero!) after the text "`DT`".                                                                   | "`DT`", "`DT1`", "`DT12`", "`DT012345`", etc will match                                                                                                                  | Any value which has a non-digit after "`DT`" will fail, like "`DTABC`", "`DT01A`", "DTA1B2", etc.                                          |
-| `DT[0-9]{2}` | This time, instead of adding the "`*`" symbol, we add the "`{2}`" symbol, which means that you want exactly two digits after "`DT`".                                                                                                      | "`DT01`", "`DT24`", "`DT99`", etc all match                                                                                                                              | Anything other than 2 digits will fail, like "`DTA`", "`DT0`", or "`DT123`".                                                               |
+#### Character Classes
 
-**Regex** is a well-established methodology and can achieve very advanced pattern matching, but can take a while to fully learn its capabilities. As a result, only a few basic examples are shown here. Teaching the full capabilities is outside the scope of the IDS documentation. To make full use of it, there are plenty of online tutorials and resources:
+| Pattern | Matches |
+|---------|---------|
+| `[0-9]` | Any digit (0-9) |
+| `[A-Z]` | Any uppercase letter |
+| `[a-z]` | Any lowercase letter |
+| `[A-Za-z]` | Any letter |
+| `[A-Za-z0-9]` | Any alphanumeric |
+| `[^0-9]` | Anything except digits |
 
-- [Beginners Regex tutorial](https://regexone.com/)
-- [Online Regex testing website](https://regex101.com/)
-- [XML Regular expressions](https://www.regular-expressions.info/xml.html)
+#### Quantifiers
 
-Note that Regex has multiple "flavours" or "dialects", so although the first two links are useful learning resources, they may also include Regex features not available in IDS. The third link (XML Regular expressions) can be referenced as an authoritative source on what can be used in IDS. In general, Regex in IDS is simpler and does not include advanced Regex features.
+| Pattern | Meaning |
+|---------|---------|
+| `{n}` | Exactly n times |
+| `{n,}` | At least n times |
+| `{n,m}` | Between n and m times |
 
-## Bounds
+#### Common Patterns for BIM
 
-A **Bounds** restriction allows you to specify that the value is a number and has to fall within a range of values. You can specify either a minimum, maximum, or both. You can also specify whether the minimum or maximum is inclusive (e.g. `>=` and `<=`) or exclusive (e.g. `>` and `<`). For example, you might specify that a value needs to be "more than 3" and "less than or equal to 10".
+| Use Case | Pattern | Matches |
+|----------|---------|---------|
+| Element naming | `[A-Z]{2}-[0-9]{4}` | "WL-0001", "DR-1234" |
+| Room numbers | `[0-9]{3}[A-Z]?` | "101", "102A" |
+| Fire ratings | `[0-9]+HR` | "1HR", "2HR", "120HR" |
+| Version numbers | `[0-9]+\.[0-9]+` | "1.0", "2.5" |
+| Revision codes | `REV[A-Z]` | "REVA", "REVB" |
+| Asset tags | `ASSET-[0-9]{6}` | "ASSET-000001" |
+| Contains text | `.*Wall.*` | "External Wall", "WallType" |
+| Starts with | `^EXT-.*` | "EXT-001", "EXT-WALL" |
+| Ends with | `.*-FINAL$` | "DWG-001-FINAL" |
+| Uniclass codes | `EF_[0-9]{2}_[0-9]{2}.*` | "EF_25_10", "EF_25_10_25" |
 
-## Length
+### Bounds (Numeric Ranges)
 
-A **Length** restriction specifies the exact number of characters allowed in a value. For example, if you specify a length of 3, then values that are three characters long, like "`ABC`" or "`123`", will meet your requirement. Other values, like "`AB`" or "`ABC123`" will not meet your requirement.
+Specify minimum and/or maximum values for numeric parameters.
 
-Similarly, you can specify a **Max Length** and / or a **Min Length**. A **Max Lenght** of 5 will allow a value of "`ABCDE`" but will not allow values like "`ABCDEF`". A **Min Length** of 3 will allow a value of "`ABC`" but not allow a value of "`AB`".
+**Use case:** Validating measurements, quantities, performance values.
 
-Note that it is also possible to achieve the same effect by specifying a **Pattern**, such as "`.{3}`", however, the **Length** restriction is simpler and quicker to compute.
+| Bound Type | Symbol | Meaning |
+|------------|--------|---------|
+| **Min Inclusive** | `>=` | Value must be greater than or equal |
+| **Min Exclusive** | `>` | Value must be greater than |
+| **Max Inclusive** | `<=` | Value must be less than or equal |
+| **Max Exclusive** | `<` | Value must be less than |
+
+**Examples:**
+
+| Requirement | Configuration |
+|-------------|---------------|
+| Area >= 10 m² | Min Inclusive: 10 |
+| Temperature < 100°C | Max Exclusive: 100 |
+| Width between 0.9m and 1.2m | Min: 0.9, Max: 1.2 |
+| Height > 2.4m | Min Exclusive: 2.4 |
+
+### Length (String Length)
+
+Constrain the length of text values.
+
+**Use case:** Ensuring descriptions aren't empty, limiting field lengths.
+
+| Constraint | Meaning |
+|------------|---------|
+| **Min Length** | Minimum characters required |
+| **Max Length** | Maximum characters allowed |
+
+**Examples:**
+
+| Requirement | Configuration |
+|-------------|---------------|
+| Description not empty | Min Length: 1 |
+| Name max 50 chars | Max Length: 50 |
+| Code exactly 6 chars | Min: 6, Max: 6 |
+
+## Combining Restrictions
+
+Some facet parameters support combining restrictions:
+
+```text
+Property: FireRating
+Restrictions:
+  - Pattern: [0-9]+HR
+  - Enumeration: ["1HR", "2HR", "3HR", "4HR"]
+```
+
+The value must satisfy ALL specified restrictions (AND logic).
+
+## Using Restrictions in IDSedit
+
+1. Select a facet parameter field
+2. Click the restriction toggle to switch from simple value mode
+3. Choose the restriction type from the dropdown
+4. Configure the restriction parameters
+5. For multiple values, use the add button
+
+## Restriction Examples by Facet
+
+### Entity Facet - Predefined Type
+
+```text
+Pattern: .*EXTERNAL.*
+Matches: EXTERNALWALL, EXTERNAL, DOOREXTERNAL
+```
+
+### Property Facet - Value
+
+```text
+Enumeration: ["TRUE", "FALSE"]
+For boolean-like properties
+```
+
+### Attribute Facet - Name Value
+
+```text
+Pattern: [A-Z]{2}-[0-9]{4}
+For enforcing naming convention like "WL-0001"
+```
+
+### Classification Facet - Code
+
+```text
+Pattern: EF_25_.*
+Matches all Uniclass wall-related codes
+```
+
+## Technical Notes
+
+### Regex Engine
+
+IDS uses XSD-compatible regular expressions, which are slightly different from common regex flavors:
+
+| Feature | XSD Regex | Notes |
+|---------|-----------|-------|
+| Word boundary `\b` | Not supported | Use explicit patterns |
+| Lookahead `(?=)` | Not supported | Restructure pattern |
+| Global flag | Always on | Matches anywhere in string |
+| Case sensitivity | Case-sensitive by default | Use `[Aa]` for case-insensitive |
+
+### Numeric Precision
+
+For floating-point comparisons, IDS uses a tolerance:
+
+- Values within `1e-6` relative tolerance are considered equal
+- Example: `10.0000001` equals `10` for comparison purposes
+
+### Empty Values
+
+- **Empty enumeration** = any value allowed
+- **Empty pattern** = any value allowed
+- **No min bound** = no lower limit
+- **No max bound** = no upper limit
+
+## Testing Patterns
+
+Before deploying, test your patterns:
+
+- [Regex101](https://regex101.com/) - Interactive regex tester (use PCRE or ECMAScript mode)
+- [RegExr](https://regexr.com/) - Visual regex editor
+
+**Note:** Some advanced regex features may not work in IDS. Test with simple patterns first.
+
+## Learn More
+
+For detailed restriction specifications, see the [official restrictions documentation](https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/restrictions.md) from buildingSMART.

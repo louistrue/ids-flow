@@ -1,49 +1,184 @@
-# Attribute facet
-
-Every entity in an IFC model has a list of standardised **Attributes**. **Attributes** are a limited set of fundamental data (usually less than 10) associated with all IFC entities. These are fixed by the IFC standard and cannot be customised.
-
-Here are some common attributes and what they mean:
-
-- **GlobalId**: A unique identifier for the element
-- **Name**: a short name or label to identify the object for a human. If you had to annotate the object on a drawing or a schedule, the *Name* is often used. For example, a pump *Name* might be P-10-A.
-- **Description**: "provided for exchanging informative comments". Typically a longer form of the name, written to be descriptive and readable for humans. For example, a pump *Description* might be *Water Suction Pump*.
-- **Tag**: "identifier at the particular instance of a product, e.g. the serial number, or the position number. It is the identifier at the occurrence level.". Usually a short code or number, that may link it back to another BIM application or product specification.
-
-Information that is not critical to the definition of the IFC entity is stored as a **Property**, not an **Attribute**. For more information view the documentation on the [**Property Facet**](property-facet.md).
-
-For this reason, **Attributes** are a good way to specify an **Applicability** to specific elements, or specify a **Requirement** that certain elements shall be identified, named, or described in a particular way.
-
-To see what **Attributes** are available for an IFC class and what their potential values may be, you will need to check the IFC documentation. Here is how you might find a list of valid **Attributes** for the IFC4X3_ADD2 schema. The instructions will be similar for all IFC versions.
-
- 1. Browse to the documentation page for the IFC class you are specifying. For example, [this is the IfcWall documentation page](http://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcWall.htm).
- 2. Scroll down to the **Attributes** section of the documentation. Note that by default, not all attributes are shown. Press "_Click to show hidden inherited attributes_" to show all attributes. For IFC4, click on the "_Attribute inheritance_" text header to toggle a table for all attributes.
- 3. The **Attributes** table will show the **Name** of each **Attribute**. Note that **Attributes** which do not have a number next to them and are in italics are not allowed to be specified. Only enumerated **Attributes** may be specified. For example, you may specify the **Name** attribute for an IfcWall, but you may not specify **ConnectedTo**.
-
-Instead of checking the documentation, your IDS authoring software may help you to shortlist valid **Attributes**.
+Filter or require elements based on IFC attributes - the fundamental data fields defined directly on IFC entities. Unlike properties, attributes are fixed for each IFC class.
 
 ## Parameters
 
-| Parameter | Required | Restrictions Allowed | Meaning                                                                                                                                                        |
-| --------- | -------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Name**  | ✔️     | ✔️                 | A valid attribute name from the IFC schema.                                                                                                                           |
-| **Value** | ❌       | ✔️                 | Any value appropriate to the data type of the attribute. See [DataType documentation](../ImplementersDocumentation/DataTypes.md#xml-base-types) for more information. |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| **Name** | Yes | The attribute name (e.g., `Name`, `Description`) |
+| **Value** | No | Optional value constraint |
 
-## Attribute facet interpretation
+## Using in IDSedit
 
-### Applicability
+### As Applicability
 
-| Attribute Name | Attribute Value | IDS Interpretation                                                              |
-| -------------- | --------------- | ------------------------------------------------------------------------------- |
-| Description    | -               | Applies to all entities having a *Description* filled in (not Null or missing). |
-| Description    | Answer          | Applies to all entities in which *Description* has a value *Answer*.            |
+Filter elements by their attribute values:
 
-### Requirements
+1. Add an Attribute Facet to the Applicability section
+2. Select the Attribute Name from the dropdown
+3. Optionally specify a Value to match
 
-| IDS Cardinality | Attribute Name | Attribute Value | Configuration Allowed? | IDS Interpretation                                                                                                            |
-| --------------- | -------------- | --------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| REQUIRED        | Description        | -               | ✅                     | Applicable objects must have the attribute *Description* populated (i.e. not null).                                               |
-| REQUIRED        | Description        | Answer          | ✅                     | The attribute *Description* must have the value *Answer* (on applicable objects).                                                 |
-| OPTIONAL        | Description        | -               | ❌                     | Optionality does not make sense - no added field to require.                                                                  |
-| OPTIONAL        | Description        | Answer          | ✅                     | If the attribute *Description* exists on applicable objects, it needs to have the value *Answer*.                                 |
-| PROHIBITED      | Description        | -               | ✅                     | The attribute *Description* must not exist on applicable objects, even if empty.                                                  |
-| PROHIBITED      | Description        | Answer          | ✅                     | The attribute *Example* must not have the value *Answer* (on applicable objects). Null is also an allowed value in this case. |
+**Example:** Target elements named "W01" by setting Name to `Name` and Value to `W01`
+
+### As Requirement
+
+Require elements to have specific attribute values:
+
+1. Add an Attribute Facet to the Requirements section
+2. Configure the required attribute and value
+
+## Common IFC Attributes
+
+These attributes are available on most IFC elements (inherited from `IfcRoot`):
+
+| Attribute | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `GlobalId` | IfcGloballyUniqueId | 22-character unique identifier | `3cUkl32yn9qRSPvBJhiKDP` |
+| `Name` | IfcLabel | Short identifier/label | `W-001`, `Door-A` |
+| `Description` | IfcText | Human-readable description | `External load-bearing wall` |
+| `ObjectType` | IfcLabel | User-defined type classification | `200mm Concrete Wall` |
+
+### Element-Specific Attributes
+
+Additional attributes available on `IfcObject` and subtypes:
+
+| Attribute | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `Tag` | IfcIdentifier | Instance identifier (serial/asset number) | `SN-12345` |
+| `PredefinedType` | Enum | Standard subtype classification | `SHEAR`, `DOOR` |
+
+### Spatial Element Attributes
+
+Available on `IfcSpatialElement` (spaces, storeys, etc.):
+
+| Attribute | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `LongName` | IfcLabel | Full descriptive name | `Conference Room A` |
+
+### Type Object Attributes
+
+Available on `IfcTypeObject`:
+
+| Attribute | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `ApplicableOccurrence` | IfcIdentifier | Entity types this type applies to | `IfcWall` |
+| `ElementType` | IfcLabel | Manufacturer type designation | `STC-45 Acoustic` |
+
+## Attributes vs Properties
+
+Understanding when to use each:
+
+| Aspect | Attributes | Properties |
+|--------|------------|------------|
+| **Definition** | Fixed by IFC schema | User-extensible |
+| **Availability** | Limited set per class | Unlimited custom properties |
+| **Location in IFC** | Direct entity fields | In IfcPropertySet relations |
+| **Performance** | Faster to query | Requires relation traversal |
+| **Use case** | Core identification | Extended data requirements |
+
+**Rule of thumb:** Use Attribute Facet for `Name`, `Description`, `Tag`, and `ObjectType`. Use Property Facet for everything else.
+
+## Value Matching
+
+### Exact Match
+
+```text
+Attribute: Name
+Value: W-001
+```
+
+### Pattern Matching
+
+Use restrictions for flexible matching:
+
+| Pattern | Matches |
+|---------|---------|
+| `W-[0-9]+` | W-001, W-123, W-9999 |
+| `.*Wall.*` | ExternalWall, WallType_A |
+| `[A-Z]{2}-[0-9]{3}` | AB-001, XY-999 |
+
+### Empty Value Check
+
+To require an attribute exists but allow any value, leave Value empty.
+
+## Common Use Cases
+
+### Naming Conventions
+
+Enforce element naming standards:
+
+```text
+Attribute: Name
+Value: Pattern "[A-Z]{2}-[0-9]{4}" (e.g., DR-0001, WL-0042)
+```
+
+### Description Requirements
+
+Require meaningful descriptions:
+
+```text
+Attribute: Description
+Value: Pattern ".{10,}" (minimum 10 characters)
+```
+
+### Object Type Classification
+
+Require user-defined types:
+
+```text
+Attribute: ObjectType
+Value: Not empty (any value required)
+```
+
+### Asset Tagging
+
+Require asset tags for facility management:
+
+```text
+Attribute: Tag
+Value: Pattern "ASSET-[0-9]{6}"
+```
+
+### Space Naming
+
+Require full room names:
+
+```text
+Attribute: LongName
+Value: Not empty
+```
+
+## Attributes by IFC Class
+
+### IfcWall / IfcWallType
+
+- `Name`, `Description`, `Tag`, `ObjectType`, `PredefinedType`
+
+### IfcDoor / IfcDoorType
+
+- `Name`, `Description`, `Tag`, `ObjectType`, `PredefinedType`, `OperationType`
+
+### IfcSpace
+
+- `Name`, `Description`, `LongName`, `ObjectType`, `PredefinedType`
+
+### IfcBuildingStorey
+
+- `Name`, `Description`, `LongName`, `ObjectType`, `Elevation`
+
+## Technical Notes
+
+- Attribute names are **case-sensitive** (use exact IFC schema names)
+- `GlobalId` is always auto-generated - avoid requiring specific values
+- `Name` and `Description` can be null in IFC - use requirements to enforce
+- Inheritance means child classes have all parent attributes
+
+## IFC Schema Reference
+
+For complete attribute definitions by class:
+
+- [IFC4x3 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRoot.htm)
+- [IFC4 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/schema/ifckernel/lexical/ifcroot.htm)
+
+## Learn More
+
+For detailed specification information, see the [official Attribute Facet documentation](https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/attribute-facet.md) from buildingSMART.

@@ -28,9 +28,9 @@ export function DocsSidebar() {
 
   return (
     <aside className="hidden md:block w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-      <div className="sticky top-0 h-screen flex flex-col">
+      <div className="sticky top-0 h-dvh flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+        <div className="shrink-0 p-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-4">
             <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <h2 className="font-semibold text-lg">Documentation</h2>
@@ -69,8 +69,8 @@ export function DocsSidebar() {
         </div>
 
         {/* Navigation */}
-        <ScrollArea className="flex-1 px-4 py-6">
-          <nav className="space-y-6">
+        <ScrollArea className="flex-1 min-h-0">
+          <nav className="space-y-6 px-4 py-6 pb-8">
             {filteredConfig.length > 0 ? (
               filteredConfig.map((section) => (
                 <div key={section.title}>
@@ -106,6 +106,31 @@ export function DocsSidebar() {
             )}
           </nav>
         </ScrollArea>
+
+        {/* Attribution */}
+        <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-800">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            IDS is a{" "}
+            <a
+              href="https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              buildingSMART standard
+            </a>
+            . Documentation based on the{" "}
+            <a
+              href="https://github.com/buildingSMART/IDS"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              official IDS specification
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </aside>
   );
