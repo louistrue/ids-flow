@@ -63,10 +63,14 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
             const isInline = !match;
             const language = match ? match[1] : null;
 
-            // Handle mermaid diagrams
+            // Handle mermaid diagrams - break out of prose constraints
             if (language === "mermaid") {
               const chart = String(children).replace(/\n$/, "");
-              return <MermaidDiagram chart={chart} />;
+              return (
+                <div className="not-prose">
+                  <MermaidDiagram chart={chart} />
+                </div>
+              );
             }
 
             if (isInline) {

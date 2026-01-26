@@ -35,6 +35,8 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
             padding: 20,
             nodeSpacing: 50,
             rankSpacing: 50,
+            wrappingWidth: 300,
+            defaultRenderer: 'dagre-wrapper',
           },
           themeVariables: isDark
             ? {
