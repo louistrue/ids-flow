@@ -1,6 +1,6 @@
 # PartOf Facet
 
-The **PartOf Facet** filters or requires elements based on their relationship to other elements in the model hierarchy.
+The **PartOf Facet** filters or requires elements based on their relationship to other elements in the model hierarchy. This is useful for validating spatial containment, system membership, and assembly structures.
 
 ## Parameters
 
@@ -28,22 +28,121 @@ Require elements to be part of a larger element:
 
 ## Supported Relationships
 
-| Relation | Description |
-|----------|-------------|
-| `IfcRelAggregates` | Part of an assembly |
-| `IfcRelContainedInSpatialStructure` | Located in a space/storey |
-| `IfcRelAssignsToGroup` | Member of a group or system |
-| `IfcRelNests` | Physically connected to host |
-| `IfcRelVoidsElement` | Void in an element |
-| `IfcRelFillsElement` | Fills a void |
+The PartOf Facet can check six types of IFC relationships:
 
-When no relation is specified, all relationship types are checked.
+### IfcRelAggregates
+Describes how objects are composed of smaller parts:
+
+| Parent | Children | Example |
+|--------|----------|---------|
+| `IfcBuilding` | `IfcBuildingStorey` | Building contains storeys |
+| `IfcBuildingStorey` | `IfcSpace` | Storey contains spaces |
+| `IfcElementAssembly` | `IfcBeam`, `IfcColumn` | Steel assembly contains members |
+| `IfcCurtainWall` | `IfcPlate`, `IfcMember` | Curtain wall contains panels |
+
+### IfcRelContainedInSpatialStructure
+Describes spatial location of elements:
+
+| Container | Elements | Example |
+|-----------|----------|---------|
+| `IfcBuildingStorey` | `IfcWall`, `IfcDoor` | Elements on a floor level |
+| `IfcSpace` | `IfcFurniture` | Furniture in a room |
+| `IfcSite` | `IfcBuilding` | Buildings on a site |
+
+### IfcRelAssignsToGroup
+Groups elements by function or system:
+
+| Group | Members | Example |
+|-------|---------|---------|
+| `IfcSystem` | `IfcDistributionElement` | HVAC system components |
+| `IfcZone` | `IfcSpace` | Thermal zones |
+| `IfcGroup` | Any element | Custom groupings |
+
+### IfcRelNests
+Physical attachment to a host:
+
+| Host | Nested | Example |
+|------|--------|---------|
+| `IfcDistributionPort` | `IfcSensor` | Sensor attached to port |
+| `IfcElement` | `IfcDiscreteAccessory` | Bracket attached to beam |
+
+### IfcRelVoidsElement
+Void/opening relationships:
+
+| Element | Void | Example |
+|---------|------|---------|
+| `IfcWall` | `IfcOpeningElement` | Door opening in wall |
+| `IfcSlab` | `IfcOpeningElement` | Stair opening in floor |
+
+### IfcRelFillsElement
+Elements that fill voids:
+
+| Void | Filling | Example |
+|------|---------|---------|
+| `IfcOpeningElement` | `IfcDoor` | Door in opening |
+| `IfcOpeningElement` | `IfcWindow` | Window in opening |
+
+## Recursive Traversal
+
+The PartOf Facet traverses relationships **recursively**. This means:
+
+```
+IfcSite
+  └── IfcBuilding (via IfcRelAggregates)
+        └── IfcBuildingStorey (via IfcRelAggregates)
+              └── IfcWall (via IfcRelContainedInSpatialStructure)
+```
+
+If you query for elements that are part of `IfcSite`, the wall will match because the relationship chain leads back to the site.
 
 ## Common Use Cases
 
-- Require elements to be assigned to a building storey
-- Filter elements that belong to a specific system
-- Ensure elements are contained within spaces
+### Require Spatial Assignment
+Ensure all elements are assigned to a building storey:
+```
+Entity Facet: IfcBuildingElement (applicability)
+PartOf Facet: Entity = IfcBuildingStorey (requirement)
+```
+
+### Filter by System Membership
+Target elements in a specific system type:
+```
+PartOf Facet: Entity = IfcSystem, Relation = IfcRelAssignsToGroup
+```
+
+### Validate Space Containment
+Require furniture to be in spaces:
+```
+Entity Facet: IfcFurniture
+PartOf Facet: Entity = IfcSpace, Relation = IfcRelContainedInSpatialStructure
+```
+
+### Assembly Validation
+Target elements that are part of curtain walls:
+```
+PartOf Facet: Entity = IfcCurtainWall, Relation = IfcRelAggregates
+```
+
+### Zone Assignment
+Require spaces to be in thermal zones:
+```
+Entity Facet: IfcSpace
+PartOf Facet: Entity = IfcZone, Relation = IfcRelAssignsToGroup
+```
+
+## Technical Notes
+
+- When **Relation is not specified**, all 6 relationship types are checked
+- Relationships are traversed **recursively** up the hierarchy
+- Entity names are **case-insensitive**
+- Relation names must match exactly (uppercase)
+- **Prohibited** cardinality means elements must NOT be part of the specified entity
+
+## IFC Documentation
+
+- [IfcRelAggregates](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcRelAggregates.htm)
+- [IfcRelContainedInSpatialStructure](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcRelContainedInSpatialStructure.htm)
+- [IfcRelAssignsToGroup](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcRelAssignsToGroup.htm)
 
 ## Learn More
 
