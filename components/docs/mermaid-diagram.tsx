@@ -7,14 +7,6 @@ interface MermaidDiagramProps {
   chart: string;
 }
 
-// Initialize mermaid with theme settings
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "default",
-  securityLevel: "loose",
-  fontFamily: "inherit",
-});
-
 export function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
@@ -31,12 +23,19 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         // Check if we're in dark mode
         const isDark = document.documentElement.classList.contains("dark");
 
-        // Update mermaid config for current theme
+        // Configure mermaid with proper settings to prevent text truncation
         mermaid.initialize({
           startOnLoad: false,
           theme: isDark ? "dark" : "default",
           securityLevel: "loose",
           fontFamily: "inherit",
+          flowchart: {
+            useMaxWidth: false,
+            htmlLabels: true,
+            padding: 20,
+            nodeSpacing: 50,
+            rankSpacing: 50,
+          },
           themeVariables: isDark
             ? {
                 primaryColor: "#3b82f6",
