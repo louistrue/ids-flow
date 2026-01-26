@@ -106,6 +106,31 @@ export function DocsSidebar() {
             )}
           </nav>
         </ScrollArea>
+
+        {/* Attribution */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            IDS is a{" "}
+            <a
+              href="https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              buildingSMART standard
+            </a>
+            . Documentation based on the{" "}
+            <a
+              href="https://github.com/buildingSMART/IDS"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              official IDS specification
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </aside>
   );

@@ -1,78 +1,50 @@
-# Developer guide
+# Developer Guide
 
-An IDS file is simply an XML file, with its schema defined in XSD. You may open any existing IDS file and inspect its contents to get a feel for how an IDS is structured.
+Technical information for developers working with IDSedit or integrating IDS files into workflows.
 
-An IDS is considered valid if it passes the XSD-based validation check. All sample IDS files available in the buildingSMART directory of public IDS templates are guaranteed to be valid.
+## IDS File Format
 
-1. [Download the latest IDS XSD schema](../../Schema/ids.xsd)
-2. Download sample IDS files from the `Documentation/ImplementersDocumentation/TestCases` folder
+IDS files are XML documents validated against an XSD schema. You can inspect any `.ids` file with a text editor to understand its structure.
 
-There are many freely available online tools and programming libraries that can perform XSD validation.
-However, a valid IDS file requires more than bare XML schema compliance; buildingSMART provides an [IDS auditing tool](https://github.com/buildingSMART/IDS-Audit-tool/) to help ensure that the IDS files that you produce or receive are fully valid. The same tool is also available at [Xbim IDS auditing service](https://www.xbim.it/ids), which is executed locally in your web browser and does not upload your IDS files to any server.
+## Validating IDS Files
 
-## Authoring IDS
+Ensure your IDS files are valid using:
 
-If you are writing software to read and author IDS files only, you **must** meet the following criteria:
+- [buildingSMART IDS Audit Tool](https://github.com/buildingSMART/IDS-Audit-tool/) - Official validation tool
+- [Xbim IDS Validator](https://www.xbim.it/ids) - Browser-based validation (runs locally)
 
-- All IDS software must read and write valid IDS files only. If any recovery is needed to load an incorrect IDS file, the user should be notified of the problem, and of any automated recovery event.
-- No proprietary extensions are allowed. If auxiliary systems (e.g. additional loaded metadata) are used to augment IDS or the correlating IFC model, they should be made clear to the user that it is external to IDS.
-- No data loss shall occur. Loading an IDS and saving the IDS shall preserve all of its information. Minor syntax formatting changes are allowed, so long as the data remains unchanged.
-- The order of xml entities within any `xs:sequence` of the schema should be respected. The use of this xml feature is intended to simplify the comparison of contents across files.
+## IDSedit Export
 
-In addition, it is highly recommended to also provide the following features for users:
+IDSedit exports standard-compliant IDS files that work with any IDS-compatible software. The exported files:
 
-- When users write an IFC class in an **Entity Facet**, your interface should restrict allowable values to valid IFC class names in the selected IFC schema for the specification. Autocompletion is recommended.
-- When users write a predefined type in an **Entity Facet**, your interface should recommend allowable values based on the nominated IFC class. However, it should still allow users to write a custom predefined type. Autocompletion is recommended.
-- When users have already specified an **Entity Facet** and are creating an **Attribute Facet**, your interface should restrict allowable values based on the nominated IFC class. Your interface should also guide the user to use the right data type based on the nominated attribute name.
-- When users have already specified an **Entity Facet** and are creating a **Property Facet**, your interface should recommend allowable property sets based on the nominated IFC class and predefined type. However, it should also allow users to write a custom property set name. If a standardised (e.g. `Pset_` or `Qto_`) property set is nominated, your interface should restrict the allowable property names and recommend the appropriate data type to be used.
-- When a string is specified for a custom property in a **Property Facet**, it is preferred for IfcLabel to be the default data type
-- When an integer is specified for a custom property in a **Property Facet**, it is preferred for IfcInteger to be the default data type
-- When a float is specified for a custom property in a **Property Facet**, it is preferred for IfcReal to be the default data type
-- When a user is specifying a value with a unit, you should provide conversion tools so that the user can write the IDS in their preferred unit
-- You may also choose to preload standardised classification names for commonly known systems, as well as the classification references to prevent spelling errors. You may choose to use this [IFC directory for classification systems](https://github.com/Moult/ifcclassification).
-- When users are nominating a **Material Facet**, your interface should recommend the IFC recommended material categories (one of 'concrete', 'steel', 'aluminium', 'block', 'brick', 'stone', 'wood', 'glass', 'gypsum', 'plastic', or 'earth')
-- When specifying values, the XML strings (for simpleValue and restriction enumeration) should conform to the [regular expressions](DataTypes.md#xml-base-types) presented in the [DataType documentation](DataTypes.md).
+- Conform to the official IDS XSD schema
+- Support IFC2X3, IFC4, and IFC4X3_ADD2
+- Include all configured metadata and specifications
 
-## Checking IDS against IFC
+## IFC Checking Workflow
 
-Any software implementing IDS checking **must** comply with the test suite of IFC/IDS pairs available in the `Documentation/ImplementersDocumentation/TestCases` folder (see [test cases documentation](TestCases/scripts.md)).
+1. Create specifications in IDSedit
+2. Export as `.ids` file
+3. Use an IDS-compatible checker to validate IFC models
+4. Review compliance reports
 
-In addition, it is highly recommended to also provide the following features for users:
+## Resources
 
-- It is intended that IDS auditing results may be saved as BCF-XML format, or connect to an OpenCDE via the BCF-API. However, the formatting and overall structuring of these results in BCF are not specified right now.
-- If the software is not capable of parsing the specified IFC version nominated by the IDS specification, then the user should be made aware of the limitation.
-- If the requirement is optional but would fail if it were required instead, the checker tool must not log an error, but may offer auxiliary warnings or recommendations
+### Official buildingSMART Resources
+- [IDS Specification Repository](https://github.com/buildingSMART/IDS)
+- [IDS XSD Schema](https://github.com/buildingSMART/IDS/tree/development/Schema)
+- [IDS Test Cases](https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases)
+- [IDS Software Implementations](https://technical.buildingsmart.org/ids-software-implementations/)
 
-### Precision
+### IFC Documentation
+- [IFC4x3 Documentation](https://ifc43-docs.standards.buildingsmart.org/)
+- [IFC4 Documentation](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/)
+- [IFC2x3 Documentation](https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/)
 
-A float value is considered to be equivalent to a number `x`, if it lies between (exclusive) the range of `x * (1. - 1.e-6) - 1.e-6` and `x * (1. + 1.e-6) + 1.e-6`.
+### Community
+- [buildingSMART Forums](https://forums.buildingsmart.org/)
+- [IDS GitHub Issues](https://github.com/buildingSMART/IDS/issues)
 
-This is a compromise and simplification that allows precision to scale from small to large units.
+## Contributing to IDSedit
 
-### Restrictions
-
-XSD also includes a **Total Digits** and a **Fraction Digits** restriction. These will not be supported in IDS as they have limited utility.
-
-### Optionality
-
-Specifications can be set to **Required**, **Optional**, or **Prohibited** depending on the required match of their `applicability` on the model.
-This is represented using XSD's `minOccurs` and `maxOccurs` functionality. They are represented by the following states:
-
-| Optionality | minOccurs | maxOccurs |
-| ----------- | --------- | --------- |
-| Required    | 1         | unbounded |
-| Optional    | 0         | unbounded |
-| Prohibited  | 0         | 0         |
-
-Other configurations of `minOccurs` and `maxOccurs` are currently not allowed.
-
-## Available developer libraries
-
-To help you get started with development, there is a [directory of IDS libraries](https://technical.buildingsmart.org/resources/software-implementations/) that you may use in your application.
-
-Please feel free to [submit your library](https://technical.buildingsmart.org/resources/software-implementations/) (you need to login).
-
-## More reading
-
-- [Add your implementation to the software vendors directory](https://technical.buildingsmart.org/resources/software-implementations/)
-- [Make a suggestion for improvement](https://github.com/buildingSMART/IDS/issues)
+IDSedit is open source. Visit the [GitHub repository](https://github.com/louistrue/ids-flow) to report issues or contribute.

@@ -1,38 +1,41 @@
-# Classification facet
+# Classification Facet
 
-A **Classification System** is a defined hierarchy to categorise elements. Some popular classification systems include "Uniclass 2015", "ETIM" and "CCI". Within a **System**, there is a hierarchy of short reference **Codes** that categorise elements in increasing levels of specificity, such as "EF_25_10" and "EF_25_10_25". Any object in IFC model can have a [Classification Reference](https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/IfcClassificationReference.htm).
-
-The **Classification Facet** is different to the **Entity Facet**. The **Entity Facet** is restricted to built-in IFC classes and predefined types, which may also function as a method of **Classification**. In contrast, a classification refers to a third party, non-IFC classifications.
-
-IFC models keep track of classification names, dates, versions, and other data to uniquely identify them. For this reason, **Classification** requirements should use the **Classification Facet**, as opposed to the **Property Facet**.
-
-**Classifications** are a great way to identify **Applicable** entities, or **Require** that entities should follow a nominated **Classification** system by a workflow, such as in an asset management system, work breakdown structure, or coordination requirement.
+The **Classification Facet** filters or requires elements based on classification system references like Uniclass, OmniClass, or custom systems.
 
 ## Parameters
 
-| Parameter  | Required | Restrictions Allowed | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------- | -------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **System** | ✔️     | ✔️                 | The name of the classification system.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Value**  | ❌       | ✔️                 | The value of a refeference code within that classification system. It is typically an official name or a short code.                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **URI**    | ❌       | ❌                   | Uniform Resource Identifier of the class. Used to reference a standardized definition of a class, to ensure consistency of interpretation. The target resource should include a name and definition, and preferably comply with the ISO 12006-3 and ISO 23386. This is an optional attribute that is not subject to IDS checking - the IFC model does not need to have the same or any URI. One source of valid URIs is [the bSDD](https://search.bsdd.buildingsmart.org/), and an example URI is that of a "Beam": [https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBeam](https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBeam). |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| **System** | Yes | Classification system name (e.g., `Uniclass 2015`) |
+| **Value** | No | Classification code (e.g., `EF_25_10_25`) |
 
+## Using in IDSedit
 
-## Classification facet interpretation
+### As Applicability
+Filter elements by their classification:
 
-### Applicability
+1. Add a Classification Facet to the Applicability section
+2. Enter the classification System name
+3. Optionally specify a Value (classification code)
 
-| Classification System | Classification Value | IDS Interpretation                                                                                  |
-| --------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
-| ETIM                  | -                    | Applies to all entities classified using the *ETIM* classification system, regardless of the value. |
-| ETIM                  | EC000009             | Applies to all entities with a code *EC000009* of classification system *ETIM*.                     |
+**Example:** Target elements classified as external walls in Uniclass by setting System to `Uniclass 2015` and Value to `EF_25_10_25`
 
-### Requirements
+### As Requirement
+Require elements to have a classification:
 
-| IDS Cardinality | Classification System | Classification Value | URI    | Configuration Allowed? | IDS Interpretation                                                                                                                |
-| --------------- | --------------------- | -------------------- | --- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| REQUIRED        | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ✅                     | Applicable objects must have the classification system *ETIM* populated (i.e. not null).                                          |
-| REQUIRED        | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | The classification *ETIM* must have the value *EC000009* (on applicable objects).                                                 |
-| OPTIONAL        | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ❌                     | Not allowed. Optionality does not make sense - no added field to require.                                                         |
-| OPTIONAL        | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | If the classification *ETIM* exists on applicable objects, it needs to have the value *EC000009*.                                 |
-| PROHIBITED      | ETIM                  | -                    | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0)    | ✅                     | The classification *ETIM* must not exist on applicable objects, even if empty.                                                    |
-| PROHIBITED      | ETIM                  | EC000009             | [https://id...](https://identifier.buildingsmart.org/uri/etim/etim/10.0/class/EC000009)    | ✅                     | The classification *ETIM* must not have the value *EC000009* (on applicable objects). Null is also an allowed value in this case. |
+1. Add a Classification Facet to the Requirements section
+2. Specify the required classification system
+3. Optionally require a specific code or code pattern
+
+## Common Classification Systems
+
+- **Uniclass 2015** - UK standard
+- **OmniClass** - North American standard
+- **CCI** - Construction Classification International
+- **ETIM** - Technical product information
+
+## Learn More
+
+For detailed specification information, see the [official Classification Facet documentation](https://github.com/buildingSMART/IDS/blob/development/Documentation/UserManual/classification-facet.md) from buildingSMART.
+
+For classification URIs, visit the [buildingSMART Data Dictionary (bSDD)](https://search.bsdd.buildingsmart.org/).
