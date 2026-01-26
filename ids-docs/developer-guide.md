@@ -172,11 +172,11 @@ IDSedit exports fully compliant IDS files:
 ### Model Checking Pipeline
 
 ```mermaid
-flowchart LR
-    A["IDSedit (Author)"] --> B["IDS File (.ids)"]
-    B --> C["IDS Checker"]
-    D["IFC Model (.ifc)"] --> C
-    C --> E["Report (BCF/HTML)"]
+flowchart TD
+    A[IDSedit] -->|exports| B[.ids file]
+    B --> C{IDS Checker}
+    D[.ifc model] --> C
+    C -->|generates| E[BCF Report]
 ```
 
 ### IDS-Compatible Checking Tools
