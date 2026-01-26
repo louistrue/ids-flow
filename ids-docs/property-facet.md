@@ -14,6 +14,7 @@ The **Property Facet** specifies requirements for IFC properties - the most comm
 ## Using in IDSedit
 
 ### As Applicability
+
 Filter elements that have specific properties:
 
 1. Add a Property Facet to the Applicability section
@@ -23,6 +24,7 @@ Filter elements that have specific properties:
 **Example:** Target load-bearing walls by filtering for `Pset_WallCommon` / `LoadBearing` = `TRUE`
 
 ### As Requirement
+
 Require elements to have specific properties:
 
 1. Add a Property Facet to the Requirements section
@@ -34,6 +36,7 @@ Require elements to have specific properties:
 buildingSMART provides standardized property sets that follow naming conventions:
 
 ### Pset_ (Property Sets)
+
 Common properties for element types:
 
 | Property Set | Applies To | Common Properties |
@@ -47,6 +50,7 @@ Common properties for element types:
 | `Pset_SpaceCommon` | IfcSpace | `IsExternal`, `GrossPlannedArea`, `NetPlannedArea` |
 
 ### Qto_ (Quantity Sets)
+
 Measurement quantities for elements:
 
 | Quantity Set | Applies To | Common Quantities |
@@ -57,7 +61,9 @@ Measurement quantities for elements:
 | `Qto_SpaceBaseQuantities` | IfcSpace | `GrossFloorArea`, `NetFloorArea`, `GrossVolume`, `Height` |
 
 ### Custom Property Sets
+
 You can specify any custom property set name. Common conventions:
+
 - `CPset_` prefix for company-specific properties
 - Project-specific prefixes (e.g., `PRJ_`, `ACME_`)
 
@@ -66,6 +72,7 @@ You can specify any custom property set name. Common conventions:
 When specifying a data type requirement, use these IFC types:
 
 ### Text Types
+
 | Type | Description | Example |
 |------|-------------|---------|
 | `IfcLabel` | Short text (up to 255 chars) | "Type A" |
@@ -73,6 +80,7 @@ When specifying a data type requirement, use these IFC types:
 | `IfcIdentifier` | Reference identifier | "W-001" |
 
 ### Numeric Types
+
 | Type | Description | Example |
 |------|-------------|---------|
 | `IfcInteger` | Whole numbers | `42` |
@@ -81,6 +89,7 @@ When specifying a data type requirement, use these IFC types:
 | `IfcLogical` | True/False/Unknown | `TRUE`, `FALSE`, `UNKNOWN` |
 
 ### Measure Types (with units)
+
 | Type | Description | Default Unit |
 |------|-------------|--------------|
 | `IfcLengthMeasure` | Linear dimensions | meters |
@@ -92,6 +101,7 @@ When specifying a data type requirement, use these IFC types:
 | `IfcPressureMeasure` | Pressure | Pascals |
 
 ### Special Types
+
 | Type | Description | Example |
 |------|-------------|---------|
 | `IfcDate` | Date value | "2024-01-15" |
@@ -101,9 +111,11 @@ When specifying a data type requirement, use these IFC types:
 ## Value Constraints
 
 ### Simple Values
+
 Exact match: `"Concrete"`, `100`, `TRUE`
 
 ### Using Restrictions
+
 For flexible matching, use restrictions:
 
 | Restriction | Use Case | Example |
@@ -115,14 +127,16 @@ For flexible matching, use restrictions:
 ## Common Use Cases
 
 ### Fire Safety
-```
+
+```text
 Property Set: Pset_WallCommon
 Property: FireRating
 Value: Pattern matching ".*HR" or enumeration ["1HR", "2HR", "3HR"]
 ```
 
 ### Thermal Performance
-```
+
+```text
 Property Set: Pset_WindowCommon
 Property: ThermalTransmittance
 Value: Bounds <= 1.4 (W/m²K)
@@ -130,7 +144,8 @@ Data Type: IfcThermalTransmittanceMeasure
 ```
 
 ### Area Requirements
-```
+
+```text
 Property Set: Qto_SpaceBaseQuantities
 Property: NetFloorArea
 Value: Bounds >= 10 (minimum room size)
@@ -138,7 +153,8 @@ Data Type: IfcAreaMeasure
 ```
 
 ### Custom Project Properties
-```
+
+```text
 Property Set: CPset_ProjectTracking
 Property: CostCenter
 Data Type: IfcLabel
@@ -155,6 +171,7 @@ Data Type: IfcLabel
 ## Property Set Reference
 
 For complete property set definitions:
+
 - [IFC4x3 Property Sets](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/annex-b3.html)
 - [IFC4 Property Sets](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/annex/annex-b/alphabeticalorder_psets.htm)
 

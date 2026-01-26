@@ -12,6 +12,7 @@ The **Classification Facet** filters or requires elements based on classificatio
 ## Using in IDSedit
 
 ### As Applicability
+
 Filter elements by their classification:
 
 1. Add a Classification Facet to the Applicability section
@@ -21,6 +22,7 @@ Filter elements by their classification:
 **Example:** Target elements classified as external walls in Uniclass by setting System to `Uniclass 2015` and Value to `EF_25_10_25`
 
 ### As Requirement
+
 Require elements to have a classification:
 
 1. Add a Classification Facet to the Requirements section
@@ -30,6 +32,7 @@ Require elements to have a classification:
 ## Major Classification Systems
 
 ### Uniclass 2015 (UK)
+
 The UK standard for construction classification:
 
 | Table | Prefix | Description | Example |
@@ -43,6 +46,7 @@ The UK standard for construction classification:
 **Pattern example:** `EF_25.*` matches all Uniclass wall elements
 
 ### OmniClass (North America)
+
 US/Canadian construction classification:
 
 | Table | Number | Description | Example |
@@ -52,6 +56,7 @@ US/Canadian construction classification:
 | **23** | 23- | Products | `23-13 21 11` (Concrete Block) |
 
 ### CCI (Nordic)
+
 Construction Classification International:
 
 | Code | Description |
@@ -61,6 +66,7 @@ Construction Classification International:
 | `QCA` | Roof systems |
 
 ### NL-SfB (Netherlands)
+
 Dutch construction classification based on SfB:
 
 | Code | Description |
@@ -70,19 +76,23 @@ Dutch construction classification based on SfB:
 | `23` | Floors |
 
 ### Custom Systems
+
 You can use any classification system name. Common patterns:
+
 - Company-specific systems: `ACME Classification`
 - Project-specific systems: `Project XYZ Categories`
 
 ## Value Patterns
 
 ### Exact Match
-```
+
+```text
 System: Uniclass 2015
 Value: EF_25_10_25
 ```
 
 ### Hierarchical Matching
+
 Match all codes in a branch using patterns:
 
 | Pattern | Matches |
@@ -92,8 +102,10 @@ Match all codes in a branch using patterns:
 | `EF_25_10.*` | All external wall sub-classifications |
 
 ### Multiple Values
+
 Use enumeration restrictions to allow several codes:
-```
+
+```text
 System: Uniclass 2015
 Value: ["EF_25_10_25", "EF_25_10_30", "EF_25_10_35"]
 ```
@@ -101,35 +113,45 @@ Value: ["EF_25_10_25", "EF_25_10_30", "EF_25_10_35"]
 ## Common Use Cases
 
 ### Require Classification
+
 Ensure all elements are classified:
-```
+
+```text
 System: Uniclass 2015
 Value: (empty - any code accepted)
 ```
 
 ### Discipline-Specific Classification
+
 Target structural elements:
-```
+
+```text
 System: Uniclass 2015
 Value: Pattern "Ss_25.*" (structural systems)
 ```
 
 ### Product Specifications
+
 Require product-level classification:
-```
+
+```text
 System: Uniclass 2015
 Value: Pattern "Pr_.*" (any product code)
 ```
 
 ### Cost Code Assignment
+
 For cost estimation workflows:
-```
+
+```text
 System: Cost Codes
 Value: Pattern "[0-9]{4}" (4-digit cost code)
 ```
 
 ### Multiple System Support
+
 Elements can have multiple classifications. You can require multiple systems:
+
 - Specification 1: Uniclass 2015 classification
 - Specification 2: OmniClass classification
 
@@ -137,7 +159,7 @@ Elements can have multiple classifications. You can require multiple systems:
 
 Classifications are attached to elements via `IfcRelAssociatesClassification`:
 
-```
+```text
 Element (IfcWall)
   └── IfcRelAssociatesClassification
         └── IfcClassificationReference
@@ -160,11 +182,13 @@ The Classification Facet checks this entire chain to match your criteria.
 ## Classification Resources
 
 ### Official Sources
+
 - [Uniclass 2015](https://uniclass.thenbs.com/) - NBS maintained
 - [OmniClass](https://www.csiresources.org/standards/omniclass) - CSI maintained
 - [buildingSMART Data Dictionary](https://search.bsdd.buildingsmart.org/) - Classification URIs
 
 ### IFC Documentation
+
 - [IfcClassification](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassification.htm)
 - [IfcClassificationReference](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcClassificationReference.htm)
 

@@ -7,10 +7,13 @@ A **Specification** defines a validation rule for IFC models. In IDSedit, specif
 Each specification has three main parts:
 
 ### 1. Description
+
 Explain why this requirement exists. Good descriptions help model authors understand the purpose of the specification.
 
 ### 2. Applicability
+
 Identifies **which elements** in the model this specification applies to. Use facets to filter:
+
 - Entity Facet - by IFC class type
 - Property Facet - by property values
 - Classification Facet - by classification references
@@ -18,6 +21,7 @@ Identifies **which elements** in the model this specification applies to. Use fa
 - Attribute Facet - by IFC attribute values
 
 ### 3. Requirements
+
 Defines **what information** the applicable elements must have. Use the same facet types to specify required data.
 
 ## Cardinality
@@ -33,6 +37,7 @@ Specifications can be set as:
 ## Using IDSedit
 
 In the visual editor:
+
 1. Create a specification node
 2. Connect applicability facets to the left
 3. Connect requirement facets to the right

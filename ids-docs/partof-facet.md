@@ -12,6 +12,7 @@ The **PartOf Facet** filters or requires elements based on their relationship to
 ## Using in IDSedit
 
 ### As Applicability
+
 Filter elements that are part of another element:
 
 1. Add a PartOf Facet to the Applicability section
@@ -21,6 +22,7 @@ Filter elements that are part of another element:
 **Example:** Target all elements contained in spaces by setting Entity to `IfcSpace`
 
 ### As Requirement
+
 Require elements to be part of a larger element:
 
 1. Add a PartOf Facet to the Requirements section
@@ -31,6 +33,7 @@ Require elements to be part of a larger element:
 The PartOf Facet can check six types of IFC relationships:
 
 ### IfcRelAggregates
+
 Describes how objects are composed of smaller parts:
 
 | Parent | Children | Example |
@@ -41,6 +44,7 @@ Describes how objects are composed of smaller parts:
 | `IfcCurtainWall` | `IfcPlate`, `IfcMember` | Curtain wall contains panels |
 
 ### IfcRelContainedInSpatialStructure
+
 Describes spatial location of elements:
 
 | Container | Elements | Example |
@@ -50,6 +54,7 @@ Describes spatial location of elements:
 | `IfcSite` | `IfcBuilding` | Buildings on a site |
 
 ### IfcRelAssignsToGroup
+
 Groups elements by function or system:
 
 | Group | Members | Example |
@@ -59,6 +64,7 @@ Groups elements by function or system:
 | `IfcGroup` | Any element | Custom groupings |
 
 ### IfcRelNests
+
 Physical attachment to a host:
 
 | Host | Nested | Example |
@@ -67,6 +73,7 @@ Physical attachment to a host:
 | `IfcElement` | `IfcDiscreteAccessory` | Bracket attached to beam |
 
 ### IfcRelVoidsElement
+
 Void/opening relationships:
 
 | Element | Void | Example |
@@ -75,6 +82,7 @@ Void/opening relationships:
 | `IfcSlab` | `IfcOpeningElement` | Stair opening in floor |
 
 ### IfcRelFillsElement
+
 Elements that fill voids:
 
 | Void | Filling | Example |
@@ -86,7 +94,7 @@ Elements that fill voids:
 
 The PartOf Facet traverses relationships **recursively**. This means:
 
-```
+```text
 IfcSite
   └── IfcBuilding (via IfcRelAggregates)
         └── IfcBuildingStorey (via IfcRelAggregates)
@@ -98,34 +106,44 @@ If you query for elements that are part of `IfcSite`, the wall will match becaus
 ## Common Use Cases
 
 ### Require Spatial Assignment
+
 Ensure all elements are assigned to a building storey:
-```
+
+```text
 Entity Facet: IfcBuildingElement (applicability)
 PartOf Facet: Entity = IfcBuildingStorey (requirement)
 ```
 
 ### Filter by System Membership
+
 Target elements in a specific system type:
-```
+
+```text
 PartOf Facet: Entity = IfcSystem, Relation = IfcRelAssignsToGroup
 ```
 
 ### Validate Space Containment
+
 Require furniture to be in spaces:
-```
+
+```text
 Entity Facet: IfcFurniture
 PartOf Facet: Entity = IfcSpace, Relation = IfcRelContainedInSpatialStructure
 ```
 
 ### Assembly Validation
+
 Target elements that are part of curtain walls:
-```
+
+```text
 PartOf Facet: Entity = IfcCurtainWall, Relation = IfcRelAggregates
 ```
 
 ### Zone Assignment
+
 Require spaces to be in thermal zones:
-```
+
+```text
 Entity Facet: IfcSpace
 PartOf Facet: Entity = IfcZone, Relation = IfcRelAssignsToGroup
 ```

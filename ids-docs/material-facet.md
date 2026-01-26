@@ -11,6 +11,7 @@ The **Material Facet** filters or requires elements based on their material assi
 ## Using in IDSedit
 
 ### As Applicability
+
 Filter elements by their material:
 
 1. Add a Material Facet to the Applicability section
@@ -20,6 +21,7 @@ Filter elements by their material:
 **Example:** Target all concrete elements by setting Value to `Concrete`
 
 ### As Requirement
+
 Require elements to have a material assigned:
 
 1. Add a Material Facet to the Requirements section
@@ -30,14 +32,18 @@ Require elements to have a material assigned:
 IFC supports several ways to assign materials to elements:
 
 ### Single Material (`IfcMaterial`)
+
 One material for the entire element:
-```
+
+```text
 IfcWall → IfcMaterial "Concrete"
 ```
 
 ### Material Layer Set (`IfcMaterialLayerSet`)
+
 Multiple layers for walls, slabs, etc.:
-```
+
+```text
 IfcWall → IfcMaterialLayerSet
            ├── Layer 1: "Plasterboard" (12mm)
            ├── Layer 2: "Insulation" (100mm)
@@ -45,15 +51,19 @@ IfcWall → IfcMaterialLayerSet
 ```
 
 ### Material Profile Set (`IfcMaterialProfileSet`)
+
 For structural members with cross-sections:
-```
+
+```text
 IfcBeam → IfcMaterialProfileSet
            └── Profile: "Steel" (I-Section)
 ```
 
 ### Material Constituent Set (`IfcMaterialConstituentSet`)
+
 For composite elements with named parts:
-```
+
+```text
 IfcWindow → IfcMaterialConstituentSet
              ├── "Frame": "Aluminium"
              └── "Glazing": "Glass"
@@ -84,12 +94,15 @@ IFC recommends these standard category names for consistency:
 ## Value Matching
 
 ### Exact Match
-```
+
+```text
 Value: Concrete
 ```
+
 Matches only materials named exactly "Concrete"
 
 ### Pattern Matching
+
 Use regular expressions for flexible matching:
 
 | Pattern | Matches |
@@ -100,60 +113,78 @@ Use regular expressions for flexible matching:
 | `C[0-9]+/[0-9]+` | Concrete grades like "C30/37", "C40/50" |
 
 ### Any Material
+
 Leave Value empty to match any element that has a material assigned:
-```
+
+```text
 Value: (empty)
 ```
+
 This is useful for requiring elements have material data without specifying which material.
 
 ## Common Use Cases
 
 ### Structural Material Verification
+
 Require structural elements have material assigned:
-```
+
+```text
 Entity Facet: IfcBeam
 Material Facet: Value = (empty) - any material required
 ```
 
 ### Fire-Rated Assemblies
+
 Filter non-combustible elements:
-```
+
+```text
 Material Facet: Value = Pattern "(concrete|steel|masonry|brick)"
 ```
 
 ### Sustainability Tracking
+
 Target timber elements for embodied carbon:
-```
+
+```text
 Material Facet: Value = Pattern ".*wood.*|.*timber.*|.*CLT.*"
 ```
 
 ### Glazing Requirements
+
 Find all glass elements:
-```
+
+```text
 Material Facet: Value = Pattern ".*glass.*|.*glazing.*"
 ```
 
 ### Material Consistency
+
 Require specific material naming:
-```
+
+```text
 Material Facet: Value = Pattern "[A-Z]+-[0-9]+" (e.g., "MAT-001")
 ```
 
 ## Technical Notes
 
 ### Matching Behavior
+
 - Matches material names **case-insensitively** by default
 - Checks ALL materials in layered/composite assignments
 - Matches if ANY layer/constituent matches (OR logic)
 - Material descriptions are NOT matched, only names
 
 ### Layered Materials
+
 For walls and slabs with multiple layers:
+
 - A match occurs if ANY layer's material matches
 - To require ALL layers match, create multiple specifications
 
 ### Material vs Material Category
+
 Some IFC files use:
+
 - `IfcMaterial.Name` - The specific material name
 - `IfcMaterial.Category` - The standard category (concrete, steel, etc.)
 
@@ -163,7 +194,7 @@ The Material Facet checks the **Name** field. Some checking tools may also check
 
 Materials are associated via `IfcRelAssociatesMaterial`:
 
-```
+```text
 IfcWall
   └── IfcRelAssociatesMaterial
         └── IfcMaterialLayerSetUsage

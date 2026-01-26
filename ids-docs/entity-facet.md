@@ -12,6 +12,7 @@ The **Entity Facet** filters or requires elements based on their IFC class type.
 ## Using in IDSedit
 
 ### As Applicability
+
 Use the Entity Facet to specify which elements your specification applies to:
 
 1. Add an Entity Facet node to the Applicability section
@@ -21,6 +22,7 @@ Use the Entity Facet to specify which elements your specification applies to:
 **Example:** To target all walls, set IFC Class to `IfcWall`
 
 ### As Requirement
+
 Use the Entity Facet to require elements be a specific type:
 
 1. Add an Entity Facet node to the Requirements section
@@ -31,6 +33,7 @@ Use the Entity Facet to require elements be a specific type:
 IFC classes follow an inheritance hierarchy. Understanding this helps you target the right elements:
 
 ### Building Elements
+
 | Class | Description | Common Predefined Types |
 |-------|-------------|------------------------|
 | `IfcWall` | Vertical constructions | `SOLIDWALL`, `PARTITIONING`, `SHEAR` |
@@ -44,6 +47,7 @@ IFC classes follow an inheritance hierarchy. Understanding this helps you target
 | `IfcRoof` | Roof structures | `FLAT_ROOF`, `SHED_ROOF`, `GABLE_ROOF` |
 
 ### Spatial Elements
+
 | Class | Description | Usage |
 |-------|-------------|-------|
 | `IfcSite` | Project site | One per project typically |
@@ -53,6 +57,7 @@ IFC classes follow an inheritance hierarchy. Understanding this helps you target
 | `IfcZone` | Groups of spaces | HVAC zones, fire zones, etc. |
 
 ### MEP Elements
+
 | Class | Description | Examples |
 |-------|-------------|----------|
 | `IfcPipeSegment` | Pipe runs | Water, gas, drainage |
@@ -62,6 +67,7 @@ IFC classes follow an inheritance hierarchy. Understanding this helps you target
 | `IfcFlowController` | Control devices | Valves, dampers, switches |
 
 ### Type Objects
+
 Every element can have a corresponding Type object that defines shared properties:
 
 | Element | Type |
@@ -82,6 +88,7 @@ Predefined types allow more specific targeting. They can be:
 ### Using Restrictions with Predefined Types
 
 You can use pattern matching for predefined types:
+
 - `EXT.*` - Matches any type starting with "EXT"
 - `.*WALL` - Matches any type ending with "WALL"
 
@@ -107,6 +114,7 @@ You can use pattern matching for predefined types:
 ## IFC Class Reference
 
 For complete lists of IFC classes and predefined types:
+
 - [IFC4x3 Entity Index](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/annex-b1.html)
 - [IFC4 Entity Index](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/annex/annex-b/alphabeticalorder_entities.htm)
 

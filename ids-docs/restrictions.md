@@ -5,6 +5,7 @@ When configuring facet parameters in IDSedit, you can specify exact values or us
 ## Restriction Types
 
 ### Enumeration
+
 Allow a value to match any item from a predefined list.
 
 **Use case:** Limiting allowed values to a specific set.
@@ -18,6 +19,7 @@ Allow a value to match any item from a predefined list.
 In IDSedit, use the enumeration editor to add multiple allowed values.
 
 ### Pattern (Regex)
+
 Define naming conventions or value formats using regular expressions.
 
 **Use case:** Enforcing naming standards, validating formats.
@@ -69,6 +71,7 @@ Define naming conventions or value formats using regular expressions.
 | Uniclass codes | `EF_[0-9]{2}_[0-9]{2}.*` | "EF_25_10", "EF_25_10_25" |
 
 ### Bounds (Numeric Ranges)
+
 Specify minimum and/or maximum values for numeric parameters.
 
 **Use case:** Validating measurements, quantities, performance values.
@@ -90,6 +93,7 @@ Specify minimum and/or maximum values for numeric parameters.
 | Height > 2.4m | Min Exclusive: 2.4 |
 
 ### Length (String Length)
+
 Constrain the length of text values.
 
 **Use case:** Ensuring descriptions aren't empty, limiting field lengths.
@@ -111,7 +115,7 @@ Constrain the length of text values.
 
 Some facet parameters support combining restrictions:
 
-```
+```text
 Property: FireRating
 Restrictions:
   - Pattern: [0-9]+HR
@@ -131,25 +135,29 @@ The value must satisfy ALL specified restrictions (AND logic).
 ## Restriction Examples by Facet
 
 ### Entity Facet - Predefined Type
-```
+
+```text
 Pattern: .*EXTERNAL.*
 Matches: EXTERNALWALL, EXTERNAL, DOOREXTERNAL
 ```
 
 ### Property Facet - Value
-```
+
+```text
 Enumeration: ["TRUE", "FALSE"]
 For boolean-like properties
 ```
 
 ### Attribute Facet - Name Value
-```
+
+```text
 Pattern: [A-Z]{2}-[0-9]{4}
 For enforcing naming convention like "WL-0001"
 ```
 
 ### Classification Facet - Code
-```
+
+```text
 Pattern: EF_25_.*
 Matches all Uniclass wall-related codes
 ```
@@ -157,6 +165,7 @@ Matches all Uniclass wall-related codes
 ## Technical Notes
 
 ### Regex Engine
+
 IDS uses XSD-compatible regular expressions, which are slightly different from common regex flavors:
 
 | Feature | XSD Regex | Notes |
@@ -167,11 +176,14 @@ IDS uses XSD-compatible regular expressions, which are slightly different from c
 | Case sensitivity | Case-sensitive by default | Use `[Aa]` for case-insensitive |
 
 ### Numeric Precision
+
 For floating-point comparisons, IDS uses a tolerance:
+
 - Values within `1e-6` relative tolerance are considered equal
 - Example: `10.0000001` equals `10` for comparison purposes
 
 ### Empty Values
+
 - **Empty enumeration** = any value allowed
 - **Empty pattern** = any value allowed
 - **No min bound** = no lower limit

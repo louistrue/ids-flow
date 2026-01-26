@@ -12,6 +12,7 @@ The **Attribute Facet** filters or requires elements based on their IFC attribut
 ## Using in IDSedit
 
 ### As Applicability
+
 Filter elements by their attribute values:
 
 1. Add an Attribute Facet to the Applicability section
@@ -21,6 +22,7 @@ Filter elements by their attribute values:
 **Example:** Target elements named "W01" by setting Name to `Name` and Value to `W01`
 
 ### As Requirement
+
 Require elements to have specific attribute values:
 
 1. Add an Attribute Facet to the Requirements section
@@ -80,12 +82,14 @@ Understanding when to use each:
 ## Value Matching
 
 ### Exact Match
-```
+
+```text
 Attribute: Name
 Value: W-001
 ```
 
 ### Pattern Matching
+
 Use restrictions for flexible matching:
 
 | Pattern | Matches |
@@ -95,41 +99,52 @@ Use restrictions for flexible matching:
 | `[A-Z]{2}-[0-9]{3}` | AB-001, XY-999 |
 
 ### Empty Value Check
+
 To require an attribute exists but allow any value, leave Value empty.
 
 ## Common Use Cases
 
 ### Naming Conventions
+
 Enforce element naming standards:
-```
+
+```text
 Attribute: Name
 Value: Pattern "[A-Z]{2}-[0-9]{4}" (e.g., DR-0001, WL-0042)
 ```
 
 ### Description Requirements
+
 Require meaningful descriptions:
-```
+
+```text
 Attribute: Description
 Value: Pattern ".{10,}" (minimum 10 characters)
 ```
 
 ### Object Type Classification
+
 Require user-defined types:
-```
+
+```text
 Attribute: ObjectType
 Value: Not empty (any value required)
 ```
 
 ### Asset Tagging
+
 Require asset tags for facility management:
-```
+
+```text
 Attribute: Tag
 Value: Pattern "ASSET-[0-9]{6}"
 ```
 
 ### Space Naming
+
 Require full room names:
-```
+
+```text
 Attribute: LongName
 Value: Not empty
 ```
@@ -137,15 +152,19 @@ Value: Not empty
 ## Attributes by IFC Class
 
 ### IfcWall / IfcWallType
+
 - `Name`, `Description`, `Tag`, `ObjectType`, `PredefinedType`
 
 ### IfcDoor / IfcDoorType
+
 - `Name`, `Description`, `Tag`, `ObjectType`, `PredefinedType`, `OperationType`
 
 ### IfcSpace
+
 - `Name`, `Description`, `LongName`, `ObjectType`, `PredefinedType`
 
 ### IfcBuildingStorey
+
 - `Name`, `Description`, `LongName`, `ObjectType`, `Elevation`
 
 ## Technical Notes
@@ -158,6 +177,7 @@ Value: Not empty
 ## IFC Schema Reference
 
 For complete attribute definitions by class:
+
 - [IFC4x3 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/IfcRoot.htm)
 - [IFC4 Entity Definitions](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/schema/ifckernel/lexical/ifcroot.htm)
 
