@@ -186,6 +186,8 @@ flowchart TD
 
 An open-source web-based modelchecker that validates IFC models against basic rules and IDS specifications. Upload your IFC and IDS files to check compliance directly in the browser.
 
+For a complete list of software that supports IDS, see the official **[buildingSMART IDS Software Implementations](https://technical.buildingsmart.org/ids-software-implementations/)** page.
+
 ### BCF Integration
 
 IDS checking results are typically exported as BCF (BIM Collaboration Format):
