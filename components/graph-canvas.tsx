@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react"
 import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
-import { Map } from "lucide-react"
+import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
@@ -303,7 +303,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             className="react-flow__controls-button"
             title={showMinimap ? "Hide Minimap" : "Show Minimap"}
           >
-            <Map className="w-4 h-4" />
+            <MapIcon className="w-4 h-4" />
           </button>
         </Controls>
         {showMinimap && (
