@@ -101,19 +101,27 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     setNodes((currentNodes) => {
       // Get currently selected node IDs
       const selectedIds = currentNodes.filter(n => n.selected).map(n => n.id)
+      // Build lookup of existing ReactFlow nodes to preserve internal state
+      const currentNodeMap = new Map(currentNodes.map(n => [n.id, n]))
 
-      // Sync from parent - parent is the source of truth
-      const updatedNodes = initialNodes.map(parentNode => {
+      return initialNodes.map(parentNode => {
+        const existingNode = currentNodeMap.get(parentNode.id)
+        if (existingNode) {
+          // Preserve ReactFlow internal state (positionAbsolute, width, height,
+          // handleBounds, etc.) — only update what the parent owns
+          return {
+            ...existingNode,
+            position: parentNode.position,
+            data: parentNode.data,
+            selected: selectedIds.includes(parentNode.id),
+          }
+        }
+        // New node not yet in ReactFlow state
         return {
           ...parentNode,
-          // Preserve selection state
           selected: selectedIds.includes(parentNode.id),
-          // Always use parent position - it's the source of truth
-          position: parentNode.position,
         }
       })
-
-      return updatedNodes
     })
   }, [baseNodes]) // Only depend on baseNodes, not on isDragging state changes
 
