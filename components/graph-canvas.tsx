@@ -20,7 +20,7 @@ interface GraphCanvasProps {
   edges: GraphEdge[]
   selectedNode: GraphNode | null
   onNodeSelect: (node: GraphNode | null) => void
-  onNodeMove: (nodeId: string, position: { x: number; y: number }) => void
+  onNodeMove: (updates: Array<{ id: string; position: { x: number; y: number } }>) => void
   onNodeDragStart?: () => void
   onConnect: (sourceId: string, targetId: string, targetHandle?: string) => void
   onNodesDelete?: (nodeIds: string[]) => void
@@ -154,10 +154,10 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     onNodeDragStart?.()
   }, [onNodeDragStart])
 
-  const handleNodeDragStop = useCallback((_event: any, node: any) => {
+  const handleNodeDragStop = useCallback((_event: any, _node: any, nodes: any[]) => {
     setIsDragging(false)
-    // Only update parent state when drag ends to prevent flicker
-    onNodeMove(node.id, node.position)
+    // Update all dragged nodes (handles multi-selection drag correctly)
+    onNodeMove(nodes.map((n) => ({ id: n.id, position: n.position })))
   }, [onNodeMove])
 
   const onSelectionChange = useCallback(({ nodes: selectedNodes }: any) => {
