@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react"
 import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
-import { Map } from "lucide-react"
+import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
@@ -20,7 +20,7 @@ interface GraphCanvasProps {
   edges: GraphEdge[]
   selectedNode: GraphNode | null
   onNodeSelect: (node: GraphNode | null) => void
-  onNodeMove: (nodeId: string, position: { x: number; y: number }) => void
+  onNodeMove: (updates: Array<{ id: string; position: { x: number; y: number } }>) => void
   onNodeDragStart?: () => void
   onConnect: (sourceId: string, targetId: string, targetHandle?: string) => void
   onNodesDelete?: (nodeIds: string[]) => void
@@ -101,19 +101,27 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     setNodes((currentNodes) => {
       // Get currently selected node IDs
       const selectedIds = currentNodes.filter(n => n.selected).map(n => n.id)
+      // Build lookup of existing ReactFlow nodes to preserve internal state
+      const currentNodeMap = new Map(currentNodes.map(n => [n.id, n]))
 
-      // Sync from parent - parent is the source of truth
-      const updatedNodes = initialNodes.map(parentNode => {
+      return initialNodes.map(parentNode => {
+        const existingNode = currentNodeMap.get(parentNode.id)
+        if (existingNode) {
+          // Preserve ReactFlow internal state (positionAbsolute, width, height,
+          // handleBounds, etc.) — only update what the parent owns
+          return {
+            ...existingNode,
+            position: parentNode.position,
+            data: parentNode.data,
+            selected: selectedIds.includes(parentNode.id),
+          }
+        }
+        // New node not yet in ReactFlow state
         return {
           ...parentNode,
-          // Preserve selection state
           selected: selectedIds.includes(parentNode.id),
-          // Always use parent position - it's the source of truth
-          position: parentNode.position,
         }
       })
-
-      return updatedNodes
     })
   }, [baseNodes]) // Only depend on baseNodes, not on isDragging state changes
 
@@ -154,10 +162,10 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     onNodeDragStart?.()
   }, [onNodeDragStart])
 
-  const handleNodeDragStop = useCallback((_event: any, node: any) => {
+  const handleNodeDragStop = useCallback((_event: any, _node: any, nodes: any[]) => {
     setIsDragging(false)
-    // Only update parent state when drag ends to prevent flicker
-    onNodeMove(node.id, node.position)
+    // Update all dragged nodes (handles multi-selection drag correctly)
+    onNodeMove(nodes.map((n) => ({ id: n.id, position: n.position })))
   }, [onNodeMove])
 
   const onSelectionChange = useCallback(({ nodes: selectedNodes }: any) => {
@@ -295,7 +303,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             className="react-flow__controls-button"
             title={showMinimap ? "Hide Minimap" : "Show Minimap"}
           >
-            <Map className="w-4 h-4" />
+            <MapIcon className="w-4 h-4" />
           </button>
         </Controls>
         {showMinimap && (

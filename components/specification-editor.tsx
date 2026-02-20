@@ -465,13 +465,12 @@ export function SpecificationEditor() {
     event.target.value = ''
   }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode, takeSnapshot])
 
-  const handleNodeMove = useCallback((nodeId: string, position: { x: number; y: number }) => {
+  const handleNodeMove = useCallback((updates: Array<{ id: string; position: { x: number; y: number } }>) => {
+    const positionMap = new Map(updates.map(({ id, position }) => [id, position]))
     setNodes((nds) =>
       nds.map((node) => {
-        if (node.id === nodeId) {
-          return { ...node, position }
-        }
-        return node
+        const newPosition = positionMap.get(node.id)
+        return newPosition ? { ...node, position: newPosition } : node
       }),
     )
     // Don't take snapshot during drag - only on drag stop
