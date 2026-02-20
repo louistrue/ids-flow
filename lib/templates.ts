@@ -157,7 +157,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_WallCommon",
           baseName: "ThermalTransmittance",
-          dataType: "IFCREAL",
+          dataType: "IFCTHERMALTRANSMITTANCEMEASURE",
           value: "",
         },
       },
@@ -868,7 +868,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_DoorCommon",
           baseName: "OverallWidth",
-          dataType: "IFCPOSITIVELENGHTMEASURE",
+          dataType: "IFCLENGTHMEASURE",
           value: "",
         },
       },
@@ -939,7 +939,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_WallCommon",
           baseName: "ThermalTransmittance",
-          dataType: "IFCREAL",
+          dataType: "IFCTHERMALTRANSMITTANCEMEASURE",
           value: "",
         },
       },
@@ -1158,7 +1158,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_WindowCommon",
           baseName: "ThermalTransmittance",
-          dataType: "IFCREAL",
+          dataType: "IFCTHERMALTRANSMITTANCEMEASURE",
           value: "",
         },
       },
@@ -1323,7 +1323,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_RoofCommon",
           baseName: "ThermalTransmittance",
-          dataType: "IFCREAL",
+          dataType: "IFCTHERMALTRANSMITTANCEMEASURE",
           value: "",
         },
       },
@@ -1494,7 +1494,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_DuctFittingTypeCommon",
           baseName: "NominalDiameter",
-          dataType: "IFCPOSITIVELENGHTMEASURE",
+          dataType: "IFCLENGTHMEASURE",
           value: "",
         },
       },
@@ -1573,7 +1573,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_CurtainWallCommon",
           baseName: "ThermalTransmittance",
-          dataType: "IFCREAL",
+          dataType: "IFCTHERMALTRANSMITTANCEMEASURE",
           value: "",
         },
       },

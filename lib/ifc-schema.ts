@@ -185,9 +185,29 @@ export const IFC_DATA_TYPES: IFCDataType[] = [
   { name: "IFCDATE", description: "Date value" },
   { name: "IFCTIME", description: "Time value" },
   { name: "IFCDURATION", description: "Time duration" },
-  { name: "IFCLENGTHEASURE", description: "Length measurement" },
+  { name: "IFCLENGTHMEASURE", description: "Length measurement" },
   { name: "IFCAREAMEASURE", description: "Area measurement" },
   { name: "IFCVOLUMEMEASURE", description: "Volume measurement" },
+  { name: "IFCPLANEANGLEMEASURE", description: "Plane angle measurement" },
+  { name: "IFCMASSMEASURE", description: "Mass measurement" },
+  { name: "IFCPOWERMEASURE", description: "Power measurement" },
+  { name: "IFCPRESSUREMEASURE", description: "Pressure measurement" },
+  { name: "IFCTHERMALTRANSMITTANCEMEASURE", description: "Thermal transmittance (U-value) measurement" },
+  { name: "IFCVOLUMETRICFLOWRATEMEASURE", description: "Volumetric flow rate measurement" },
+  { name: "IFCTHERMODYNAMICTEMPERATUREMEASURE", description: "Thermodynamic temperature measurement" },
+  { name: "IFCPOSITIVERATIOMEASURE", description: "Positive ratio measurement" },
+  { name: "IFCCOUNTMEASURE", description: "Count measurement" },
+  { name: "IFCILLUMINANCEMEASURE", description: "Illuminance measurement" },
+  { name: "IFCLUMINOUSFLUXMEASURE", description: "Luminous flux measurement" },
+  { name: "IFCLUMINOUSINTENSITYMEASURE", description: "Luminous intensity measurement" },
+  { name: "IFCELECTRICVOLTAGEMEASURE", description: "Electric voltage measurement" },
+  { name: "IFCELECTRICCURRENTMEASURE", description: "Electric current measurement" },
+  { name: "IFCFREQUENCYMEASURE", description: "Frequency measurement" },
+  { name: "IFCFORCEMEASURE", description: "Force measurement" },
+  { name: "IFCMOMENTOFINERTIAMEASURE", description: "Moment of inertia measurement" },
+  { name: "IFCMONETARYMEASURE", description: "Monetary measurement" },
+  { name: "IFCTIMEMEASURE", description: "Time measurement" },
+  { name: "IFCPOSITIVELENGTHMEASURE", description: "Positive length measurement" },
 ]
 
 // Synchronous validation functions for backward compatibility
@@ -215,8 +235,9 @@ export function validateProperty(propertySetName: string, propertyName: string):
 }
 
 export function validateDataType(dataType: string): boolean {
-  // Check legacy data types
-  return IFC_DATA_TYPES.some((dt) => dt.name === dataType)
+  // Check all registered data types (case-insensitive)
+  const upperType = dataType.toUpperCase()
+  return IFC_DATA_TYPES.some((dt) => dt.name.toUpperCase() === upperType)
 }
 
 export function getEntitiesForVersion(version: IFCVersion): string[] {
