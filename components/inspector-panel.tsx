@@ -551,7 +551,13 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
         <SearchableSelect
           options={allEntities}
           value={data.name}
-          onValueChange={(value) => onChange("name", value)}
+          onValueChange={(value) => {
+            onChange("name", value)
+            // Clear predefined type when entity changes since types are entity-specific
+            if (value !== data.name) {
+              onChange("predefinedType", "")
+            }
+          }}
           placeholder="Search entities..."
           searchPlaceholder="Search 876+ entities..."
           emptyText="No entities found"
