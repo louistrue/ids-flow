@@ -438,10 +438,31 @@ export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<
   console.log('[IDS-validation] Property data type cache: built=', cacheBuilt, 'version=', cacheVersion, 'size=', propertyDataTypeCache.size)
 }
 
+/**
+ * Normalize a property baseName for cache lookup.
+ * Some IDS files use formats like "Load Bearing [LoadBearing]" where the
+ * technical name is inside brackets. This extracts the technical name so
+ * it can be matched against the property data type cache.
+ */
+function normalizePropertyName(baseName: string): string {
+  // Try to extract technical name from "Display Name [TechnicalName]" format
+  const bracketMatch = baseName.match(/\[(\w+)\]/)
+  if (bracketMatch) {
+    return bracketMatch[1]
+  }
+  return baseName
+}
+
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {
   // Check cache from loaded property sets (populated via getExpectedDataTypesForPropertyAsync)
   if (propertyDataTypeCache.has(propertyName)) {
     return Array.from(propertyDataTypeCache.get(propertyName)!)
+  }
+
+  // Try normalized name (e.g. "Load Bearing [LoadBearing]" → "LoadBearing")
+  const normalized = normalizePropertyName(propertyName)
+  if (normalized !== propertyName && propertyDataTypeCache.has(normalized)) {
+    return Array.from(propertyDataTypeCache.get(normalized)!)
   }
 
   // If cache is built but property not found, it's a custom property - any type is acceptable
