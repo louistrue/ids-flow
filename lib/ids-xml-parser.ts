@@ -58,7 +58,7 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
   }
 
   const parsed = parser.parse(xml)
-  const root = parsed?.ids
+  const root = extractIdsRoot(parsed)
   if (!root) {
     throw new Error("Invalid IDS file: missing ids root element")
   }
@@ -185,6 +185,32 @@ export function convertIdsXmlToGraph(xml: string): ParsedIdsGraph {
     ifcVersion: fallbackIfcVersion,
     metadata,
   }
+}
+
+function extractIdsRoot(parsed: unknown): Record<string, any> | null {
+  if (!parsed || typeof parsed !== "object") {
+    return null
+  }
+
+  const asRecord = parsed as Record<string, unknown>
+  if (asRecord.ids && typeof asRecord.ids === "object") {
+    return asRecord.ids as Record<string, any>
+  }
+
+  // Fallback for XML variants where the root key is namespaced or has different casing,
+  // e.g. IDS, ids:ids, ns:IDS.
+  for (const [key, value] of Object.entries(asRecord)) {
+    if (typeof value !== "object" || value === null) {
+      continue
+    }
+
+    const normalized = key.split(":").pop()?.toLowerCase()
+    if (normalized === "ids") {
+      return value as Record<string, any>
+    }
+  }
+
+  return null
 }
 
 interface ApplicabilityContext {
