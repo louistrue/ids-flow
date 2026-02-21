@@ -446,6 +446,14 @@ export function findExistingNode(
                 return node.data.value === nodeData.value
             case 'partOf':
                 return node.data.entity === nodeData.entity
+            case 'restriction':
+                return node.data.restrictionType === nodeData.restrictionType &&
+                    node.data.pattern === nodeData.pattern &&
+                    node.data.minValue === nodeData.minValue &&
+                    node.data.maxValue === nodeData.maxValue &&
+                    node.data.minLength === nodeData.minLength &&
+                    node.data.maxLength === nodeData.maxLength &&
+                    JSON.stringify(node.data.values) === JSON.stringify(nodeData.values)
             default:
                 return false
         }
