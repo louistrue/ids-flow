@@ -48,7 +48,7 @@ export function SpecificationEditor() {
     isValidating,
     hasErrors,
     isDisabled: isValidationDisabled,
-  } = useIdsValidation(nodes, edges)
+  } = useIdsValidation(nodes, edges, ifcVersion)
 
   // Undo/Redo hook
   const { undo, redo, takeSnapshot, canUndo, canRedo } = useUndoRedo(
@@ -151,8 +151,20 @@ export function SpecificationEditor() {
           nodeIdMap.set(index.toString(), existingNode.id)
         } else {
           // Create new node
-          const edge = template.edges[index - 1]
-          const targetHandle = edge?.targetHandle as 'applicability' | 'requirements'
+          // Determine if this node is on the applicability or requirements side
+          let targetHandle: 'applicability' | 'requirements' = 'requirements'
+          const nodeIdx = index.toString()
+          const explicitEdge = template.edges.find(e => e.source === nodeIdx)
+          if (explicitEdge) {
+            // Explicit edge: use targetHandle if it points to spec, otherwise it's a requirements-area node
+            if (explicitEdge.target === '0' && explicitEdge.targetHandle) {
+              targetHandle = explicitEdge.targetHandle as 'applicability' | 'requirements'
+            }
+          } else {
+            // Index-based edge: edge[i] corresponds to node[i+1]
+            const edge = template.edges[index - 1]
+            targetHandle = (edge?.targetHandle as 'applicability' | 'requirements') || 'requirements'
+          }
 
           console.log(`🔧 Creating new ${node.type} node (${targetHandle})`)
 
@@ -193,16 +205,12 @@ export function SpecificationEditor() {
       let sourceId: string | undefined
       let targetId: string | undefined
 
-      // Check if edge has explicit source/target definitions
+      // Check if edge has explicit source/target definitions (node indices as strings)
       if (edge.source && edge.target) {
-        // Find nodes by type matching
-        const sourceNode = nodesToAdd.find(node => node.type === edge.source)
-        const targetNode = nodesToAdd.find(node => node.type === edge.target)
+        sourceId = nodeIdMap.get(edge.source)
+        targetId = nodeIdMap.get(edge.target)
 
-        sourceId = sourceNode?.id
-        targetId = targetNode?.id
-
-        console.log(`🔗 Using explicit edge: ${edge.source} -> ${edge.target}`)
+        console.log(`🔗 Using explicit edge: ${edge.source} -> ${edge.target} (${sourceId} -> ${targetId})`)
       } else {
         // Fall back to index-based mapping for backward compatibility
         const sourceIndex = index < template.nodes.length - 1 ? index + 1 : index

@@ -398,11 +398,19 @@ export async function getSchemaStats(): Promise<{ version: string; entityCount: 
 // Build a cache of property name to data types from loaded property sets
 const propertyDataTypeCache = new Map<string, Set<string>>()
 let cacheBuilt = false
+let cacheVersion: IFCVersion | null = null
 
 async function buildPropertyDataTypeCache(version: IFCVersion) {
-  if (cacheBuilt) return
+  // Rebuild if version changed
+  if (cacheBuilt && cacheVersion === version) return
 
   try {
+    // Clear previous cache if version changed
+    if (cacheVersion !== version) {
+      propertyDataTypeCache.clear()
+      cacheBuilt = false
+    }
+
     const allPropertySets = await getAllPropertySets(version)
 
     for (const pset of allPropertySets) {
@@ -415,15 +423,56 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
     }
 
     cacheBuilt = true
+    cacheVersion = version
   } catch (error) {
     console.warn('Failed to build property data type cache:', error)
   }
+}
+
+/**
+ * Ensures the property data type cache is built for the given IFC version.
+ * Must be called before using synchronous isPropertyDataTypeValid().
+ */
+export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<void> {
+  await buildPropertyDataTypeCache(version)
+}
+
+/**
+ * Normalize a property baseName for cache lookup.
+ * IDS files may use various formats for property names:
+ *  - "Load Bearing [LoadBearing]"  (display name with technical name in brackets)
+ *  - "Load Bearing (LoadBearing)"  (display name with technical name in parentheses)
+ *  - "  LoadBearing  "             (whitespace padding)
+ * This extracts / cleans the technical name so it matches the property-set cache.
+ */
+export function normalizePropertyName(baseName: string): string {
+  const trimmed = baseName.trim()
+
+  // Try to extract technical name from brackets: "Display Name [TechnicalName]"
+  const bracketMatch = trimmed.match(/\[(\w+)\]/)
+  if (bracketMatch) {
+    return bracketMatch[1]
+  }
+
+  // Try to extract technical name from parentheses: "Display Name (TechnicalName)"
+  const parenMatch = trimmed.match(/\((\w+)\)/)
+  if (parenMatch) {
+    return parenMatch[1]
+  }
+
+  return trimmed
 }
 
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {
   // Check cache from loaded property sets (populated via getExpectedDataTypesForPropertyAsync)
   if (propertyDataTypeCache.has(propertyName)) {
     return Array.from(propertyDataTypeCache.get(propertyName)!)
+  }
+
+  // Try normalized name (e.g. "Load Bearing [LoadBearing]" → "LoadBearing")
+  const normalized = normalizePropertyName(propertyName)
+  if (normalized !== propertyName && propertyDataTypeCache.has(normalized)) {
+    return Array.from(propertyDataTypeCache.get(normalized)!)
   }
 
   // If cache is built but property not found, it's a custom property - any type is acceptable

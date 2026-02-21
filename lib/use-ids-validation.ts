@@ -3,6 +3,7 @@ import type { GraphNode, GraphEdge } from './graph-types'
 import { convertGraphToIdsXml } from './ids-xml-converter'
 import { IdsValidationService, type ValidationResult } from './ids-validation-service'
 import { validateGraphClientSide, type ValidationIssue } from './ids-client-validation'
+import type { IFCVersion } from './ifc-schema'
 
 export interface ValidationState {
     status: 'idle' | 'loading' | 'success' | 'error'
@@ -24,6 +25,7 @@ export interface UseIdsValidationReturn {
 export function useIdsValidation(
     nodes: GraphNode[],
     edges: GraphEdge[],
+    ifcVersion: IFCVersion = "IFC4X3_ADD2",
     debounceMs: number = 2000
 ): UseIdsValidationReturn {
     const [validationState, setValidationState] = useState<ValidationState>({
@@ -36,6 +38,12 @@ export function useIdsValidation(
     const debounceRef = useRef<NodeJS.Timeout>()
     const validationService = IdsValidationService.getInstance()
 
+    // Generation counter to prevent stale async validation results from
+    // overwriting newer results. Incremented both when the debounce effect
+    // fires (to immediately invalidate in-flight validations) and when
+    // validateIds starts (to guard against concurrent calls).
+    const validationGenRef = useRef(0)
+
     // Check if validation should be disabled
     const isDisabled = nodes.length === 0 || !nodes.some(node => node.type === 'spec')
 
@@ -44,11 +52,19 @@ export function useIdsValidation(
             return
         }
 
+        // Increment generation counter — any in-flight validation with an
+        // older generation will discard its result.
+        const thisGen = ++validationGenRef.current
+
         try {
             setValidationState(prev => ({ ...prev, status: 'loading', error: null, clientIssues: [] }))
 
-            // First, run client-side validation
-            const clientValidation = validateGraphClientSide(nodes, edges)
+            // Run client-side validation (async — it builds its own
+            // property data-type cache internally before checking types).
+            const clientValidation = await validateGraphClientSide(nodes, edges, ifcVersion)
+
+            // Check if a newer validation started while we were running
+            if (thisGen !== validationGenRef.current) return
 
             // If there are critical client-side errors, don't proceed to server validation
             if (!clientValidation.isValid) {
@@ -77,6 +93,11 @@ export function useIdsValidation(
             // Validate the XML with the audit service
             const result = await validationService.validateIdsXml(xml)
 
+            // Only apply server result if this is still the latest validation.
+            // A newer validation (e.g., after the user changed a data type) may
+            // have already set the state to 'error' — don't overwrite it.
+            if (thisGen !== validationGenRef.current) return
+
             setValidationState({
                 status: 'success',
                 result,
@@ -85,6 +106,9 @@ export function useIdsValidation(
                 clientIssues: clientValidation.issues, // Include warnings
             })
         } catch (error) {
+            // Only apply error if this is still the latest validation
+            if (thisGen !== validationGenRef.current) return
+
             const errorMessage = error instanceof Error ? error.message : 'Validation failed'
             setValidationState({
                 status: 'error',
@@ -94,13 +118,29 @@ export function useIdsValidation(
                 clientIssues: [],
             })
         }
-    }, [nodes, edges, isDisabled, validationService])
+    }, [nodes, edges, ifcVersion, isDisabled, validationService])
 
-    // Debounced validation
+    // Debounced validation — runs whenever nodes/edges change.
     useEffect(() => {
         if (isDisabled) {
             return
         }
+
+        // IMPORTANT: Immediately invalidate any in-flight validation so that
+        // a stale server response (from BEFORE the user changed something)
+        // cannot overwrite the state with an outdated "valid" result.
+        // Without this, there is a race condition: old server response arrives
+        // during the debounce period and shows green even though data changed.
+        validationGenRef.current++
+
+        // Also clear stale "success" result immediately so the badge doesn't
+        // keep showing green while we wait for the debounced re-validation.
+        setValidationState(prev => {
+            if (prev.result !== null || prev.status === 'success') {
+                return { ...prev, status: 'idle', result: null }
+            }
+            return prev
+        })
 
         // Clear existing timeout
         if (debounceRef.current) {
