@@ -242,13 +242,20 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   }, [onEdgesChange, onEdgesDelete])
 
   // Handle Select All keyboard shortcut (Cmd+A on Mac, Ctrl+A on Windows)
+  // Attached to window so it works immediately without clicking the canvas first
   useEffect(() => {
-    const container = reactFlowContainerRef.current
-    if (!container) return
-
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Cmd+A (Mac) or Ctrl+A (Windows)
       if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
+        // Let native select-all work inside text inputs and editable elements
+        const el = document.activeElement
+        if (
+          el instanceof HTMLInputElement ||
+          el instanceof HTMLTextAreaElement ||
+          (el instanceof HTMLElement && el.isContentEditable)
+        ) {
+          return
+        }
+
         event.preventDefault()
 
         setNodes((currentNodes) =>
@@ -260,9 +267,9 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       }
     }
 
-    container.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleKeyDown)
     return () => {
-      container.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [setNodes])
 
