@@ -19,6 +19,7 @@ import type { SpecTemplate } from "@/lib/templates"
 import { GraphCanvas } from "./graph-canvas"
 import type { GraphNode, GraphEdge, NodeData, IdsMetadata } from "@/lib/graph-types"
 import { initialNodes, initialEdges } from "@/lib/initial-data"
+import { loadProjectState, saveProjectState } from "@/lib/project-session-store"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
@@ -33,10 +34,19 @@ export function SpecificationEditor() {
     return supported.includes(value as IFCVersion) ? (value as IFCVersion) : undefined
   }, [])
 
-  const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
-  const [edges, setEdges] = useState<GraphEdge[]>(initialEdges)
+  const [nodes, setNodes] = useState<GraphNode[]>(() => {
+    const saved = loadProjectState()
+    return saved ? saved.nodes : initialNodes
+  })
+  const [edges, setEdges] = useState<GraphEdge[]>(() => {
+    const saved = loadProjectState()
+    return saved ? saved.edges : initialEdges
+  })
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
-  const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
+  const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
+    const saved = loadProjectState()
+    return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
+  })
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
@@ -73,6 +83,11 @@ export function SpecificationEditor() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo])
+
+  // Persist project state to sessionStorage so it survives navigation (e.g. to /docs and back)
+  useEffect(() => {
+    saveProjectState(nodes, edges, ifcVersion)
+  }, [nodes, edges, ifcVersion])
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     console.log('SpecificationEditor updateNodeData:', { nodeId, data })
