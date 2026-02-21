@@ -445,7 +445,7 @@ export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<
  *  - "  LoadBearing  "             (whitespace padding)
  * This extracts / cleans the technical name so it matches the property-set cache.
  */
-function normalizePropertyName(baseName: string): string {
+export function normalizePropertyName(baseName: string): string {
   const trimmed = baseName.trim()
 
   // Try to extract technical name from brackets: "Display Name [TechnicalName]"

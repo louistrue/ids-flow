@@ -1,5 +1,6 @@
 import { create } from "xmlbuilder2"
 import type { GraphNode, GraphEdge, Cardinality, IdsMetadata } from "./graph-types"
+import { normalizePropertyName } from "./ifc-schema"
 
 export interface ConvertOptions {
   pretty?: boolean
@@ -342,7 +343,7 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
 
   const prop = parent.ele("ids:property", attrs)
   idsSimple(prop, "ids:propertySet", data.propertySet)
-  idsSimple(prop, "ids:baseName", data.baseName)
+  idsSimple(prop, "ids:baseName", normalizePropertyName(data.baseName))
 
   // Handle restrictions by checking for connected restriction nodes
   if (edges && nodes) {

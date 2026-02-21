@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser"
 import type { GraphNode, GraphEdge, RestrictionNodeData, Cardinality, IdsMetadata } from "./graph-types"
 import { DEFAULT_LAYOUT_CONFIG, calculateNodePosition, type LayoutConfig } from "./node-layout"
+import { normalizePropertyName } from "./ifc-schema"
 
 export interface ParsedIdsGraph {
   nodes: GraphNode[]
@@ -242,7 +243,7 @@ function parseApplicability(applicability: any, ctx: ApplicabilityContext) {
       type: "property",
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
-        baseName: getSimpleValue(property?.baseName) || "",
+        baseName: normalizePropertyName(getSimpleValue(property?.baseName) || ""),
         dataType: extractDataType(property, property?.value),
       },
       valueNode: property?.value,
@@ -360,7 +361,7 @@ function parseRequirements(requirements: any, ctx: RequirementsContext) {
       type: "property",
       data: {
         propertySet: getSimpleValue(property?.propertySet) || "",
-        baseName: getSimpleValue(property?.baseName) || "",
+        baseName: normalizePropertyName(getSimpleValue(property?.baseName) || ""),
         dataType: extractDataType(property, property?.value),
         ...(property?.cardinality ? { cardinality: property.cardinality as Cardinality } : {}),
         ...(property?.uri ? { uri: property.uri } : {}),
