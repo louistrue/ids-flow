@@ -435,22 +435,32 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
  */
 export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<void> {
   await buildPropertyDataTypeCache(version)
-  console.log('[IDS-validation] Property data type cache: built=', cacheBuilt, 'version=', cacheVersion, 'size=', propertyDataTypeCache.size)
 }
 
 /**
  * Normalize a property baseName for cache lookup.
- * Some IDS files use formats like "Load Bearing [LoadBearing]" where the
- * technical name is inside brackets. This extracts the technical name so
- * it can be matched against the property data type cache.
+ * IDS files may use various formats for property names:
+ *  - "Load Bearing [LoadBearing]"  (display name with technical name in brackets)
+ *  - "Load Bearing (LoadBearing)"  (display name with technical name in parentheses)
+ *  - "  LoadBearing  "             (whitespace padding)
+ * This extracts / cleans the technical name so it matches the property-set cache.
  */
 function normalizePropertyName(baseName: string): string {
-  // Try to extract technical name from "Display Name [TechnicalName]" format
-  const bracketMatch = baseName.match(/\[(\w+)\]/)
+  const trimmed = baseName.trim()
+
+  // Try to extract technical name from brackets: "Display Name [TechnicalName]"
+  const bracketMatch = trimmed.match(/\[(\w+)\]/)
   if (bracketMatch) {
     return bracketMatch[1]
   }
-  return baseName
+
+  // Try to extract technical name from parentheses: "Display Name (TechnicalName)"
+  const parenMatch = trimmed.match(/\((\w+)\)/)
+  if (parenMatch) {
+    return parenMatch[1]
+  }
+
+  return trimmed
 }
 
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {

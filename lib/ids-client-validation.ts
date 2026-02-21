@@ -46,7 +46,6 @@ export async function validateGraphClientSide(
 
     // Validate each property node
     const propertyNodes = nodes.filter(node => node.type === 'property')
-    console.log('[IDS-validation] Checking', propertyNodes.length, 'property nodes, ifcVersion:', ifcVersion)
     for (const node of propertyNodes) {
         const data = node.data as any
 
@@ -66,7 +65,6 @@ export async function validateGraphClientSide(
         // Validate data type semantically (is it the right type for this property?)
         if (data.dataType && data.baseName) {
             const validation = isPropertyDataTypeValid(data.baseName, data.dataType)
-            console.log('[IDS-validation] Property', data.baseName, 'dataType:', data.dataType, '→ valid:', validation.valid, validation.expectedTypes ? 'expected:' + validation.expectedTypes.join(',') : '')
             if (!validation.valid && validation.expectedTypes) {
                 issues.push({
                     severity: 'error',
@@ -152,7 +150,6 @@ export async function validateGraphClientSide(
     }
 
     const hasErrors = issues.some(issue => issue.severity === 'error')
-    console.log('[IDS-validation] Client result: isValid:', !hasErrors, 'errors:', issues.filter(i => i.severity === 'error').length, 'warnings:', issues.filter(i => i.severity === 'warning').length)
 
     return {
         isValid: !hasErrors,
