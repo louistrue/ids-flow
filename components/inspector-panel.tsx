@@ -21,7 +21,6 @@ import { Separator } from "@/components/ui/separator"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import { CollapsibleSection } from "@/components/ui/collapsible-section"
 import {
-  getEntitiesForVersion,
   getPredefinedTypesForEntityAsync,
   getPropertiesForPropertySet,
   getExpectedDataTypesForProperty,
@@ -33,7 +32,6 @@ import {
   getAttributesForEntity,
   getClassificationSystemsForEntity,
   getMaterialTypesForEntity,
-  IFC_DATA_TYPES,
   type IFCVersion,
 } from "@/lib/ifc-schema"
 import { getEntityContext } from "@/lib/graph-utils"
@@ -516,15 +514,8 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
         }))
         setAllEntities(entityOptions)
       } catch (error) {
-        console.warn('Failed to load comprehensive entities:', error)
-        // Fallback to legacy entities
-        const legacyEntities = getEntitiesForVersion(ifcVersion)
-        setAllEntities(legacyEntities.map(entity => ({
-          value: entity,
-          label: entity,
-          description: `IFC ${ifcVersion} entity: ${entity}`,
-          category: 'Other'
-        })))
+        console.warn('Failed to load entities from schema:', error)
+        setAllEntities([])
       } finally {
         setLoading(false)
       }
@@ -706,19 +697,9 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
           setLoadedPropertySets([...uniqueFilteredPsets, ...customPsets.filter(customPset => !uniqueFilteredPsets.some(ifcPset => ifcPset.name === customPset.name))])
         }
       } catch (error) {
-        console.warn('Failed to load property sets:', error)
-        // Fallback to legacy data
-        const fallbackPsets = [
-          "Pset_WallCommon", "Pset_SlabCommon", "Pset_ColumnCommon",
-          "Pset_BeamCommon", "Pset_DoorCommon", "Pset_WindowCommon", "Pset_SpaceCommon"
-        ]
-        setPropertySetOptions(fallbackPsets.map(name => ({
-          value: name,
-          label: name,
-          description: 'Legacy property set',
-          category: 'Property Sets'
-        })))
-        setAllDataTypes(IFC_DATA_TYPES)
+        console.warn('Failed to load property sets from schema:', error)
+        setPropertySetOptions([])
+        setAllDataTypes([])
       } finally {
         setLoading(false)
       }
@@ -1395,15 +1376,8 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
         }))
         setAllEntities(entityOptions)
       } catch (error) {
-        console.warn('Failed to load comprehensive entities:', error)
-        // Fallback to legacy entities
-        const legacyEntities = getEntitiesForVersion(ifcVersion)
-        setAllEntities(legacyEntities.map(entity => ({
-          value: entity,
-          label: entity,
-          description: `IFC ${ifcVersion} entity: ${entity}`,
-          category: 'Other'
-        })))
+        console.warn('Failed to load entities from schema:', error)
+        setAllEntities([])
       } finally {
         setEntitiesLoading(false)
       }

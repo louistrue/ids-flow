@@ -1,5 +1,5 @@
 import type { GraphNode, GraphEdge } from './graph-types'
-import { validateDataType, isPropertyDataTypeValid } from './ifc-schema'
+import { validateDataType, isPropertyDataTypeValid, getAllSimpleTypes, type IFCVersion } from './ifc-schema'
 
 export interface ValidationIssue {
     severity: 'error' | 'warning'
@@ -147,85 +147,27 @@ export function validateGraphClientSide(
 }
 
 /**
- * Enhanced list of valid IFC data types for properties
- * Based on IFC4 and IFC4x3 specifications
+ * Valid IFC data types for properties - loaded from generated schema
+ * Populated lazily via loadValidDataTypes() from simple-types JSON files
  */
-export const VALID_IFC_DATA_TYPES = new Set([
-    // Basic types
-    'IFCBOOLEAN',
-    'IFCINTEGER',
-    'IFCREAL',
-    'IFCLABEL',
-    'IFCTEXT',
-    'IFCIDENTIFIER',
-    'IFCLOGICAL',
+let VALID_IFC_DATA_TYPES: Set<string> | null = null
 
-    // Date/Time types
-    'IFCDATETIME',
-    'IFCDATE',
-    'IFCTIME',
-    'IFCDURATION',
-    'IFCTIMESTAMP',
-
-    // Measurement types
-    'IFCLENGTHMEASURE',
-    'IFCAREAMEASURE',
-    'IFCVOLUMEMEASURE',
-    'IFCPLANEANGLEMEASURE',
-    'IFCSOLIDANGLEMEASURE',
-    'IFCMASSMEASURE',
-    'IFCPOWERMEASURE',
-    'IFCPRESSUREMEASURE',
-    'IFCTHERMALTRANSMITTANCEMEASURE',
-    'IFCENERGYCONVERSIONRATE',
-    'IFCTEMPERATUREGRADIENTMEASURE',
-    'IFCHEATINGVALUEMEASURE',
-    'IFCTHERMOCONDUCTIVITYMEASURE',
-    'IFCVOLUMETRICFLOWRATEMEASURE',
-    'IFCMOISTUREDIFFUSIVITYMEASURE',
-    'IFCVAPORPERMEABILITYMEASURE',
-    'IFCISOTHERMALMOISTURECAPACITYMEASURE',
-    'IFCSPECIFICHEATCAPACITYMEASURE',
-    'IFCMONETARYMEASURE',
-    'IFCCOUNTMEASURE',
-    'IFCTIMEMEASURE',
-    'IFCTHERMODYNAMICTEMPERATUREMEASURE',
-    'IFCPHMEASURE',
-    'IFCFREQUENCYMEASURE',
-    'IFCPOSITIVERATIOMEASURE',
-    'IFCPOSITIVELENGTHMEASURE',
-    'IFCILLUMINANCEMEASURE',
-    'IFCLUMINOUSFLUXMEASURE',
-    'IFCLUMINOUSINTENSITYMEASURE',
-    'IFCELECTRICVOLTAGEMEASURE',
-    'IFCELECTRICCURRENTMEASURE',
-    'IFCELECTRICCHARGEMEASURE',
-    'IFCELECTRICRESISTANCEMEASURE',
-    'IFCELECTRICCONDUCTANCEMEASURE',
-    'IFCELECTRICCAPACITANCEMEASURE',
-    'IFCINDUCTANCEMEASURE',
-    'IFCFORCEMEASURE',
-    'IFCMOMENTOFINERTIAMEASURE',
-    'IFCTORQUEMEASURE',
-    'IFCACCELERATIONMEASURE',
-    'IFCLINEARVELOCITYMEASURE',
-    'IFCANGULARVELOCITYMEASURE',
-    'IFCLINEARFORCEMEASURE',
-    'IFCPLANARFORCEMEASURE',
-    'IFCLINEARSTIFFNESSMEASURE',
-    'IFCROTATIONALSTIFFNESSMEASURE',
-    'IFCWARPINGMOMENTALSTIFFNESSMEASURE',
-    'IFCMODULUSOFELASTICITYMEASURE',
-    'IFCSHEARMODULUSMEASURE',
-    'IFCLINEARDENSITYMEASURE',
-    'IFCLINEARMOMENTMEASURE',
-    'IFCPLANARMOMENTMEASURE',
-    'IFCSECTIONMODULUSMEASURE',
-    'IFCSECTIONALAREAINTEGRALMEASURE',
-    'IFCWARPING',
-])
+export async function loadValidDataTypes(version: IFCVersion): Promise<void> {
+    if (VALID_IFC_DATA_TYPES) return
+    try {
+        const simpleTypes = await getAllSimpleTypes(version)
+        VALID_IFC_DATA_TYPES = new Set(simpleTypes.map(t => t.name.toUpperCase()))
+    } catch (error) {
+        console.warn('Failed to load valid data types from schema:', error)
+        VALID_IFC_DATA_TYPES = new Set()
+    }
+}
 
 export function isValidIfcDataType(dataType: string): boolean {
+    if (!VALID_IFC_DATA_TYPES) {
+        // Before cache is loaded, fall back to validateDataType from ifc-schema
+        return validateDataType(dataType)
+    }
     return VALID_IFC_DATA_TYPES.has(dataType.toUpperCase())
 }
 

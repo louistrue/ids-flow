@@ -132,47 +132,7 @@ function convertSimpleTypes(simpleTypes: IFCSimpleType[]): IFCDataType[] {
   }))
 }
 
-// Legacy compatibility: Keep existing constants for backward compatibility
-export const PREDEFINED_PROPERTY_DATATYPES: Record<string, string[]> = {
-  // Text properties
-  "Reference": ["IFCLABEL", "IFCIDENTIFIER"],
-  "FireRating": ["IFCLABEL", "IFCTEXT"],
-  "AcousticRating": ["IFCLABEL", "IFCTEXT"],
-  "SecurityRating": ["IFCLABEL", "IFCTEXT"],
-  "Status": ["IFCLABEL"],
-  "Category": ["IFCLABEL"],
-  "FloorCovering": ["IFCLABEL"],
-  "WallCovering": ["IFCLABEL"],
-  "CeilingCovering": ["IFCLABEL"],
-  "SkirtingBoard": ["IFCLABEL"],
-  "SurfaceSpreadOfFlame": ["IFCLABEL"],
-
-  // Boolean properties
-  "Combustible": ["IFCBOOLEAN"],
-  "IsExternal": ["IFCBOOLEAN"],
-  "LoadBearing": ["IFCBOOLEAN"],
-  "Compartmentation": ["IFCBOOLEAN"],
-  "ExtendToStructure": ["IFCBOOLEAN"],
-  "HandicapAccessible": ["IFCBOOLEAN"],
-  "PubliclyAccessible": ["IFCBOOLEAN"],
-  "FireExit": ["IFCBOOLEAN"],
-  "SelfClosing": ["IFCBOOLEAN"],
-  "SmokeStop": ["IFCBOOLEAN"],
-
-  // Measurement properties
-  "ThermalTransmittance": ["IFCTHERMALTRANSMITTANCEMEASURE", "IFCREAL"],
-  "Infiltration": ["IFCVOLUMETRICFLOWRATEMEASURE", "IFCREAL"],
-  "GlazingAreaFraction": ["IFCPOSITIVERATIOMEASURE", "IFCREAL"],
-  "GrossPlannedArea": ["IFCAREAMEASURE", "IFCREAL"],
-  "NetPlannedArea": ["IFCAREAMEASURE", "IFCREAL"],
-  "Span": ["IFCLENGTHMEASURE", "IFCREAL"],
-  "Slope": ["IFCPLANEANGLEMEASURE", "IFCREAL"],
-  "PitchAngle": ["IFCPLANEANGLEMEASURE", "IFCREAL"],
-}
-
-// Legacy property sets constant removed - we now use complete JSON data from generated files
-
-// Legacy compatibility: Keep existing data types for backward compatibility
+// Legacy data types used as synchronous fallback before schema is loaded
 export const IFC_DATA_TYPES: IFCDataType[] = [
   { name: "IFCLABEL", description: "Short text string (max 255 characters)" },
   { name: "IFCTEXT", description: "Long text string" },
@@ -234,34 +194,41 @@ export function validateProperty(propertySetName: string, propertyName: string):
   return true
 }
 
+// Data type validation cache - populated from generated schema
+const validDataTypeCache = new Set<string>()
+let dataTypeCacheBuilt = false
+
 export function validateDataType(dataType: string): boolean {
-  // Check all registered data types (case-insensitive)
   const upperType = dataType.toUpperCase()
+  // Use cache from generated schema if available
+  if (dataTypeCacheBuilt) {
+    return validDataTypeCache.has(upperType)
+  }
+  // Fallback to legacy list before cache is built
   return IFC_DATA_TYPES.some((dt) => dt.name.toUpperCase() === upperType)
 }
 
-export function getEntitiesForVersion(version: IFCVersion): string[] {
-  // Return a comprehensive list of common entities for now
-  const commonEntities = [
-    'IFCWALL', 'IFCSLAB', 'IFCCOLUMN', 'IFCBEAM', 'IFCDOOR', 'IFCWINDOW',
-    'IFCSPACE', 'IFCBUILDING', 'IFCBUILDINGSTOREY', 'IFCSITE', 'IFCROOF',
-    'IFCSTAIR', 'IFCRAILING', 'IFCFOOTING', 'IFCFOUNDATION', 'IFCPILE',
-    'IFCCAISSON', 'IFCRAMP', 'IFCCURTAINWALL', 'IFCMEMBER', 'IFCPLATE',
-    'IFCBUILDINGELEMENTPART', 'IFCBUILDINGELEMENTPROXY', 'IFCDISTRIBUTIONELEMENT',
-    'IFCDISTRIBUTIONFLOWELEMENT', 'IFCFLOWCONTROLLER', 'IFCFLOWFITTING',
-    'IFCFLOWMOVINGDEVICE', 'IFCFLOWSEGMENT', 'IFCFLOWSTORAGEDEVICE',
-    'IFCFLOWTERMINAL', 'IFCFLOWTREATMENTDEVICE', 'IFCENERGYCONVERSIONDEVICE',
-    'IFCELECTRICALELEMENT', 'IFCLIGHTFIXTURE', 'IFCLUMINAIRE',
-    'IFCSANITARYTERMINAL', 'IFCWASHHANDBASIN', 'IFCTOILET', 'IFCBATH',
-    'IFCSINK', 'IFCSHOWER', 'IFCFURNISHINGELEMENT', 'IFCFURNITURE',
-    'IFCSYSTEMFURNITUREELEMENT'
-  ]
+export async function validateDataTypeAsync(dataType: string, version: IFCVersion): Promise<boolean> {
+  await buildDataTypeCache(version)
+  return validDataTypeCache.has(dataType.toUpperCase())
+}
 
-  if (version === 'IFC4X3_ADD2') {
-    return [...commonEntities, 'IFCBRIDGE', 'IFCROAD', 'IFCRAILWAY', 'IFCPORT', 'IFCAIRPORT']
+async function buildDataTypeCache(version: IFCVersion) {
+  if (dataTypeCacheBuilt) return
+  try {
+    const simpleTypes = await loadSimpleTypes(version)
+    for (const t of simpleTypes) {
+      validDataTypeCache.add(t.name.toUpperCase())
+    }
+    dataTypeCacheBuilt = true
+  } catch (error) {
+    console.warn('Failed to build data type cache:', error)
   }
+}
 
-  return commonEntities
+export function getEntitiesForVersion(version: IFCVersion): string[] {
+  // Legacy synchronous fallback - use getAllEntities() for complete data from schema
+  return []
 }
 
 export function getPredefinedTypesForEntity(entityName: string, version: IFCVersion): string[] {
@@ -293,18 +260,8 @@ export async function getPredefinedTypesForEntityAsync(entityName: string, versi
 }
 
 export function getPropertySetsForEntity(entityName: string): string[] {
-  // Return property sets for common entities
-  const entityPropertySets: Record<string, string[]> = {
-    'IFCWALL': ['Pset_WallCommon'],
-    'IFCSLAB': ['Pset_SlabCommon'],
-    'IFCCOLUMN': ['Pset_ColumnCommon'],
-    'IFCBEAM': ['Pset_BeamCommon'],
-    'IFCDOOR': ['Pset_DoorCommon'],
-    'IFCWINDOW': ['Pset_WindowCommon'],
-    'IFCSPACE': ['Pset_SpaceCommon']
-  }
-
-  return entityPropertySets[entityName] || []
+  // Legacy synchronous fallback - use getPropertySetsForEntityAsync() for complete data from schema
+  return []
 }
 
 export function getPropertiesForPropertySet(propertySetName: string): string[] {
@@ -317,6 +274,13 @@ export function getPropertiesForPropertySet(propertySetName: string): string[] {
 // Async functions for comprehensive schema access
 export async function getAllSimpleTypes(version: IFCVersion): Promise<IFCDataType[]> {
   const simpleTypes = await loadSimpleTypes(version)
+  // Populate data type validation cache from loaded schema
+  if (!dataTypeCacheBuilt) {
+    for (const t of simpleTypes) {
+      validDataTypeCache.add(t.name.toUpperCase())
+    }
+    dataTypeCacheBuilt = true
+  }
   return convertSimpleTypes(simpleTypes)
 }
 
@@ -457,14 +421,18 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
 }
 
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {
-  // First check cache from loaded property sets
+  // Check cache from loaded property sets (populated via getExpectedDataTypesForPropertyAsync)
   if (propertyDataTypeCache.has(propertyName)) {
     return Array.from(propertyDataTypeCache.get(propertyName)!)
   }
 
-  // Fallback to old hardcoded mapping (for any properties not in the loaded schema)
-  // This is only used before the cache is built or for truly custom properties
-  return PREDEFINED_PROPERTY_DATATYPES[propertyName]
+  // If cache is built but property not found, it's a custom property - any type is acceptable
+  if (cacheBuilt) {
+    return undefined
+  }
+
+  // Before cache is built, accept any type to avoid false positives
+  return undefined
 }
 
 // Async version that builds cache first
