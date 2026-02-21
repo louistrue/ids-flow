@@ -398,11 +398,19 @@ export async function getSchemaStats(): Promise<{ version: string; entityCount: 
 // Build a cache of property name to data types from loaded property sets
 const propertyDataTypeCache = new Map<string, Set<string>>()
 let cacheBuilt = false
+let cacheVersion: IFCVersion | null = null
 
 async function buildPropertyDataTypeCache(version: IFCVersion) {
-  if (cacheBuilt) return
+  // Rebuild if version changed
+  if (cacheBuilt && cacheVersion === version) return
 
   try {
+    // Clear previous cache if version changed
+    if (cacheVersion !== version) {
+      propertyDataTypeCache.clear()
+      cacheBuilt = false
+    }
+
     const allPropertySets = await getAllPropertySets(version)
 
     for (const pset of allPropertySets) {
@@ -415,9 +423,18 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
     }
 
     cacheBuilt = true
+    cacheVersion = version
   } catch (error) {
     console.warn('Failed to build property data type cache:', error)
   }
+}
+
+/**
+ * Ensures the property data type cache is built for the given IFC version.
+ * Must be called before using synchronous isPropertyDataTypeValid().
+ */
+export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<void> {
+  await buildPropertyDataTypeCache(version)
 }
 
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {

@@ -48,7 +48,7 @@ export function SpecificationEditor() {
     isValidating,
     hasErrors,
     isDisabled: isValidationDisabled,
-  } = useIdsValidation(nodes, edges)
+  } = useIdsValidation(nodes, edges, ifcVersion)
 
   // Undo/Redo hook
   const { undo, redo, takeSnapshot, canUndo, canRedo } = useUndoRedo(

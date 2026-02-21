@@ -3,6 +3,7 @@ import type { GraphNode, GraphEdge } from './graph-types'
 import { convertGraphToIdsXml } from './ids-xml-converter'
 import { IdsValidationService, type ValidationResult } from './ids-validation-service'
 import { validateGraphClientSide, type ValidationIssue } from './ids-client-validation'
+import { ensurePropertyDataTypeCache, type IFCVersion } from './ifc-schema'
 
 export interface ValidationState {
     status: 'idle' | 'loading' | 'success' | 'error'
@@ -24,6 +25,7 @@ export interface UseIdsValidationReturn {
 export function useIdsValidation(
     nodes: GraphNode[],
     edges: GraphEdge[],
+    ifcVersion: IFCVersion = "IFC4X3_ADD2",
     debounceMs: number = 2000
 ): UseIdsValidationReturn {
     const [validationState, setValidationState] = useState<ValidationState>({
@@ -46,6 +48,11 @@ export function useIdsValidation(
 
         try {
             setValidationState(prev => ({ ...prev, status: 'loading', error: null, clientIssues: [] }))
+
+            // Ensure property data type cache is built before running client-side validation.
+            // This is required for isPropertyDataTypeValid() to detect wrong data types
+            // (e.g., LoadBearing with IFCDATE instead of IFCBOOLEAN).
+            await ensurePropertyDataTypeCache(ifcVersion)
 
             // First, run client-side validation
             const clientValidation = validateGraphClientSide(nodes, edges)
@@ -94,7 +101,7 @@ export function useIdsValidation(
                 clientIssues: [],
             })
         }
-    }, [nodes, edges, isDisabled, validationService])
+    }, [nodes, edges, ifcVersion, isDisabled, validationService])
 
     // Debounced validation
     useEffect(() => {
