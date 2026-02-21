@@ -38,6 +38,12 @@ export function useIdsValidation(
     const debounceRef = useRef<NodeJS.Timeout>()
     const validationService = IdsValidationService.getInstance()
 
+    // Generation counter to prevent stale async validation results from
+    // overwriting newer results. Each call to validateIds increments this;
+    // when a server response arrives, it checks whether a newer validation
+    // has already started and discards its result if so.
+    const validationGenRef = useRef(0)
+
     // Check if validation should be disabled
     const isDisabled = nodes.length === 0 || !nodes.some(node => node.type === 'spec')
 
@@ -46,6 +52,10 @@ export function useIdsValidation(
             return
         }
 
+        // Increment generation counter — any in-flight validation with an
+        // older generation will discard its result.
+        const thisGen = ++validationGenRef.current
+
         try {
             setValidationState(prev => ({ ...prev, status: 'loading', error: null, clientIssues: [] }))
 
@@ -53,6 +63,9 @@ export function useIdsValidation(
             // This is required for isPropertyDataTypeValid() to detect wrong data types
             // (e.g., LoadBearing with IFCDATE instead of IFCBOOLEAN).
             await ensurePropertyDataTypeCache(ifcVersion)
+
+            // Check if a newer validation has started while we were building the cache
+            if (thisGen !== validationGenRef.current) return
 
             // First, run client-side validation
             const clientValidation = validateGraphClientSide(nodes, edges)
@@ -63,6 +76,9 @@ export function useIdsValidation(
                     .filter(issue => issue.severity === 'error')
                     .map(issue => issue.message)
                     .join('; ')
+
+                // Only apply if this is still the latest validation
+                if (thisGen !== validationGenRef.current) return
 
                 setValidationState({
                     status: 'error',
@@ -84,6 +100,11 @@ export function useIdsValidation(
             // Validate the XML with the audit service
             const result = await validationService.validateIdsXml(xml)
 
+            // Only apply server result if this is still the latest validation.
+            // A newer validation (e.g., after the user changed a data type) may
+            // have already set the state to 'error' — don't overwrite it.
+            if (thisGen !== validationGenRef.current) return
+
             setValidationState({
                 status: 'success',
                 result,
@@ -92,6 +113,9 @@ export function useIdsValidation(
                 clientIssues: clientValidation.issues, // Include warnings
             })
         } catch (error) {
+            // Only apply error if this is still the latest validation
+            if (thisGen !== validationGenRef.current) return
+
             const errorMessage = error instanceof Error ? error.message : 'Validation failed'
             setValidationState({
                 status: 'error',
