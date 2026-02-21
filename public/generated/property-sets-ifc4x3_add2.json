@@ -7,7 +7,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "AcousticRating",
@@ -61,7 +61,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "AcousticRating",
@@ -111,7 +111,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -145,7 +145,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -183,7 +183,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -241,7 +241,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -291,7 +291,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -329,7 +329,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -363,7 +363,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -393,7 +393,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -410,6 +410,10 @@
       {
         "name": "LoadBearing",
         "dataType": "IFCBOOLEAN"
+      },
+      {
+        "name": "AcousticRating",
+        "dataType": "IFCLABEL"
       }
     ],
     "ifcVersion": [
@@ -427,7 +431,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -481,7 +485,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -519,7 +523,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -553,7 +557,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -583,7 +587,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -613,7 +617,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -643,7 +647,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -673,7 +677,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -703,7 +707,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -733,7 +737,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -763,7 +767,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -793,7 +797,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -823,7 +827,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -853,7 +857,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -883,7 +887,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -913,7 +917,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -943,7 +947,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -973,7 +977,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1003,7 +1007,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1033,7 +1037,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1063,7 +1067,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1093,7 +1097,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1123,7 +1127,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1153,7 +1157,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1183,7 +1187,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1213,7 +1217,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1243,7 +1247,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1273,7 +1277,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1303,7 +1307,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1333,7 +1337,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1363,7 +1367,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1393,7 +1397,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "Category",
@@ -1423,7 +1427,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1457,7 +1461,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1491,7 +1495,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1521,7 +1525,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1551,7 +1555,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1605,7 +1609,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1651,7 +1655,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1689,7 +1693,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1723,7 +1727,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1753,7 +1757,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -1787,7 +1791,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1817,7 +1821,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1847,7 +1851,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1877,7 +1881,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1907,7 +1911,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1937,7 +1941,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1967,7 +1971,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -1997,7 +2001,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2027,7 +2031,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2057,7 +2061,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -2087,7 +2091,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -2117,7 +2121,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -2147,7 +2151,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -2177,7 +2181,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "FireRating",
@@ -2207,7 +2211,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2235,7 +2239,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2263,7 +2267,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2291,7 +2295,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2319,7 +2323,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2347,7 +2351,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2375,7 +2379,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2403,7 +2407,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2431,7 +2435,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2459,7 +2463,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "SystemClassification",
@@ -2487,7 +2491,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2539,7 +2543,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2591,7 +2595,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2639,7 +2643,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2683,7 +2687,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2727,7 +2731,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2775,7 +2779,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2827,7 +2831,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2879,7 +2883,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2927,7 +2931,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -2975,7 +2979,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3027,7 +3031,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3079,7 +3083,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3131,7 +3135,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3183,7 +3187,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3235,7 +3239,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3287,7 +3291,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3339,7 +3343,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3391,7 +3395,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3451,7 +3455,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3511,7 +3515,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3567,7 +3571,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3619,7 +3623,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3675,7 +3679,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3727,7 +3731,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3779,7 +3783,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3831,7 +3835,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3887,7 +3891,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3939,7 +3943,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -3995,7 +3999,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4047,7 +4051,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4103,7 +4107,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4163,7 +4167,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4219,7 +4223,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4275,7 +4279,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4331,7 +4335,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4387,7 +4391,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4443,7 +4447,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4499,7 +4503,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4555,7 +4559,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4615,7 +4619,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4679,7 +4683,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4739,7 +4743,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4795,7 +4799,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4851,7 +4855,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4903,7 +4907,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -4955,7 +4959,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5011,7 +5015,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5067,7 +5071,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5123,7 +5127,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5179,7 +5183,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5235,7 +5239,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5291,7 +5295,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5347,7 +5351,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",
@@ -5403,7 +5407,7 @@
     "properties": [
       {
         "name": "Reference",
-        "dataType": "IFCLABEL"
+        "dataType": "IFCIDENTIFIER"
       },
       {
         "name": "IsExternal",

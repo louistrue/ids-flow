@@ -463,17 +463,17 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
   },
   {
     id: "door-types-enumeration",
-    name: "Door types enumeration",
-    description: "Door types must be from approved list",
+    name: "Door security rating enumeration",
+    description: "Door security ratings must be from approved list",
     category: "Restriction",
     nodes: [
       {
         type: "spec",
         position: { x: 500, y: 100 },
         data: {
-          name: "DoorTypes-Enumeration",
+          name: "DoorSecurityRating-Enumeration",
           ifcVersion: "IFC4X3_ADD2",
-          description: "Door types must be from approved enumeration",
+          description: "Door security ratings must be from approved enumeration",
         },
       },
       {
@@ -489,7 +489,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 220 },
         data: {
           propertySet: "Pset_DoorCommon",
-          baseName: "DoorType",
+          baseName: "SecurityRating",
           dataType: "IFCLABEL",
           value: "",
         },
@@ -500,10 +500,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           restrictionType: "enumeration",
           values: [
-            "Single leaf", "Double leaf", "Sliding", "Folding", "Revolving",
-            "Swing", "Automatic", "Manual", "Fire door", "Security door",
-            "Accessible door", "Emergency exit", "Garage door", "Roller shutter",
-            "Glass door", "Wooden door", "Metal door", "Composite door"
+            "Level 1", "Level 2", "Level 3", "Level 4", "Level 5",
+            "RC2", "RC3", "RC4", "RC5", "RC6",
+            "Class 1", "Class 2", "Class 3"
           ],
         },
       },
@@ -516,17 +515,17 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
   },
   {
     id: "window-types-enumeration",
-    name: "Window types enumeration",
-    description: "Window types must be from approved list",
+    name: "Window security rating enumeration",
+    description: "Window security ratings must be from approved list",
     category: "Restriction",
     nodes: [
       {
         type: "spec",
         position: { x: 500, y: 100 },
         data: {
-          name: "WindowTypes-Enumeration",
+          name: "WindowSecurityRating-Enumeration",
           ifcVersion: "IFC4X3_ADD2",
-          description: "Window types must be from approved enumeration",
+          description: "Window security ratings must be from approved enumeration",
         },
       },
       {
@@ -542,7 +541,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 220 },
         data: {
           propertySet: "Pset_WindowCommon",
-          baseName: "WindowType",
+          baseName: "SecurityRating",
           dataType: "IFCLABEL",
           value: "",
         },
@@ -553,10 +552,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           restrictionType: "enumeration",
           values: [
-            "Fixed", "Casement", "Tilt and turn", "Sliding", "Pivot",
-            "Awning", "Hopper", "Double hung", "Single hung", "Bay window",
-            "Bow window", "Skylight", "Roof window", "French window",
-            "Patio door", "Picture window", "Transom window"
+            "Level 1", "Level 2", "Level 3", "Level 4", "Level 5",
+            "RC2", "RC3", "RC4", "RC5", "RC6",
+            "Class 1", "Class 2", "Class 3"
           ],
         },
       },
@@ -619,17 +617,17 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
   },
   {
     id: "space-types-enumeration",
-    name: "Space types enumeration",
-    description: "Space types must be from approved list",
+    name: "Space occupancy type enumeration",
+    description: "Space occupancy types must be from approved list",
     category: "Restriction",
     nodes: [
       {
         type: "spec",
         position: { x: 500, y: 100 },
         data: {
-          name: "SpaceTypes-Enumeration",
+          name: "SpaceOccupancyType-Enumeration",
           ifcVersion: "IFC4X3_ADD2",
-          description: "Space types must be from approved enumeration",
+          description: "Space occupancy types must be from approved enumeration",
         },
       },
       {
@@ -645,7 +643,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 220 },
         data: {
           propertySet: "Pset_SpaceCommon",
-          baseName: "SpaceType",
+          baseName: "OccupancyType",
           dataType: "IFCLABEL",
           value: "",
         },
@@ -822,7 +820,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
   {
     id: "accessible-doors-complete",
     name: "Accessible doors complete",
-    description: "Accessibility requirements for doors including width, opening force, and hardware",
+    description: "Accessibility requirements for doors including infiltration, accessibility status, and placement",
     category: "Safety",
     nodes: [
       {
@@ -831,7 +829,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           name: "Doors-Accessibility",
           ifcVersion: "IFC4X3_ADD2",
-          description: "Accessible doors must meet width, force, and hardware requirements",
+          description: "Accessible doors must meet infiltration and accessibility requirements",
         },
       },
       {
@@ -867,8 +865,8 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 460 },
         data: {
           propertySet: "Pset_DoorCommon",
-          baseName: "OverallWidth",
-          dataType: "IFCLENGTHMEASURE",
+          baseName: "Infiltration",
+          dataType: "IFCVOLUMETRICFLOWRATEMEASURE",
           value: "",
         },
       },
@@ -877,8 +875,8 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 300, y: 460 },
         data: {
           restrictionType: "bounds",
-          minValue: "900",
-          maxValue: "",
+          minValue: "",
+          maxValue: "0.5",
         },
       },
     ],
@@ -996,8 +994,8 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 340 },
         data: {
-          propertySet: "Pset_LightFixtureTypeCommon",
-          baseName: "PowerConsumption",
+          propertySet: "Pset_LightFixtureCommon",
+          baseName: "PowerRating",
           dataType: "IFCPOWERMEASURE",
           value: "",
         },
@@ -1006,9 +1004,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 460 },
         data: {
-          propertySet: "Pset_LightFixtureTypeCommon",
-          baseName: "LuminousEfficacy",
-          dataType: "IFCREAL",
+          propertySet: "Pset_LightFixtureCommon",
+          baseName: "LuminousFlux",
+          dataType: "IFCLUMINOUSFLUXMEASURE",
           value: "",
         },
       },
@@ -1016,7 +1014,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 580 },
         data: {
-          propertySet: "Pset_LightFixtureTypeCommon",
+          propertySet: "Pset_LightFixtureCommon",
           baseName: "ColorTemperature",
           dataType: "IFCTHERMODYNAMICTEMPERATUREMEASURE",
           value: "",
@@ -1177,7 +1175,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         data: {
           propertySet: "Pset_WindowCommon",
           baseName: "GlazingAreaFraction",
-          dataType: "IFCPOSITIVERATIOMEASURE",
+          dataType: "IFCREAL",
           value: "",
         },
       },
@@ -1248,9 +1246,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 460 },
         data: {
-          propertySet: "Pset_SpaceOccupancyRequirements",
-          baseName: "OccupancyNumber",
-          dataType: "IFCCOUNTMEASURE",
+          propertySet: "Pset_SpaceCommon",
+          baseName: "OccupancyType",
+          dataType: "IFCLABEL",
           value: "",
         },
       },
@@ -1392,7 +1390,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 220 },
         data: {
           propertySet: "Pset_StairCommon",
-          baseName: "NumberOfRiser",
+          baseName: "NumberOfRisers",
           dataType: "IFCINTEGER",
           value: "",
         },
@@ -1412,7 +1410,7 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 100, y: 460 },
         data: {
           propertySet: "Pset_StairCommon",
-          baseName: "RequiredHeadroom",
+          baseName: "RiserHeight",
           dataType: "IFCLENGTHMEASURE",
           value: "",
         },
@@ -1422,8 +1420,8 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         position: { x: 300, y: 460 },
         data: {
           restrictionType: "bounds",
-          minValue: "2000",
-          maxValue: "",
+          minValue: "150",
+          maxValue: "200",
         },
       },
       {
@@ -1459,24 +1457,24 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
   },
   {
     id: "ductwork-mep-coordination",
-    name: "Ductwork MEP coordination",
-    description: "HVAC ductwork with size, insulation, and system assignment for MEP coordination",
+    name: "Duct segment MEP coordination",
+    description: "HVAC duct segments with insulation, airflow, and system assignment for MEP coordination",
     category: "Energy",
     nodes: [
       {
         type: "spec",
         position: { x: 500, y: 200 },
         data: {
-          name: "Ductwork-MEPCoordination",
+          name: "DuctSegment-MEPCoordination",
           ifcVersion: "IFC4X3_ADD2",
-          description: "HVAC ductwork must have size, insulation and system information",
+          description: "HVAC duct segments must have insulation, airflow and system information",
         },
       },
       {
         type: "entity",
         position: { x: 100, y: 100 },
         data: {
-          name: "IFCDUCTFITTING",
+          name: "IFCDUCTSEGMENT",
           predefinedType: "",
         },
       },
@@ -1492,8 +1490,8 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 340 },
         data: {
-          propertySet: "Pset_DuctFittingTypeCommon",
-          baseName: "NominalDiameter",
+          propertySet: "Pset_DuctSegmentCommon",
+          baseName: "InsulationThickness",
           dataType: "IFCLENGTHMEASURE",
           value: "",
         },
@@ -1502,9 +1500,9 @@ export const SPEC_TEMPLATES: SpecTemplate[] = [
         type: "property",
         position: { x: 100, y: 460 },
         data: {
-          propertySet: "Pset_DuctFittingTypeCommon",
-          baseName: "InsulationRequired",
-          dataType: "IFCBOOLEAN",
+          propertySet: "Pset_DuctSegmentCommon",
+          baseName: "AirFlowRate",
+          dataType: "IFCVOLUMETRICFLOWRATEMEASURE",
           value: "",
         },
       },
