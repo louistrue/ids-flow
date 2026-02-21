@@ -435,6 +435,7 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
  */
 export async function ensurePropertyDataTypeCache(version: IFCVersion): Promise<void> {
   await buildPropertyDataTypeCache(version)
+  console.log('[IDS-validation] Property data type cache: built=', cacheBuilt, 'version=', cacheVersion, 'size=', propertyDataTypeCache.size)
 }
 
 export function getExpectedDataTypesForProperty(propertyName: string): string[] | undefined {

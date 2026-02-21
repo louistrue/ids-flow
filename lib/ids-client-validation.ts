@@ -1,5 +1,5 @@
 import type { GraphNode, GraphEdge } from './graph-types'
-import { validateDataType, isPropertyDataTypeValid, getAllSimpleTypes, type IFCVersion } from './ifc-schema'
+import { validateDataType, isPropertyDataTypeValid, getAllSimpleTypes, ensurePropertyDataTypeCache, type IFCVersion } from './ifc-schema'
 
 export interface ValidationIssue {
     severity: 'error' | 'warning'
@@ -15,12 +15,18 @@ export interface ClientValidationResult {
 
 /**
  * Client-side validation that runs before sending to IDS-Audit-Tool
- * This catches common issues that the audit tool might miss
+ * This catches common issues that the audit tool might miss.
+ *
+ * The ifcVersion parameter is required for property data-type semantic
+ * validation (e.g. LoadBearing must be IFCBOOLEAN, not IFCDATE).
+ * The function ensures the property-to-datatype cache is populated before
+ * checking, so it is fully self-contained — no external initialisation needed.
  */
-export function validateGraphClientSide(
+export async function validateGraphClientSide(
     nodes: GraphNode[],
-    edges: GraphEdge[]
-): ClientValidationResult {
+    edges: GraphEdge[],
+    ifcVersion: IFCVersion = "IFC4X3_ADD2"
+): Promise<ClientValidationResult> {
     const issues: ValidationIssue[] = []
 
     // Check for specification nodes
@@ -33,8 +39,14 @@ export function validateGraphClientSide(
         return { isValid: false, issues }
     }
 
+    // Build the property data-type cache so that isPropertyDataTypeValid()
+    // can detect semantic mismatches (e.g. LoadBearing ≠ IFCDATE).
+    // This is a no-op if the cache is already populated for this version.
+    await ensurePropertyDataTypeCache(ifcVersion)
+
     // Validate each property node
     const propertyNodes = nodes.filter(node => node.type === 'property')
+    console.log('[IDS-validation] Checking', propertyNodes.length, 'property nodes, ifcVersion:', ifcVersion)
     for (const node of propertyNodes) {
         const data = node.data as any
 
@@ -54,6 +66,7 @@ export function validateGraphClientSide(
         // Validate data type semantically (is it the right type for this property?)
         if (data.dataType && data.baseName) {
             const validation = isPropertyDataTypeValid(data.baseName, data.dataType)
+            console.log('[IDS-validation] Property', data.baseName, 'dataType:', data.dataType, '→ valid:', validation.valid, validation.expectedTypes ? 'expected:' + validation.expectedTypes.join(',') : '')
             if (!validation.valid && validation.expectedTypes) {
                 issues.push({
                     severity: 'error',
@@ -117,7 +130,7 @@ export function validateGraphClientSide(
         const applicabilityEdges = edges.filter(
             edge => edge.target === specNode.id && edge.targetHandle === 'applicability'
         )
-        
+
         // Skip validation for completely empty applicability (intentional wildcard pattern)
         // Only validate if there are some applicability facets but missing entity
         if (applicabilityEdges.length > 0) {
@@ -139,6 +152,7 @@ export function validateGraphClientSide(
     }
 
     const hasErrors = issues.some(issue => issue.severity === 'error')
+    console.log('[IDS-validation] Client result: isValid:', !hasErrors, 'errors:', issues.filter(i => i.severity === 'error').length, 'warnings:', issues.filter(i => i.severity === 'warning').length)
 
     return {
         isValid: !hasErrors,
@@ -170,4 +184,3 @@ export function isValidIfcDataType(dataType: string): boolean {
     }
     return VALID_IFC_DATA_TYPES.has(dataType.toUpperCase())
 }
-
