@@ -2503,7 +2503,7 @@
       },
       {
         "name": "AirFlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "AirVelocity",
@@ -2519,7 +2519,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FireRating",
@@ -2555,7 +2555,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2611,7 +2611,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FireRating",
@@ -2647,7 +2647,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2691,7 +2691,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2711,7 +2711,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       }
     ],
     "ifcVersion": [
@@ -2735,7 +2735,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2783,7 +2783,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2811,7 +2811,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       }
     ],
     "ifcVersion": [
@@ -2835,7 +2835,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2859,11 +2859,11 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       }
     ],
     "ifcVersion": [
@@ -2887,7 +2887,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -2943,11 +2943,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -2955,7 +2955,7 @@
       },
       {
         "name": "ReinforcementRatio",
-        "dataType": "IFCRATIOMEASURE"
+        "dataType": "IFCREAL"
       },
       {
         "name": "FoundationType",
@@ -2991,11 +2991,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3011,7 +3011,7 @@
       },
       {
         "name": "BearingCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       }
     ],
     "ifcVersion": [
@@ -3043,11 +3043,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3063,7 +3063,7 @@
       },
       {
         "name": "BearingCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       }
     ],
     "ifcVersion": [
@@ -3095,11 +3095,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3147,11 +3147,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3199,11 +3199,11 @@
       },
       {
         "name": "StructuralLoad",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "StructuralCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3375,7 +3375,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       }
     ],
     "ifcVersion": [
@@ -3427,7 +3427,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "ThermalTransmittance",
@@ -3483,7 +3483,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "ThermalTransmittance",
@@ -3527,11 +3527,11 @@
       },
       {
         "name": "Density",
-        "dataType": "IFCMASSVOLUMEDENSITYMEASURE"
+        "dataType": "IFCREAL"
       },
       {
         "name": "ThermalConductivity",
-        "dataType": "IFCTHERMALCONDUCTIVITYMEASURE"
+        "dataType": "IFCTHERMOCONDUCTIVITYMEASURE"
       },
       {
         "name": "ThermalTransmittance",
@@ -3599,7 +3599,7 @@
       },
       {
         "name": "TorsionalConstant",
-        "dataType": "IFCTORSIONALCONSTANTMEASURE"
+        "dataType": "IFCMOMENTOFINERTIAMEASURE"
       },
       {
         "name": "MaterialGrade",
@@ -3643,11 +3643,11 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FireRating",
@@ -3655,7 +3655,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "MaintenanceSchedule",
@@ -3751,7 +3751,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "SpeedLimit",
@@ -3803,7 +3803,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "SpeedLimit",
@@ -3855,7 +3855,7 @@
       },
       {
         "name": "LoadCapacity",
-        "dataType": "IFCSTRUCTURALLOADMEASURE"
+        "dataType": "IFCFORCEMEASURE"
       },
       {
         "name": "SpeedLimit",
@@ -4071,7 +4071,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4127,7 +4127,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4187,7 +4187,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4243,7 +4243,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4299,7 +4299,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "WaterConsumption",
@@ -4355,11 +4355,11 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "TemperatureRating",
@@ -4415,7 +4415,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "PressureRating",
@@ -4467,7 +4467,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "PressureRating",
@@ -4523,7 +4523,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4579,7 +4579,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -4595,7 +4595,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "MaintenanceSchedule",
@@ -4639,7 +4639,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -4651,7 +4651,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FireRating",
@@ -4659,7 +4659,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "MaintenanceSchedule",
@@ -4703,7 +4703,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "FlowVelocity",
@@ -4711,7 +4711,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "FireRating",
@@ -4719,7 +4719,7 @@
       },
       {
         "name": "NoiseGeneration",
-        "dataType": "IFCSOUNDPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "MaintenanceSchedule",
@@ -4763,7 +4763,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4819,7 +4819,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -4915,7 +4915,7 @@
       },
       {
         "name": "Scale",
-        "dataType": "IFCRATIOMEASURE"
+        "dataType": "IFCREAL"
       },
       {
         "name": "Units",
@@ -4931,7 +4931,7 @@
       },
       {
         "name": "ViewDirection",
-        "dataType": "IFCDIRECTIONMEASURE"
+        "dataType": "IFCPLANEANGLEMEASURE"
       },
       {
         "name": "ClippingPlane",
@@ -4979,7 +4979,7 @@
       },
       {
         "name": "FlowRate",
-        "dataType": "IFCVOLUMETRICFLOWRATE"
+        "dataType": "IFCVOLUMETRICFLOWRATEMEASURE"
       },
       {
         "name": "PressureRating",
@@ -5035,7 +5035,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -5091,7 +5091,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -5147,7 +5147,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
@@ -5203,7 +5203,7 @@
       },
       {
         "name": "PowerRating",
-        "dataType": "IFCELECTRICPOWERMEASURE"
+        "dataType": "IFCPOWERMEASURE"
       },
       {
         "name": "VoltageRating",
