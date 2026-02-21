@@ -288,6 +288,8 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         defaultEdgeOptions={{ type: 'default' }}
         connectionLineType={undefined}
         fitView
+        minZoom={0.1}
+        maxZoom={4}
         deleteKeyCode={["Backspace", "Delete"]}
         multiSelectionKeyCode={["Meta", "Control"]}
       >
@@ -309,6 +311,9 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         {showMinimap && (
           <MiniMap
             className="bg-card border border-border rounded-lg shadow-lg"
+            pannable
+            zoomable
+            inversePan
             nodeColor={(node) => {
               const baseColor = FACET_COLORS[node.type as keyof typeof FACET_COLORS]?.minimap || 'oklch(0.55 0.18 265)'
               return node.selected ? 'oklch(0.90 0.15 292)' : baseColor
