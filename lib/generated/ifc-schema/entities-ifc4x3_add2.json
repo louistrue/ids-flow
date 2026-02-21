@@ -2,7 +2,22 @@
   {
     "name": "IfcBeam",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEAM",
+      "CORNICE",
+      "DIAPHRAGM",
+      "EDGEBEAM",
+      "GIRDER_SEGMENT",
+      "HATSTONE",
+      "HOLLOWCORE",
+      "JOIST",
+      "LINTEL",
+      "PIERCAP",
+      "SPANDREL",
+      "T_BEAM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -60,7 +75,22 @@
   {
     "name": "IfcBeamType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEAM",
+      "CORNICE",
+      "DIAPHRAGM",
+      "EDGEBEAM",
+      "GIRDER_SEGMENT",
+      "HATSTONE",
+      "HOLLOWCORE",
+      "JOIST",
+      "LINTEL",
+      "PIERCAP",
+      "SPANDREL",
+      "T_BEAM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -123,7 +153,15 @@
   {
     "name": "IfcColumn",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COLUMN",
+      "PIERSTEM",
+      "PIERSTEM_SEGMENT",
+      "PILASTER",
+      "STANDCOLUMN",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -181,7 +219,15 @@
   {
     "name": "IfcColumnType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COLUMN",
+      "PIERSTEM",
+      "PIERSTEM_SEGMENT",
+      "PILASTER",
+      "STANDCOLUMN",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -244,7 +290,12 @@
   {
     "name": "IfcCooledBeam",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACTIVE",
+      "PASSIVE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -302,7 +353,12 @@
   {
     "name": "IfcCooledBeamType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACTIVE",
+      "PASSIVE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -365,7 +421,10 @@
   {
     "name": "IfcCurtainWall",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -423,7 +482,10 @@
   {
     "name": "IfcCurtainWallType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -486,7 +548,15 @@
   {
     "name": "IfcDoor",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOOM_BARRIER",
+      "DOOR",
+      "GATE",
+      "TRAPDOOR",
+      "TURNSTILE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -720,7 +790,15 @@
   {
     "name": "IfcDoorType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOOM_BARRIER",
+      "DOOR",
+      "GATE",
+      "TRAPDOOR",
+      "TURNSTILE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -798,7 +876,14 @@
   {
     "name": "IfcRailing",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BALUSTRADE",
+      "FENCE",
+      "GUARDRAIL",
+      "HANDRAIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -856,7 +941,14 @@
   {
     "name": "IfcRailingType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BALUSTRADE",
+      "FENCE",
+      "GUARDRAIL",
+      "HANDRAIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -919,7 +1011,23 @@
   {
     "name": "IfcRoof",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BARREL_ROOF",
+      "BUTTERFLY_ROOF",
+      "DOME_ROOF",
+      "FLAT_ROOF",
+      "FREEFORM",
+      "GABLE_ROOF",
+      "GAMBREL_ROOF",
+      "HIPPED_GABLE_ROOF",
+      "HIP_ROOF",
+      "MANSARD_ROOF",
+      "PAVILION_ROOF",
+      "RAINBOW_ROOF",
+      "SHED_ROOF",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -977,7 +1085,23 @@
   {
     "name": "IfcRoofType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BARREL_ROOF",
+      "BUTTERFLY_ROOF",
+      "DOME_ROOF",
+      "FLAT_ROOF",
+      "FREEFORM",
+      "GABLE_ROOF",
+      "GAMBREL_ROOF",
+      "HIPPED_GABLE_ROOF",
+      "HIP_ROOF",
+      "MANSARD_ROOF",
+      "PAVILION_ROOF",
+      "RAINBOW_ROOF",
+      "SHED_ROOF",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1040,7 +1164,19 @@
   {
     "name": "IfcSlab",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "APPROACH_SLAB",
+      "BASESLAB",
+      "FLOOR",
+      "LANDING",
+      "PAVING",
+      "ROOF",
+      "SIDEWALK",
+      "TRACKSLAB",
+      "WEARING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1098,7 +1234,19 @@
   {
     "name": "IfcSlabType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "APPROACH_SLAB",
+      "BASESLAB",
+      "FLOOR",
+      "LANDING",
+      "PAVING",
+      "ROOF",
+      "SIDEWALK",
+      "TRACKSLAB",
+      "WEARING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1161,7 +1309,25 @@
   {
     "name": "IfcStair",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CURVED_RUN_STAIR",
+      "DOUBLE_RETURN_STAIR",
+      "HALF_TURN_STAIR",
+      "HALF_WINDING_STAIR",
+      "LADDER",
+      "QUARTER_TURN_STAIR",
+      "QUARTER_WINDING_STAIR",
+      "SPIRAL_STAIR",
+      "STRAIGHT_RUN_STAIR",
+      "THREE_QUARTER_TURN_STAIR",
+      "THREE_QUARTER_WINDING_STAIR",
+      "TWO_CURVED_RUN_STAIR",
+      "TWO_QUARTER_TURN_STAIR",
+      "TWO_QUARTER_WINDING_STAIR",
+      "TWO_STRAIGHT_RUN_STAIR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1219,7 +1385,15 @@
   {
     "name": "IfcStairFlight",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CURVED",
+      "FREEFORM",
+      "SPIRAL",
+      "STRAIGHT",
+      "WINDER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1297,7 +1471,15 @@
   {
     "name": "IfcStairFlightType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CURVED",
+      "FREEFORM",
+      "SPIRAL",
+      "STRAIGHT",
+      "WINDER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1360,7 +1542,25 @@
   {
     "name": "IfcStairType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CURVED_RUN_STAIR",
+      "DOUBLE_RETURN_STAIR",
+      "HALF_TURN_STAIR",
+      "HALF_WINDING_STAIR",
+      "LADDER",
+      "QUARTER_TURN_STAIR",
+      "QUARTER_WINDING_STAIR",
+      "SPIRAL_STAIR",
+      "STRAIGHT_RUN_STAIR",
+      "THREE_QUARTER_TURN_STAIR",
+      "THREE_QUARTER_WINDING_STAIR",
+      "TWO_CURVED_RUN_STAIR",
+      "TWO_QUARTER_TURN_STAIR",
+      "TWO_QUARTER_WINDING_STAIR",
+      "TWO_STRAIGHT_RUN_STAIR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1461,7 +1661,21 @@
   {
     "name": "IfcWall",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELEMENTEDWALL",
+      "MOVABLE",
+      "PARAPET",
+      "PARTITIONING",
+      "PLUMBINGWALL",
+      "POLYGONAL",
+      "RETAININGWALL",
+      "SHEAR",
+      "SOLIDWALL",
+      "STANDARD",
+      "WAVEWALL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1521,7 +1735,21 @@
   {
     "name": "IfcWallStandardCase",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELEMENTEDWALL",
+      "MOVABLE",
+      "PARAPET",
+      "PARTITIONING",
+      "PLUMBINGWALL",
+      "POLYGONAL",
+      "RETAININGWALL",
+      "SHEAR",
+      "SOLIDWALL",
+      "STANDARD",
+      "WAVEWALL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1579,7 +1807,21 @@
   {
     "name": "IfcWallType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELEMENTEDWALL",
+      "MOVABLE",
+      "PARAPET",
+      "PARTITIONING",
+      "PLUMBINGWALL",
+      "POLYGONAL",
+      "RETAININGWALL",
+      "SHEAR",
+      "SOLIDWALL",
+      "STANDARD",
+      "WAVEWALL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1642,7 +1884,13 @@
   {
     "name": "IfcWindow",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "LIGHTDOME",
+      "SKYLIGHT",
+      "WINDOW",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -1871,7 +2119,13 @@
   {
     "name": "IfcWindowType",
     "category": "Building Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "LIGHTDOME",
+      "SKYLIGHT",
+      "WINDOW",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4659,7 +4913,17 @@
   {
     "name": "IfcStructuralCurveAction",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONST",
+      "DISCRETE",
+      "EQUIDISTANT",
+      "LINEAR",
+      "PARABOLA",
+      "POLYGONAL",
+      "SINUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4734,7 +4998,15 @@
   {
     "name": "IfcStructuralCurveMember",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CABLE",
+      "COMPRESSION_MEMBER",
+      "PIN_JOINED_MEMBER",
+      "RIGID_JOINED_MEMBER",
+      "TENSION_MEMBER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4794,7 +5066,15 @@
   {
     "name": "IfcStructuralCurveMemberVarying",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CABLE",
+      "COMPRESSION_MEMBER",
+      "PIN_JOINED_MEMBER",
+      "RIGID_JOINED_MEMBER",
+      "TENSION_MEMBER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4852,7 +5132,17 @@
   {
     "name": "IfcStructuralCurveReaction",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONST",
+      "DISCRETE",
+      "EQUIDISTANT",
+      "LINEAR",
+      "PARABOLA",
+      "POLYGONAL",
+      "SINUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4915,7 +5205,14 @@
   {
     "name": "IfcStructuralSurfaceAction",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BILINEAR",
+      "CONST",
+      "DISCRETE",
+      "ISOCONTOUR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -4990,7 +5287,13 @@
   {
     "name": "IfcStructuralSurfaceMember",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BENDING_ELEMENT",
+      "MEMBRANE_ELEMENT",
+      "SHELL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -5050,7 +5353,13 @@
   {
     "name": "IfcStructuralSurfaceMemberVarying",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BENDING_ELEMENT",
+      "MEMBRANE_ELEMENT",
+      "SHELL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -5108,7 +5417,14 @@
   {
     "name": "IfcStructuralSurfaceReaction",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BILINEAR",
+      "CONST",
+      "DISCRETE",
+      "ISOCONTOUR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -5295,7 +5611,21 @@
   {
     "name": "IfcSurfaceFeature",
     "category": "Geometry & Representation",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DEFECT",
+      "HATCHMARKING",
+      "LINEMARKING",
+      "MARK",
+      "NONSKIDSURFACING",
+      "PAVEMENTSURFACEMARKING",
+      "RUMBLESTRIP",
+      "SYMBOLMARKING",
+      "TAG",
+      "TRANSVERSERUMBLESTRIP",
+      "TREATMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -5929,7 +6259,17 @@
   {
     "name": "IfcCableCarrierFitting",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "CROSS",
+      "JUNCTION",
+      "REDUCER",
+      "TEE",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -5987,7 +6327,17 @@
   {
     "name": "IfcCableCarrierFittingType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "CROSS",
+      "JUNCTION",
+      "REDUCER",
+      "TEE",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6050,7 +6400,17 @@
   {
     "name": "IfcCableCarrierSegment",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CABLEBRACKET",
+      "CABLELADDERSEGMENT",
+      "CABLETRAYSEGMENT",
+      "CABLETRUNKINGSEGMENT",
+      "CATENARYWIRE",
+      "CONDUITSEGMENT",
+      "DROPPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6108,7 +6468,17 @@
   {
     "name": "IfcCableCarrierSegmentType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CABLEBRACKET",
+      "CABLELADDERSEGMENT",
+      "CABLETRAYSEGMENT",
+      "CABLETRUNKINGSEGMENT",
+      "CATENARYWIRE",
+      "CONDUITSEGMENT",
+      "DROPPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6171,7 +6541,16 @@
   {
     "name": "IfcCableFitting",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "FANOUT",
+      "JUNCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6229,7 +6608,16 @@
   {
     "name": "IfcCableFittingType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "FANOUT",
+      "JUNCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6292,7 +6680,20 @@
   {
     "name": "IfcCableSegment",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BUSBARSEGMENT",
+      "CABLESEGMENT",
+      "CONDUCTORSEGMENT",
+      "CONTACTWIRESEGMENT",
+      "CORESEGMENT",
+      "FIBERSEGMENT",
+      "FIBERTUBE",
+      "OPTICALCABLESEGMENT",
+      "STITCHWIRE",
+      "WIREPAIRSEGMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6350,7 +6751,20 @@
   {
     "name": "IfcCableSegmentType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BUSBARSEGMENT",
+      "CABLESEGMENT",
+      "CONDUCTORSEGMENT",
+      "CONTACTWIRESEGMENT",
+      "CORESEGMENT",
+      "FIBERSEGMENT",
+      "FIBERTUBE",
+      "OPTICALCABLESEGMENT",
+      "STITCHWIRE",
+      "WIREPAIRSEGMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6413,7 +6827,17 @@
   {
     "name": "IfcCoil",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DXCOOLINGCOIL",
+      "ELECTRICHEATINGCOIL",
+      "GASHEATINGCOIL",
+      "HYDRONICCOIL",
+      "STEAMHEATINGCOIL",
+      "WATERCOOLINGCOIL",
+      "WATERHEATINGCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6471,7 +6895,17 @@
   {
     "name": "IfcCoilType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DXCOOLINGCOIL",
+      "ELECTRICHEATINGCOIL",
+      "GASHEATINGCOIL",
+      "HYDRONICCOIL",
+      "STEAMHEATINGCOIL",
+      "WATERCOOLINGCOIL",
+      "WATERHEATINGCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6534,7 +6968,12 @@
   {
     "name": "IfcConstructionProductResource",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ASSEMBLY",
+      "FORMWORK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6602,7 +7041,12 @@
   {
     "name": "IfcConstructionProductResourceType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ASSEMBLY",
+      "FORMWORK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6806,7 +7250,17 @@
   {
     "name": "IfcDuctFitting",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "JUNCTION",
+      "OBSTRUCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6864,7 +7318,17 @@
   {
     "name": "IfcDuctFittingType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "JUNCTION",
+      "OBSTRUCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6927,7 +7391,12 @@
   {
     "name": "IfcDuctSegment",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLEXIBLESEGMENT",
+      "RIGIDSEGMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -6985,7 +7454,12 @@
   {
     "name": "IfcDuctSegmentType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLEXIBLESEGMENT",
+      "RIGIDSEGMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7048,7 +7522,13 @@
   {
     "name": "IfcDuctSilencer",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLATOVAL",
+      "RECTANGULAR",
+      "ROUND",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7106,7 +7586,13 @@
   {
     "name": "IfcDuctSilencerType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLATOVAL",
+      "RECTANGULAR",
+      "ROUND",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7169,7 +7655,19 @@
   {
     "name": "IfcElectricFlowStorageDevice",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BATTERY",
+      "CAPACITOR",
+      "CAPACITORBANK",
+      "COMPENSATOR",
+      "HARMONICFILTER",
+      "INDUCTOR",
+      "INDUCTORBANK",
+      "RECHARGER",
+      "UPS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7227,7 +7725,19 @@
   {
     "name": "IfcElectricFlowStorageDeviceType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BATTERY",
+      "CAPACITOR",
+      "CAPACITORBANK",
+      "COMPENSATOR",
+      "HARMONICFILTER",
+      "INDUCTOR",
+      "INDUCTORBANK",
+      "RECHARGER",
+      "UPS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7290,7 +7800,11 @@
   {
     "name": "IfcElectricFlowTreatmentDevice",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTRONICFILTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7348,7 +7862,11 @@
   {
     "name": "IfcElectricFlowTreatmentDeviceType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTRONICFILTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7411,7 +7929,17 @@
   {
     "name": "IfcFan",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CENTRIFUGALAIRFOIL",
+      "CENTRIFUGALBACKWARDINCLINEDCURVED",
+      "CENTRIFUGALFORWARDCURVED",
+      "CENTRIFUGALRADIAL",
+      "PROPELLORAXIAL",
+      "TUBEAXIAL",
+      "VANEAXIAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7469,7 +7997,17 @@
   {
     "name": "IfcFanType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CENTRIFUGALAIRFOIL",
+      "CENTRIFUGALBACKWARDINCLINEDCURVED",
+      "CENTRIFUGALFORWARDCURVED",
+      "CENTRIFUGALRADIAL",
+      "PROPELLORAXIAL",
+      "TUBEAXIAL",
+      "VANEAXIAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7786,7 +8324,20 @@
   {
     "name": "IfcFlowInstrument",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AMMETER",
+      "COMBINED",
+      "FREQUENCYMETER",
+      "PHASEANGLEMETER",
+      "POWERFACTORMETER",
+      "PRESSUREGAUGE",
+      "THERMOMETER",
+      "VOLTMETER",
+      "VOLTMETER_PEAK",
+      "VOLTMETER_RMS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7844,7 +8395,20 @@
   {
     "name": "IfcFlowInstrumentType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AMMETER",
+      "COMBINED",
+      "FREQUENCYMETER",
+      "PHASEANGLEMETER",
+      "POWERFACTORMETER",
+      "PRESSUREGAUGE",
+      "THERMOMETER",
+      "VOLTMETER",
+      "VOLTMETER_PEAK",
+      "VOLTMETER_RMS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7907,7 +8471,14 @@
   {
     "name": "IfcFlowMeter",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ENERGYMETER",
+      "GASMETER",
+      "OILMETER",
+      "WATERMETER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -7965,7 +8536,14 @@
   {
     "name": "IfcFlowMeterType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ENERGYMETER",
+      "GASMETER",
+      "OILMETER",
+      "WATERMETER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -8653,7 +9231,17 @@
   {
     "name": "IfcPipeFitting",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "JUNCTION",
+      "OBSTRUCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -8711,7 +9299,17 @@
   {
     "name": "IfcPipeFittingType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEND",
+      "CONNECTOR",
+      "ENTRY",
+      "EXIT",
+      "JUNCTION",
+      "OBSTRUCTION",
+      "TRANSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -8774,7 +9372,15 @@
   {
     "name": "IfcPipeSegment",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CULVERT",
+      "FLEXIBLESEGMENT",
+      "GUTTER",
+      "RIGIDSEGMENT",
+      "SPOOL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -8832,7 +9438,15 @@
   {
     "name": "IfcPipeSegmentType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CULVERT",
+      "FLEXIBLESEGMENT",
+      "GUTTER",
+      "RIGIDSEGMENT",
+      "SPOOL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9011,7 +9625,17 @@
   {
     "name": "IfcPump",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CIRCULATOR",
+      "ENDSUCTION",
+      "SPLITCASE",
+      "SUBMERSIBLEPUMP",
+      "SUMPPUMP",
+      "VERTICALINLINE",
+      "VERTICALTURBINE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9069,7 +9693,17 @@
   {
     "name": "IfcPumpType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CIRCULATOR",
+      "ENDSUCTION",
+      "SPLITCASE",
+      "SUBMERSIBLEPUMP",
+      "SUMPPUMP",
+      "VERTICALINLINE",
+      "VERTICALTURBINE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9279,7 +9913,31 @@
   {
     "name": "IfcValve",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRRELEASE",
+      "ANTIVACUUM",
+      "CHANGEOVER",
+      "CHECK",
+      "COMMISSIONING",
+      "DIVERTING",
+      "DOUBLECHECK",
+      "DOUBLEREGULATING",
+      "DRAWOFFCOCK",
+      "FAUCET",
+      "FLUSHING",
+      "GASCOCK",
+      "GASTAP",
+      "ISOLATING",
+      "MIXING",
+      "PRESSUREREDUCING",
+      "PRESSURERELIEF",
+      "REGULATING",
+      "SAFETYCUTOFF",
+      "STEAMTRAP",
+      "STOPCOCK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9337,7 +9995,31 @@
   {
     "name": "IfcValveType",
     "category": "MEP Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRRELEASE",
+      "ANTIVACUUM",
+      "CHANGEOVER",
+      "CHECK",
+      "COMMISSIONING",
+      "DIVERTING",
+      "DOUBLECHECK",
+      "DOUBLEREGULATING",
+      "DRAWOFFCOCK",
+      "FAUCET",
+      "FLUSHING",
+      "GASCOCK",
+      "GASTAP",
+      "ISOLATING",
+      "MIXING",
+      "PRESSUREREDUCING",
+      "PRESSURERELIEF",
+      "REGULATING",
+      "SAFETYCUTOFF",
+      "STEAMTRAP",
+      "STOPCOCK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9821,7 +10503,19 @@
   {
     "name": "IfcConstructionMaterialResource",
     "category": "Material & Property",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AGGREGATES",
+      "CONCRETE",
+      "DRYWALL",
+      "FUEL",
+      "GYPSUM",
+      "MASONRY",
+      "METAL",
+      "PLASTIC",
+      "WOOD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -9889,7 +10583,19 @@
   {
     "name": "IfcConstructionMaterialResourceType",
     "category": "Material & Property",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AGGREGATES",
+      "CONCRETE",
+      "DRYWALL",
+      "FUEL",
+      "GYPSUM",
+      "MASONRY",
+      "METAL",
+      "PLASTIC",
+      "WOOD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12399,7 +13105,15 @@
   {
     "name": "IfcActionRequest",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "EMAIL",
+      "FAX",
+      "PHONE",
+      "POST",
+      "VERBAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12632,7 +13346,14 @@
   {
     "name": "IfcAirTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIFFUSER",
+      "GRILLE",
+      "LOUVRE",
+      "REGISTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12690,7 +13411,13 @@
   {
     "name": "IfcAirTerminalBox",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSTANTFLOW",
+      "VARIABLEFLOWPRESSUREDEPENDANT",
+      "VARIABLEFLOWPRESSUREINDEPENDANT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12748,7 +13475,13 @@
   {
     "name": "IfcAirTerminalBoxType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSTANTFLOW",
+      "VARIABLEFLOWPRESSUREDEPENDANT",
+      "VARIABLEFLOWPRESSUREINDEPENDANT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12811,7 +13544,14 @@
   {
     "name": "IfcAirTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIFFUSER",
+      "GRILLE",
+      "LOUVRE",
+      "REGISTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12874,7 +13614,19 @@
   {
     "name": "IfcAirToAirHeatRecovery",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FIXEDPLATECOUNTERFLOWEXCHANGER",
+      "FIXEDPLATECROSSFLOWEXCHANGER",
+      "FIXEDPLATEPARALLELFLOWEXCHANGER",
+      "HEATPIPE",
+      "ROTARYWHEEL",
+      "RUNAROUNDCOILLOOP",
+      "THERMOSIPHONCOILTYPEHEATEXCHANGERS",
+      "THERMOSIPHONSEALEDTUBEHEATEXCHANGERS",
+      "TWINTOWERENTHALPYRECOVERYLOOPS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12932,7 +13684,19 @@
   {
     "name": "IfcAirToAirHeatRecoveryType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FIXEDPLATECOUNTERFLOWEXCHANGER",
+      "FIXEDPLATECROSSFLOWEXCHANGER",
+      "FIXEDPLATEPARALLELFLOWEXCHANGER",
+      "HEATPIPE",
+      "ROTARYWHEEL",
+      "RUNAROUNDCOILLOOP",
+      "THERMOSIPHONCOILTYPEHEATEXCHANGERS",
+      "THERMOSIPHONSEALEDTUBEHEATEXCHANGERS",
+      "TWINTOWERENTHALPYRECOVERYLOOPS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -12995,7 +13759,18 @@
   {
     "name": "IfcAlarm",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELL",
+      "BREAKGLASSBUTTON",
+      "LIGHT",
+      "MANUALPULLBOX",
+      "RAILWAYCROCODILE",
+      "RAILWAYDETONATOR",
+      "SIREN",
+      "WHISTLE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -13053,7 +13828,18 @@
   {
     "name": "IfcAlarmType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELL",
+      "BREAKGLASSBUTTON",
+      "LIGHT",
+      "MANUALPULLBOX",
+      "RAILWAYCROCODILE",
+      "RAILWAYDETONATOR",
+      "SIREN",
+      "WHISTLE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -13116,7 +13902,10 @@
   {
     "name": "IfcAlignment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -13222,7 +14011,15 @@
   {
     "name": "IfcAlignmentCantSegment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLOSSCURVE",
+      "CONSTANTCANT",
+      "COSINECURVE",
+      "HELMERTCURVE",
+      "LINEARTRANSITION",
+      "SINECURVE",
+      "VIENNESEBEND"
+    ],
     "attributes": [
       {
         "name": "StartTag",
@@ -13328,7 +14125,17 @@
   {
     "name": "IfcAlignmentHorizontalSegment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLOSSCURVE",
+      "CIRCULARARC",
+      "CLOTHOID",
+      "COSINECURVE",
+      "CUBIC",
+      "HELMERTCURVE",
+      "LINE",
+      "SINECURVE",
+      "VIENNESEBEND"
+    ],
     "attributes": [
       {
         "name": "StartTag",
@@ -13514,7 +14321,12 @@
   {
     "name": "IfcAlignmentVerticalSegment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CIRCULARARC",
+      "CLOTHOID",
+      "CONSTANTGRADIENT",
+      "PARABOLICARC"
+    ],
     "attributes": [
       {
         "name": "StartTag",
@@ -13572,7 +14384,19 @@
   {
     "name": "IfcAnnotation",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONTOURLINE",
+      "DIMENSION",
+      "ISOBAR",
+      "ISOLUX",
+      "ISOTHERM",
+      "LEADER",
+      "SURVEY",
+      "SYMBOL",
+      "TEXT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -13920,7 +14744,23 @@
   {
     "name": "IfcAudioVisualAppliance",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AMPLIFIER",
+      "CAMERA",
+      "COMMUNICATIONTERMINAL",
+      "DISPLAY",
+      "MICROPHONE",
+      "PLAYER",
+      "PROJECTOR",
+      "RECEIVER",
+      "RECORDINGEQUIPMENT",
+      "SPEAKER",
+      "SWITCHER",
+      "TELEPHONE",
+      "TUNER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -13978,7 +14818,23 @@
   {
     "name": "IfcAudioVisualApplianceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AMPLIFIER",
+      "CAMERA",
+      "COMMUNICATIONTERMINAL",
+      "DISPLAY",
+      "MICROPHONE",
+      "PLAYER",
+      "PROJECTOR",
+      "RECEIVER",
+      "RECORDINGEQUIPMENT",
+      "SPEAKER",
+      "SWITCHER",
+      "TELEPHONE",
+      "TUNER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14143,7 +14999,18 @@
   {
     "name": "IfcBearing",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CYLINDRICAL",
+      "DISK",
+      "ELASTOMERIC",
+      "GUIDE",
+      "POT",
+      "ROCKER",
+      "ROLLER",
+      "SPHERICAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14201,7 +15068,18 @@
   {
     "name": "IfcBearingType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CYLINDRICAL",
+      "DISK",
+      "ELASTOMERIC",
+      "GUIDE",
+      "POT",
+      "ROCKER",
+      "ROLLER",
+      "SPHERICAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14345,7 +15223,12 @@
   {
     "name": "IfcBoiler",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "STEAM",
+      "WATER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14403,7 +15286,12 @@
   {
     "name": "IfcBoilerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "STEAM",
+      "WATER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14816,7 +15704,18 @@
   {
     "name": "IfcBridge",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ARCHED",
+      "CABLE_STAYED",
+      "CANTILEVER",
+      "CULVERT",
+      "FRAMEWORK",
+      "GIRDER",
+      "SUSPENSION",
+      "TRUSS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -14879,7 +15778,20 @@
   {
     "name": "IfcBridgePart",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABUTMENT",
+      "DECK",
+      "DECK_SEGMENT",
+      "FOUNDATION",
+      "PIER",
+      "PIER_SEGMENT",
+      "PYLON",
+      "SUBSTRUCTURE",
+      "SUPERSTRUCTURE",
+      "SURFACESTRUCTURE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15119,7 +16031,23 @@
   {
     "name": "IfcBuiltSystem",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "EROSIONPREVENTION",
+      "FENESTRATION",
+      "FOUNDATION",
+      "LOADBEARING",
+      "MOORING",
+      "OUTERSHELL",
+      "PRESTRESSING",
+      "RAILWAYLINE",
+      "RAILWAYTRACK",
+      "REINFORCING",
+      "SHADING",
+      "TRACKCIRCUIT",
+      "TRANSPORT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15167,7 +16095,10 @@
   {
     "name": "IfcBurner",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15225,7 +16156,10 @@
   {
     "name": "IfcBurnerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15564,7 +16498,13 @@
   {
     "name": "IfcChiller",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCOOLED",
+      "HEATRECOVERY",
+      "WATERCOOLED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15622,7 +16562,13 @@
   {
     "name": "IfcChillerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCOOLED",
+      "HEATRECOVERY",
+      "WATERCOOLED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15685,7 +16631,10 @@
   {
     "name": "IfcChimney",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -15743,7 +16692,10 @@
   {
     "name": "IfcChimneyType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16052,7 +17004,34 @@
   {
     "name": "IfcCommunicationsAppliance",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANTENNA",
+      "AUTOMATON",
+      "COMPUTER",
+      "FAX",
+      "GATEWAY",
+      "INTELLIGENTPERIPHERAL",
+      "IPNETWORKEQUIPMENT",
+      "LINESIDEELECTRONICUNIT",
+      "MODEM",
+      "NETWORKAPPLIANCE",
+      "NETWORKBRIDGE",
+      "NETWORKHUB",
+      "OPTICALLINETERMINAL",
+      "OPTICALNETWORKUNIT",
+      "PRINTER",
+      "RADIOBLOCKCENTER",
+      "REPEATER",
+      "ROUTER",
+      "SCANNER",
+      "TELECOMMAND",
+      "TELEPHONYEXCHANGE",
+      "TRANSITIONCOMPONENT",
+      "TRANSPONDER",
+      "TRANSPORTEQUIPMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16110,7 +17089,34 @@
   {
     "name": "IfcCommunicationsApplianceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANTENNA",
+      "AUTOMATON",
+      "COMPUTER",
+      "FAX",
+      "GATEWAY",
+      "INTELLIGENTPERIPHERAL",
+      "IPNETWORKEQUIPMENT",
+      "LINESIDEELECTRONICUNIT",
+      "MODEM",
+      "NETWORKAPPLIANCE",
+      "NETWORKBRIDGE",
+      "NETWORKHUB",
+      "OPTICALLINETERMINAL",
+      "OPTICALNETWORKUNIT",
+      "PRINTER",
+      "RADIOBLOCKCENTER",
+      "REPEATER",
+      "ROUTER",
+      "SCANNER",
+      "TELECOMMAND",
+      "TELEPHONYEXCHANGE",
+      "TRANSITIONCOMPONENT",
+      "TRANSPONDER",
+      "TRANSPORTEQUIPMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16173,7 +17179,25 @@
   {
     "name": "IfcCompressor",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOOSTER",
+      "DYNAMIC",
+      "HERMETIC",
+      "OPENTYPE",
+      "RECIPROCATING",
+      "ROLLINGPISTON",
+      "ROTARY",
+      "ROTARYVANE",
+      "SCROLL",
+      "SEMIHERMETIC",
+      "SINGLESCREW",
+      "SINGLESTAGE",
+      "TROCHOIDAL",
+      "TWINSCREW",
+      "WELDEDSHELLHERMETIC",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16231,7 +17255,25 @@
   {
     "name": "IfcCompressorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOOSTER",
+      "DYNAMIC",
+      "HERMETIC",
+      "OPENTYPE",
+      "RECIPROCATING",
+      "ROLLINGPISTON",
+      "ROTARY",
+      "ROTARYVANE",
+      "SCROLL",
+      "SEMIHERMETIC",
+      "SINGLESCREW",
+      "SINGLESTAGE",
+      "TROCHOIDAL",
+      "TWINSCREW",
+      "WELDEDSHELLHERMETIC",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16294,7 +17336,17 @@
   {
     "name": "IfcCondenser",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCOOLED",
+      "EVAPORATIVECOOLED",
+      "WATERCOOLED",
+      "WATERCOOLEDBRAZEDPLATE",
+      "WATERCOOLEDSHELLCOIL",
+      "WATERCOOLEDSHELLTUBE",
+      "WATERCOOLEDTUBEINTUBE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16352,7 +17404,17 @@
   {
     "name": "IfcCondenserType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCOOLED",
+      "EVAPORATIVECOOLED",
+      "WATERCOOLED",
+      "WATERCOOLEDBRAZEDPLATE",
+      "WATERCOOLEDSHELLCOIL",
+      "WATERCOOLEDSHELLTUBE",
+      "WATERCOOLEDTUBEINTUBE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16508,7 +17570,18 @@
   {
     "name": "IfcConstructionEquipmentResource",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DEMOLISHING",
+      "EARTHMOVING",
+      "ERECTING",
+      "HEATING",
+      "LIGHTING",
+      "PAVING",
+      "PUMPING",
+      "TRANSPORTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16576,7 +17649,18 @@
   {
     "name": "IfcConstructionEquipmentResourceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DEMOLISHING",
+      "EARTHMOVING",
+      "ERECTING",
+      "HEATING",
+      "LIGHTING",
+      "PAVING",
+      "PUMPING",
+      "TRANSPORTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -16956,7 +18040,14 @@
   {
     "name": "IfcConveyorSegment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELTCONVEYOR",
+      "BUCKETCONVEYOR",
+      "CHUTECONVEYOR",
+      "SCREWCONVEYOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17014,7 +18105,14 @@
   {
     "name": "IfcConveyorSegmentType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELTCONVEYOR",
+      "BUCKETCONVEYOR",
+      "CHUTECONVEYOR",
+      "SCREWCONVEYOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17077,7 +18175,13 @@
   {
     "name": "IfcCoolingTower",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "MECHANICALFORCEDDRAFT",
+      "MECHANICALINDUCEDDRAFT",
+      "NATURALDRAFT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17135,7 +18239,13 @@
   {
     "name": "IfcCoolingTowerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "MECHANICALFORCEDDRAFT",
+      "MECHANICALINDUCEDDRAFT",
+      "NATURALDRAFT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17252,7 +18362,10 @@
   {
     "name": "IfcCostItem",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17310,7 +18423,17 @@
   {
     "name": "IfcCostSchedule",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BUDGET",
+      "COSTPLAN",
+      "ESTIMATE",
+      "PRICEDBILLOFQUANTITIES",
+      "SCHEDULEOFRATES",
+      "TENDER",
+      "UNPRICEDBILLOFQUANTITIES",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17436,7 +18559,16 @@
   {
     "name": "IfcCourse",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ARMOUR",
+      "BALLASTBED",
+      "CORE",
+      "FILTER",
+      "PAVEMENT",
+      "PROTECTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17494,7 +18626,16 @@
   {
     "name": "IfcCourseType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ARMOUR",
+      "BALLASTBED",
+      "CORE",
+      "FILTER",
+      "PAVEMENT",
+      "PROTECTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17557,7 +18698,22 @@
   {
     "name": "IfcCovering",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CEILING",
+      "CLADDING",
+      "COPING",
+      "FLOORING",
+      "INSULATION",
+      "MEMBRANE",
+      "MOLDING",
+      "ROOFING",
+      "SKIRTINGBOARD",
+      "SLEEVING",
+      "TOPPING",
+      "WRAPPING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17615,7 +18771,22 @@
   {
     "name": "IfcCoveringType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CEILING",
+      "CLADDING",
+      "COPING",
+      "FLOORING",
+      "INSULATION",
+      "MEMBRANE",
+      "MOLDING",
+      "ROOFING",
+      "SKIRTINGBOARD",
+      "SLEEVING",
+      "TOPPING",
+      "WRAPPING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17678,7 +18849,12 @@
   {
     "name": "IfcCrewResource",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "OFFICE",
+      "SITE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17746,7 +18922,12 @@
   {
     "name": "IfcCrewResourceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "OFFICE",
+      "SITE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17891,7 +19072,21 @@
   {
     "name": "IfcDamper",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BACKDRAFTDAMPER",
+      "BALANCINGDAMPER",
+      "BLASTDAMPER",
+      "CONTROLDAMPER",
+      "FIREDAMPER",
+      "FIRESMOKEDAMPER",
+      "FUMEHOODEXHAUST",
+      "GRAVITYDAMPER",
+      "GRAVITYRELIEFDAMPER",
+      "RELIEFDAMPER",
+      "SMOKEDAMPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -17949,7 +19144,21 @@
   {
     "name": "IfcDamperType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BACKDRAFTDAMPER",
+      "BALANCINGDAMPER",
+      "BLASTDAMPER",
+      "CONTROLDAMPER",
+      "FIREDAMPER",
+      "FIRESMOKEDAMPER",
+      "FUMEHOODEXHAUST",
+      "GRAVITYDAMPER",
+      "GRAVITYRELIEFDAMPER",
+      "RELIEFDAMPER",
+      "SMOKEDAMPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18134,7 +19343,31 @@
   {
     "name": "IfcDiscreteAccessory",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORPLATE",
+      "BIRDPROTECTION",
+      "BRACKET",
+      "CABLEARRANGER",
+      "ELASTIC_CUSHION",
+      "EXPANSION_JOINT_DEVICE",
+      "FILLER",
+      "FLASHING",
+      "INSULATOR",
+      "LOCK",
+      "PANEL_STRENGTHENING",
+      "POINTMACHINEMOUNTINGDEVICE",
+      "POINT_MACHINE_LOCKING_DEVICE",
+      "RAILBRACE",
+      "RAILPAD",
+      "RAIL_LUBRICATION",
+      "RAIL_MECHANICAL_EQUIPMENT",
+      "SHOE",
+      "SLIDINGCHAIR",
+      "SOUNDABSORPTION",
+      "TENSIONINGEQUIPMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18192,7 +19425,31 @@
   {
     "name": "IfcDiscreteAccessoryType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORPLATE",
+      "BIRDPROTECTION",
+      "BRACKET",
+      "CABLEARRANGER",
+      "ELASTIC_CUSHION",
+      "EXPANSION_JOINT_DEVICE",
+      "FILLER",
+      "FLASHING",
+      "INSULATOR",
+      "LOCK",
+      "PANEL_STRENGTHENING",
+      "POINTMACHINEMOUNTINGDEVICE",
+      "POINT_MACHINE_LOCKING_DEVICE",
+      "RAILBRACE",
+      "RAILPAD",
+      "RAIL_LUBRICATION",
+      "RAIL_MECHANICAL_EQUIPMENT",
+      "SHOE",
+      "SLIDINGCHAIR",
+      "SOUNDABSORPTION",
+      "TENSIONINGEQUIPMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18255,7 +19512,16 @@
   {
     "name": "IfcDistributionBoard",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSUMERUNIT",
+      "DISPATCHINGBOARD",
+      "DISTRIBUTIONBOARD",
+      "DISTRIBUTIONFRAME",
+      "MOTORCONTROLCENTRE",
+      "SWITCHBOARD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18313,7 +19579,16 @@
   {
     "name": "IfcDistributionBoardType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSUMERUNIT",
+      "DISPATCHINGBOARD",
+      "DISTRIBUTIONBOARD",
+      "DISTRIBUTIONFRAME",
+      "MOTORCONTROLCENTRE",
+      "SWITCHBOARD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18376,7 +19651,18 @@
   {
     "name": "IfcDistributionChamberElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FORMEDDUCT",
+      "INSPECTIONCHAMBER",
+      "INSPECTIONPIT",
+      "MANHOLE",
+      "METERCHAMBER",
+      "SUMP",
+      "TRENCH",
+      "VALVECHAMBER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18434,7 +19720,18 @@
   {
     "name": "IfcDistributionChamberElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FORMEDDUCT",
+      "INSPECTIONCHAMBER",
+      "INSPECTIONPIT",
+      "MANHOLE",
+      "METERCHAMBER",
+      "SUMP",
+      "TRENCH",
+      "VALVECHAMBER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18497,7 +19794,59 @@
   {
     "name": "IfcDistributionCircuit",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCONDITIONING",
+      "AUDIOVISUAL",
+      "CATENARY_SYSTEM",
+      "CHEMICAL",
+      "CHILLEDWATER",
+      "COMMUNICATION",
+      "COMPRESSEDAIR",
+      "CONDENSERWATER",
+      "CONTROL",
+      "CONVEYING",
+      "DATA",
+      "DISPOSAL",
+      "DOMESTICCOLDWATER",
+      "DOMESTICHOTWATER",
+      "DRAINAGE",
+      "EARTHING",
+      "ELECTRICAL",
+      "ELECTROACOUSTIC",
+      "EXHAUST",
+      "FIREPROTECTION",
+      "FIXEDTRANSMISSIONNETWORK",
+      "FUEL",
+      "GAS",
+      "HAZARDOUS",
+      "HEATING",
+      "LIGHTING",
+      "LIGHTNINGPROTECTION",
+      "MOBILENETWORK",
+      "MONITORINGSYSTEM",
+      "MUNICIPALSOLIDWASTE",
+      "OIL",
+      "OPERATIONAL",
+      "OPERATIONALTELEPHONYSYSTEM",
+      "OVERHEAD_CONTACTLINE_SYSTEM",
+      "POWERGENERATION",
+      "RAINWATER",
+      "REFRIGERATION",
+      "RETURN_CIRCUIT",
+      "SECURITY",
+      "SEWAGE",
+      "SIGNAL",
+      "STORMWATER",
+      "TELEPHONE",
+      "TV",
+      "VACUUM",
+      "VENT",
+      "VENTILATION",
+      "WASTEWATER",
+      "WATERSUPPLY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18662,7 +20011,15 @@
   {
     "name": "IfcDistributionPort",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CABLE",
+      "CABLECARRIER",
+      "DUCT",
+      "PIPE",
+      "WIRELESS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18725,7 +20082,59 @@
   {
     "name": "IfcDistributionSystem",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCONDITIONING",
+      "AUDIOVISUAL",
+      "CATENARY_SYSTEM",
+      "CHEMICAL",
+      "CHILLEDWATER",
+      "COMMUNICATION",
+      "COMPRESSEDAIR",
+      "CONDENSERWATER",
+      "CONTROL",
+      "CONVEYING",
+      "DATA",
+      "DISPOSAL",
+      "DOMESTICCOLDWATER",
+      "DOMESTICHOTWATER",
+      "DRAINAGE",
+      "EARTHING",
+      "ELECTRICAL",
+      "ELECTROACOUSTIC",
+      "EXHAUST",
+      "FIREPROTECTION",
+      "FIXEDTRANSMISSIONNETWORK",
+      "FUEL",
+      "GAS",
+      "HAZARDOUS",
+      "HEATING",
+      "LIGHTING",
+      "LIGHTNINGPROTECTION",
+      "MOBILENETWORK",
+      "MONITORINGSYSTEM",
+      "MUNICIPALSOLIDWASTE",
+      "OIL",
+      "OPERATIONAL",
+      "OPERATIONALTELEPHONYSYSTEM",
+      "OVERHEAD_CONTACTLINE_SYSTEM",
+      "POWERGENERATION",
+      "RAINWATER",
+      "REFRIGERATION",
+      "RETURN_CIRCUIT",
+      "SECURITY",
+      "SEWAGE",
+      "SIGNAL",
+      "STORMWATER",
+      "TELEPHONE",
+      "TV",
+      "VACUUM",
+      "VENT",
+      "VENTILATION",
+      "WASTEWATER",
+      "WATERSUPPLY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18793,7 +20202,19 @@
   {
     "name": "IfcEarthworksCut",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASE_EXCAVATION",
+      "CUT",
+      "DREDGING",
+      "EXCAVATION",
+      "OVEREXCAVATION",
+      "PAVEMENTMILLING",
+      "STEPEXCAVATION",
+      "TOPSOILREMOVAL",
+      "TRENCH",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -18907,7 +20328,17 @@
   {
     "name": "IfcEarthworksFill",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BACKFILL",
+      "COUNTERWEIGHT",
+      "EMBANKMENT",
+      "SLOPEFILL",
+      "SUBGRADE",
+      "SUBGRADEBED",
+      "TRANSITIONSECTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19010,7 +20441,26 @@
   {
     "name": "IfcElectricAppliance",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DISHWASHER",
+      "ELECTRICCOOKER",
+      "FREESTANDINGELECTRICHEATER",
+      "FREESTANDINGFAN",
+      "FREESTANDINGWATERCOOLER",
+      "FREESTANDINGWATERHEATER",
+      "FREEZER",
+      "FRIDGE_FREEZER",
+      "HANDDRYER",
+      "KITCHENMACHINE",
+      "MICROWAVE",
+      "PHOTOCOPIER",
+      "REFRIGERATOR",
+      "TUMBLEDRYER",
+      "VENDINGMACHINE",
+      "WASHINGMACHINE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19068,7 +20518,26 @@
   {
     "name": "IfcElectricApplianceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DISHWASHER",
+      "ELECTRICCOOKER",
+      "FREESTANDINGELECTRICHEATER",
+      "FREESTANDINGFAN",
+      "FREESTANDINGWATERCOOLER",
+      "FREESTANDINGWATERHEATER",
+      "FREEZER",
+      "FRIDGE_FREEZER",
+      "HANDDRYER",
+      "KITCHENMACHINE",
+      "MICROWAVE",
+      "PHOTOCOPIER",
+      "REFRIGERATOR",
+      "TUMBLEDRYER",
+      "VENDINGMACHINE",
+      "WASHINGMACHINE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19131,7 +20600,14 @@
   {
     "name": "IfcElectricDistributionBoard",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSUMERUNIT",
+      "DISTRIBUTIONBOARD",
+      "MOTORCONTROLCENTRE",
+      "SWITCHBOARD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19189,7 +20665,14 @@
   {
     "name": "IfcElectricDistributionBoardType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSUMERUNIT",
+      "DISTRIBUTIONBOARD",
+      "MOTORCONTROLCENTRE",
+      "SWITCHBOARD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19252,7 +20735,13 @@
   {
     "name": "IfcElectricGenerator",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHP",
+      "ENGINEGENERATOR",
+      "STANDALONE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19310,7 +20799,13 @@
   {
     "name": "IfcElectricGeneratorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHP",
+      "ENGINEGENERATOR",
+      "STANDALONE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19373,7 +20868,15 @@
   {
     "name": "IfcElectricMotor",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DC",
+      "INDUCTION",
+      "POLYPHASE",
+      "RELUCTANCESYNCHRONOUS",
+      "SYNCHRONOUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19431,7 +20934,15 @@
   {
     "name": "IfcElectricMotorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DC",
+      "INDUCTION",
+      "POLYPHASE",
+      "RELUCTANCESYNCHRONOUS",
+      "SYNCHRONOUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19559,7 +21070,38 @@
   {
     "name": "IfcElementAssembly",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABUTMENT",
+      "ACCESSORY_ASSEMBLY",
+      "ARCH",
+      "BEAM_GRID",
+      "BRACED_FRAME",
+      "CROSS_BRACING",
+      "DECK",
+      "DILATATIONPANEL",
+      "ENTRANCEWORKS",
+      "GIRDER",
+      "GRID",
+      "MAST",
+      "PIER",
+      "PYLON",
+      "RAIL_MECHANICAL_EQUIPMENT_ASSEMBLY",
+      "REINFORCEMENT_UNIT",
+      "RIGID_FRAME",
+      "SHELTER",
+      "SIGNALASSEMBLY",
+      "SLAB_FIELD",
+      "SUMPBUSTER",
+      "SUPPORTINGASSEMBLY",
+      "SUSPENSIONASSEMBLY",
+      "TRACKPANEL",
+      "TRACTION_SWITCHING_ASSEMBLY",
+      "TRAFFIC_CALMING_DEVICE",
+      "TRUSS",
+      "TURNOUTPANEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -19622,7 +21164,38 @@
   {
     "name": "IfcElementAssemblyType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABUTMENT",
+      "ACCESSORY_ASSEMBLY",
+      "ARCH",
+      "BEAM_GRID",
+      "BRACED_FRAME",
+      "CROSS_BRACING",
+      "DECK",
+      "DILATATIONPANEL",
+      "ENTRANCEWORKS",
+      "GIRDER",
+      "GRID",
+      "MAST",
+      "PIER",
+      "PYLON",
+      "RAIL_MECHANICAL_EQUIPMENT_ASSEMBLY",
+      "REINFORCEMENT_UNIT",
+      "RIGID_FRAME",
+      "SHELTER",
+      "SIGNALASSEMBLY",
+      "SLAB_FIELD",
+      "SUMPBUSTER",
+      "SUPPORTINGASSEMBLY",
+      "SUSPENSIONASSEMBLY",
+      "TRACKPANEL",
+      "TRACTION_SWITCHING_ASSEMBLY",
+      "TRAFFIC_CALMING_DEVICE",
+      "TRUSS",
+      "TURNOUTPANEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20107,7 +21680,12 @@
   {
     "name": "IfcEngine",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "EXTERNALCOMBUSTION",
+      "INTERNALCOMBUSTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20165,7 +21743,12 @@
   {
     "name": "IfcEngineType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "EXTERNALCOMBUSTION",
+      "INTERNALCOMBUSTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20228,7 +21811,19 @@
   {
     "name": "IfcEvaporativeCooler",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTEVAPORATIVEAIRWASHER",
+      "DIRECTEVAPORATIVEPACKAGEDROTARYAIRCOOLER",
+      "DIRECTEVAPORATIVERANDOMMEDIAAIRCOOLER",
+      "DIRECTEVAPORATIVERIGIDMEDIAAIRCOOLER",
+      "DIRECTEVAPORATIVESLINGERSPACKAGEDAIRCOOLER",
+      "INDIRECTDIRECTCOMBINATION",
+      "INDIRECTEVAPORATIVECOOLINGTOWERORCOILCOOLER",
+      "INDIRECTEVAPORATIVEPACKAGEAIRCOOLER",
+      "INDIRECTEVAPORATIVEWETCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20286,7 +21881,19 @@
   {
     "name": "IfcEvaporativeCoolerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTEVAPORATIVEAIRWASHER",
+      "DIRECTEVAPORATIVEPACKAGEDROTARYAIRCOOLER",
+      "DIRECTEVAPORATIVERANDOMMEDIAAIRCOOLER",
+      "DIRECTEVAPORATIVERIGIDMEDIAAIRCOOLER",
+      "DIRECTEVAPORATIVESLINGERSPACKAGEDAIRCOOLER",
+      "INDIRECTDIRECTCOMBINATION",
+      "INDIRECTEVAPORATIVECOOLINGTOWERORCOILCOOLER",
+      "INDIRECTEVAPORATIVEPACKAGEAIRCOOLER",
+      "INDIRECTEVAPORATIVEWETCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20349,7 +21956,16 @@
   {
     "name": "IfcEvaporator",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTEXPANSION",
+      "DIRECTEXPANSIONBRAZEDPLATE",
+      "DIRECTEXPANSIONSHELLANDTUBE",
+      "DIRECTEXPANSIONTUBEINTUBE",
+      "FLOODEDSHELLANDTUBE",
+      "SHELLANDCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20407,7 +22023,16 @@
   {
     "name": "IfcEvaporatorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTEXPANSION",
+      "DIRECTEXPANSIONBRAZEDPLATE",
+      "DIRECTEXPANSIONSHELLANDTUBE",
+      "DIRECTEXPANSIONTUBEINTUBE",
+      "FLOODEDSHELLANDTUBE",
+      "SHELLANDCOIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20470,7 +22095,13 @@
   {
     "name": "IfcEvent",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ENDEVENT",
+      "INTERMEDIATEEVENT",
+      "STARTEVENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20586,7 +22217,13 @@
   {
     "name": "IfcEventType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ENDEVENT",
+      "INTERMEDIATEEVENT",
+      "STARTEVENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -20706,7 +22343,14 @@
   {
     "name": "IfcExternalSpatialElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "EXTERNAL",
+      "EXTERNAL_EARTH",
+      "EXTERNAL_FIRE",
+      "EXTERNAL_WATER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21119,7 +22763,18 @@
   {
     "name": "IfcFacilityPartCommon",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABOVEGROUND",
+      "BELOWGROUND",
+      "JUNCTION",
+      "LEVELCROSSING",
+      "SEGMENT",
+      "SUBSTRUCTURE",
+      "SUPERSTRUCTURE",
+      "TERMINAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21187,7 +22842,13 @@
   {
     "name": "IfcFastener",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "GLUE",
+      "MORTAR",
+      "WELD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21245,7 +22906,13 @@
   {
     "name": "IfcFastenerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "GLUE",
+      "MORTAR",
+      "WELD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21571,7 +23238,16 @@
   {
     "name": "IfcFilter",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRPARTICLEFILTER",
+      "COMPRESSEDAIRFILTER",
+      "ODORFILTER",
+      "OILFILTER",
+      "STRAINER",
+      "WATERFILTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21629,7 +23305,16 @@
   {
     "name": "IfcFilterType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRPARTICLEFILTER",
+      "COMPRESSEDAIRFILTER",
+      "ODORFILTER",
+      "OILFILTER",
+      "STRAINER",
+      "WATERFILTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21692,7 +23377,16 @@
   {
     "name": "IfcFireSuppressionTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BREECHINGINLET",
+      "FIREHYDRANT",
+      "FIREMONITOR",
+      "HOSEREEL",
+      "SPRINKLER",
+      "SPRINKLERDEFLECTOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21750,7 +23444,16 @@
   {
     "name": "IfcFireSuppressionTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BREECHINGINLET",
+      "FIREHYDRANT",
+      "FIREMONITOR",
+      "HOSEREEL",
+      "SPRINKLER",
+      "SPRINKLERDEFLECTOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21930,7 +23633,18 @@
   {
     "name": "IfcFurniture",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BED",
+      "CHAIR",
+      "DESK",
+      "FILECABINET",
+      "SHELF",
+      "SOFA",
+      "TABLE",
+      "TECHNICALCABINET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -21988,7 +23702,18 @@
   {
     "name": "IfcFurnitureType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BED",
+      "CHAIR",
+      "DESK",
+      "FILECABINET",
+      "SHELF",
+      "SOFA",
+      "TABLE",
+      "TECHNICALCABINET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22099,7 +23824,13 @@
   {
     "name": "IfcGeographicElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SOIL_BORING_POINT",
+      "TERRAIN",
+      "VEGETATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22157,7 +23888,13 @@
   {
     "name": "IfcGeographicElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SOIL_BORING_POINT",
+      "TERRAIN",
+      "VEGETATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22459,7 +24196,13 @@
   {
     "name": "IfcGeotechnicalStratum",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SOLID",
+      "VOID",
+      "WATER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22517,7 +24260,14 @@
   {
     "name": "IfcGrid",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "IRREGULAR",
+      "RADIAL",
+      "RECTANGULAR",
+      "TRIANGULAR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22685,7 +24435,13 @@
   {
     "name": "IfcHeatExchanger",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PLATE",
+      "SHELLANDTUBE",
+      "TURNOUTHEATING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22743,7 +24499,13 @@
   {
     "name": "IfcHeatExchangerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PLATE",
+      "SHELLANDTUBE",
+      "TURNOUTHEATING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22806,7 +24568,23 @@
   {
     "name": "IfcHumidifier",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADIABATICAIRWASHER",
+      "ADIABATICATOMIZING",
+      "ADIABATICCOMPRESSEDAIRNOZZLE",
+      "ADIABATICPAN",
+      "ADIABATICRIGIDMEDIA",
+      "ADIABATICULTRASONIC",
+      "ADIABATICWETTEDELEMENT",
+      "ASSISTEDBUTANE",
+      "ASSISTEDELECTRIC",
+      "ASSISTEDNATURALGAS",
+      "ASSISTEDPROPANE",
+      "ASSISTEDSTEAM",
+      "STEAMINJECTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22864,7 +24642,23 @@
   {
     "name": "IfcHumidifierType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADIABATICAIRWASHER",
+      "ADIABATICATOMIZING",
+      "ADIABATICCOMPRESSEDAIRNOZZLE",
+      "ADIABATICPAN",
+      "ADIABATICRIGIDMEDIA",
+      "ADIABATICULTRASONIC",
+      "ADIABATICWETTEDELEMENT",
+      "ASSISTEDBUTANE",
+      "ASSISTEDELECTRIC",
+      "ASSISTEDNATURALGAS",
+      "ASSISTEDPROPANE",
+      "ASSISTEDSTEAM",
+      "STEAMINJECTION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -22970,7 +24764,14 @@
   {
     "name": "IfcImpactProtectionDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BUMPER",
+      "CRASHCUSHION",
+      "DAMPINGSYSTEM",
+      "FENDER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23028,7 +24829,14 @@
   {
     "name": "IfcImpactProtectionDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BUMPER",
+      "CRASHCUSHION",
+      "DAMPINGSYSTEM",
+      "FENDER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23264,7 +25072,14 @@
   {
     "name": "IfcInterceptor",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CYCLONIC",
+      "GREASE",
+      "OIL",
+      "PETROL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23322,7 +25137,14 @@
   {
     "name": "IfcInterceptorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CYCLONIC",
+      "GREASE",
+      "OIL",
+      "PETROL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23385,7 +25207,13 @@
   {
     "name": "IfcInventory",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ASSETINVENTORY",
+      "FURNITUREINVENTORY",
+      "SPACEINVENTORY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23534,7 +25362,12 @@
   {
     "name": "IfcJunctionBox",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DATA",
+      "POWER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23592,7 +25425,12 @@
   {
     "name": "IfcJunctionBoxType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DATA",
+      "POWER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23655,7 +25493,10 @@
   {
     "name": "IfcKerb",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23713,7 +25554,10 @@
   {
     "name": "IfcKerbType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23776,7 +25620,29 @@
   {
     "name": "IfcLaborResource",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADMINISTRATION",
+      "CARPENTRY",
+      "CLEANING",
+      "CONCRETE",
+      "DRYWALL",
+      "ELECTRIC",
+      "FINISHING",
+      "FLOORING",
+      "GENERAL",
+      "HVAC",
+      "LANDSCAPING",
+      "MASONRY",
+      "PAINTING",
+      "PAVING",
+      "PLUMBING",
+      "ROOFING",
+      "SITEGRADING",
+      "STEELWORK",
+      "SURVEYING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23844,7 +25710,29 @@
   {
     "name": "IfcLaborResourceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADMINISTRATION",
+      "CARPENTRY",
+      "CLEANING",
+      "CONCRETE",
+      "DRYWALL",
+      "ELECTRIC",
+      "FINISHING",
+      "FLOORING",
+      "GENERAL",
+      "HVAC",
+      "LANDSCAPING",
+      "MASONRY",
+      "PAINTING",
+      "PAVING",
+      "PLUMBING",
+      "ROOFING",
+      "SITEGRADING",
+      "STEELWORK",
+      "SURVEYING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -23955,7 +25843,19 @@
   {
     "name": "IfcLamp",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COMPACTFLUORESCENT",
+      "FLUORESCENT",
+      "HALOGEN",
+      "HIGHPRESSUREMERCURY",
+      "HIGHPRESSURESODIUM",
+      "LED",
+      "METALHALIDE",
+      "OLED",
+      "TUNGSTENFILAMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -24013,7 +25913,19 @@
   {
     "name": "IfcLampType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COMPACTFLUORESCENT",
+      "FLUORESCENT",
+      "HALOGEN",
+      "HIGHPRESSUREMERCURY",
+      "HIGHPRESSURESODIUM",
+      "LED",
+      "METALHALIDE",
+      "OLED",
+      "TUNGSTENFILAMENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -24104,7 +26016,13 @@
   {
     "name": "IfcLightFixture",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTIONSOURCE",
+      "POINTSOURCE",
+      "SECURITYLIGHTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -24162,7 +26080,13 @@
   {
     "name": "IfcLightFixtureType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DIRECTIONSOURCE",
+      "POINTSOURCE",
+      "SECURITYLIGHTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -24712,7 +26636,12 @@
   {
     "name": "IfcLiquidTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "HOSEREEL",
+      "LOADINGARM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -24770,7 +26699,12 @@
   {
     "name": "IfcLiquidTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "HOSEREEL",
+      "LOADINGARM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25018,7 +26952,29 @@
   {
     "name": "IfcMarineFacility",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BARRIERBEACH",
+      "BREAKWATER",
+      "CANAL",
+      "DRYDOCK",
+      "FLOATINGDOCK",
+      "HYDROLIFT",
+      "JETTY",
+      "LAUNCHRECOVERY",
+      "MARINEDEFENCE",
+      "NAVIGATIONALCHANNEL",
+      "PORT",
+      "QUAY",
+      "REVETMENT",
+      "SHIPLIFT",
+      "SHIPLOCK",
+      "SHIPYARD",
+      "SLIPWAY",
+      "WATERWAY",
+      "WATERWAYSHIPLIFT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25081,7 +27037,34 @@
   {
     "name": "IfcMarinePart",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABOVEWATERLINE",
+      "ANCHORAGE",
+      "APPROACHCHANNEL",
+      "BELOWWATERLINE",
+      "BERTHINGSTRUCTURE",
+      "CHAMBER",
+      "CILL_LEVEL",
+      "COPELEVEL",
+      "CORE",
+      "CREST",
+      "GATEHEAD",
+      "GUDINGSTRUCTURE",
+      "HIGHWATERLINE",
+      "LANDFIELD",
+      "LEEWARDSIDE",
+      "LOWWATERLINE",
+      "MANUFACTURING",
+      "NAVIGATIONALAREA",
+      "PROTECTION",
+      "SHIPTRANSFER",
+      "STORAGEAREA",
+      "VEHICLESERVICING",
+      "WATERFIELD",
+      "WEATHERSIDE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25172,7 +27155,25 @@
   {
     "name": "IfcMechanicalFastener",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORBOLT",
+      "BOLT",
+      "CHAIN",
+      "COUPLER",
+      "DOWEL",
+      "NAIL",
+      "NAILPLATE",
+      "RAILFASTENING",
+      "RAILJOINT",
+      "RIVET",
+      "ROPE",
+      "SCREW",
+      "SHEARCONNECTOR",
+      "STAPLE",
+      "STUDSHEARCONNECTOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25240,7 +27241,25 @@
   {
     "name": "IfcMechanicalFastenerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORBOLT",
+      "BOLT",
+      "CHAIN",
+      "COUPLER",
+      "DOWEL",
+      "NAIL",
+      "NAILPLATE",
+      "RAILFASTENING",
+      "RAILJOINT",
+      "RIVET",
+      "ROPE",
+      "SCREW",
+      "SHEARCONNECTOR",
+      "STAPLE",
+      "STUDSHEARCONNECTOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25313,7 +27332,15 @@
   {
     "name": "IfcMedicalDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRSTATION",
+      "FEEDAIRUNIT",
+      "OXYGENGENERATOR",
+      "OXYGENPLANT",
+      "VACUUMSTATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25371,7 +27398,15 @@
   {
     "name": "IfcMedicalDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRSTATION",
+      "FEEDAIRUNIT",
+      "OXYGENGENERATOR",
+      "OXYGENPLANT",
+      "VACUUMSTATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25434,7 +27469,29 @@
   {
     "name": "IfcMember",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ARCH_SEGMENT",
+      "BRACE",
+      "CHORD",
+      "COLLAR",
+      "MEMBER",
+      "MULLION",
+      "PLATE",
+      "POST",
+      "PURLIN",
+      "RAFTER",
+      "STAY_CABLE",
+      "STIFFENING_RIB",
+      "STRINGER",
+      "STRUCTURALCABLE",
+      "STRUT",
+      "STUD",
+      "SUSPENDER",
+      "SUSPENSION_CABLE",
+      "TIEBAR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25492,7 +27549,29 @@
   {
     "name": "IfcMemberType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ARCH_SEGMENT",
+      "BRACE",
+      "CHORD",
+      "COLLAR",
+      "MEMBER",
+      "MULLION",
+      "PLATE",
+      "POST",
+      "PURLIN",
+      "RAFTER",
+      "STAY_CABLE",
+      "STIFFENING_RIB",
+      "STRINGER",
+      "STRUCTURALCABLE",
+      "STRUT",
+      "STUD",
+      "SUSPENDER",
+      "SUSPENSION_CABLE",
+      "TIEBAR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25623,7 +27702,23 @@
   {
     "name": "IfcMobileTelecommunicationsAppliance",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACCESSPOINT",
+      "BASEBANDUNIT",
+      "BASETRANSCEIVERSTATION",
+      "E_UTRAN_NODE_B",
+      "GATEWAY_GPRS_SUPPORT_NODE",
+      "MASTERUNIT",
+      "MOBILESWITCHINGCENTER",
+      "MSCSERVER",
+      "PACKETCONTROLUNIT",
+      "REMOTERADIOUNIT",
+      "REMOTEUNIT",
+      "SERVICE_GPRS_SUPPORT_NODE",
+      "SUBSCRIBERSERVER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25681,7 +27776,23 @@
   {
     "name": "IfcMobileTelecommunicationsApplianceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACCESSPOINT",
+      "BASEBANDUNIT",
+      "BASETRANSCEIVERSTATION",
+      "E_UTRAN_NODE_B",
+      "GATEWAY_GPRS_SUPPORT_NODE",
+      "MASTERUNIT",
+      "MOBILESWITCHINGCENTER",
+      "MSCSERVER",
+      "PACKETCONTROLUNIT",
+      "REMOTERADIOUNIT",
+      "REMOTEUNIT",
+      "SERVICE_GPRS_SUPPORT_NODE",
+      "SUBSCRIBERSERVER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25762,7 +27873,15 @@
   {
     "name": "IfcMooringDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOLLARD",
+      "LINETENSIONER",
+      "MAGNETICDEVICE",
+      "MOORINGHOOKS",
+      "VACUUMDEVICE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25820,7 +27939,15 @@
   {
     "name": "IfcMooringDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOLLARD",
+      "LINETENSIONER",
+      "MAGNETICDEVICE",
+      "MOORINGHOOKS",
+      "VACUUMDEVICE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25910,7 +28037,12 @@
   {
     "name": "IfcNavigationElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEACON",
+      "BUOY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -25968,7 +28100,12 @@
   {
     "name": "IfcNavigationElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BEACON",
+      "BUOY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26203,7 +28340,17 @@
   {
     "name": "IfcOccupant",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ASSIGNEE",
+      "ASSIGNOR",
+      "LESSEE",
+      "LESSOR",
+      "LETTINGAGENT",
+      "OWNER",
+      "TENANT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26269,7 +28416,12 @@
   {
     "name": "IfcOpeningElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "OPENING",
+      "RECESS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26431,7 +28583,15 @@
   {
     "name": "IfcOutlet",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AUDIOVISUALOUTLET",
+      "COMMUNICATIONSOUTLET",
+      "DATAOUTLET",
+      "POWEROUTLET",
+      "TELEPHONEOUTLET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26489,7 +28649,15 @@
   {
     "name": "IfcOutletType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AUDIOVISUALOUTLET",
+      "COMMUNICATIONSOUTLET",
+      "DATAOUTLET",
+      "POWEROUTLET",
+      "TELEPHONEOUTLET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26623,7 +28791,12 @@
   {
     "name": "IfcPavement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLEXIBLE",
+      "RIGID",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26681,7 +28854,12 @@
   {
     "name": "IfcPavementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLEXIBLE",
+      "RIGID",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26744,7 +28922,10 @@
   {
     "name": "IfcPerformanceHistory",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -26855,7 +29036,13 @@
   {
     "name": "IfcPermit",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACCESS",
+      "BUILDING",
+      "WORK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -27251,7 +29438,19 @@
   {
     "name": "IfcPlate",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASE_PLATE",
+      "COVER_PLATE",
+      "CURTAIN_PANEL",
+      "FLANGE_PLATE",
+      "GUSSET_PLATE",
+      "SHEET",
+      "SPLICE_PLATE",
+      "STIFFENER_PLATE",
+      "WEB_PLATE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -27309,7 +29508,19 @@
   {
     "name": "IfcPlateType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASE_PLATE",
+      "COVER_PLATE",
+      "CURTAIN_PANEL",
+      "FLANGE_PLATE",
+      "GUSSET_PLATE",
+      "SHEET",
+      "SPLICE_PLATE",
+      "STIFFENER_PLATE",
+      "WEB_PLATE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -27880,7 +30091,17 @@
   {
     "name": "IfcProcedure",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADVICE_CAUTION",
+      "ADVICE_NOTE",
+      "ADVICE_WARNING",
+      "CALIBRATION",
+      "DIAGNOSTIC",
+      "SHUTDOWN",
+      "STARTUP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -27933,7 +30154,17 @@
   {
     "name": "IfcProcedureType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADVICE_CAUTION",
+      "ADVICE_NOTE",
+      "ADVICE_WARNING",
+      "CALIBRATION",
+      "DIAGNOSTIC",
+      "SHUTDOWN",
+      "STARTUP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28054,7 +30285,15 @@
   {
     "name": "IfcProjectOrder",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHANGEORDER",
+      "MAINTENANCEWORKORDER",
+      "MOVEORDER",
+      "PURCHASEORDER",
+      "WORKORDER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28160,7 +30399,12 @@
   {
     "name": "IfcProjectionElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLISTER",
+      "DEVIATOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28218,7 +30462,20 @@
   {
     "name": "IfcProtectiveDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANTI_ARCING_DEVICE",
+      "CIRCUITBREAKER",
+      "EARTHINGSWITCH",
+      "EARTHLEAKAGECIRCUITBREAKER",
+      "FUSEDISCONNECTOR",
+      "RESIDUALCURRENTCIRCUITBREAKER",
+      "RESIDUALCURRENTSWITCH",
+      "SPARKGAP",
+      "VARISTOR",
+      "VOLTAGELIMITER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28276,7 +30533,14 @@
   {
     "name": "IfcProtectiveDeviceTrippingUnit",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTROMAGNETIC",
+      "ELECTRONIC",
+      "RESIDUALCURRENT",
+      "THERMAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28334,7 +30598,14 @@
   {
     "name": "IfcProtectiveDeviceTrippingUnitType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTROMAGNETIC",
+      "ELECTRONIC",
+      "RESIDUALCURRENT",
+      "THERMAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28397,7 +30668,20 @@
   {
     "name": "IfcProtectiveDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANTI_ARCING_DEVICE",
+      "CIRCUITBREAKER",
+      "EARTHINGSWITCH",
+      "EARTHLEAKAGECIRCUITBREAKER",
+      "FUSEDISCONNECTOR",
+      "RESIDUALCURRENTCIRCUITBREAKER",
+      "RESIDUALCURRENTSWITCH",
+      "SPARKGAP",
+      "VARISTOR",
+      "VOLTAGELIMITER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28761,7 +31045,16 @@
   {
     "name": "IfcRail",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLADE",
+      "CHECKRAIL",
+      "GUARDRAIL",
+      "RACKRAIL",
+      "RAIL",
+      "STOCKRAIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28819,7 +31112,16 @@
   {
     "name": "IfcRailType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLADE",
+      "CHECKRAIL",
+      "GUARDRAIL",
+      "RACKRAIL",
+      "RAIL",
+      "STOCKRAIL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28882,7 +31184,10 @@
   {
     "name": "IfcRailway",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -28945,7 +31250,19 @@
   {
     "name": "IfcRailwayPart",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ABOVETRACK",
+      "DILATIONTRACK",
+      "LINESIDE",
+      "LINESIDEPART",
+      "PLAINTRACK",
+      "SUBSTRUCTURE",
+      "TRACK",
+      "TRACKPART",
+      "TURNOUTTRACK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29013,7 +31330,16 @@
   {
     "name": "IfcRamp",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "HALF_TURN_RAMP",
+      "QUARTER_TURN_RAMP",
+      "SPIRAL_RAMP",
+      "STRAIGHT_RUN_RAMP",
+      "TWO_QUARTER_TURN_RAMP",
+      "TWO_STRAIGHT_RUN_RAMP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29071,7 +31397,12 @@
   {
     "name": "IfcRampFlight",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SPIRAL",
+      "STRAIGHT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29129,7 +31460,12 @@
   {
     "name": "IfcRampFlightType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SPIRAL",
+      "STRAIGHT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29192,7 +31528,16 @@
   {
     "name": "IfcRampType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "HALF_TURN_RAMP",
+      "QUARTER_TURN_RAMP",
+      "SPIRAL_RAMP",
+      "STRAIGHT_RUN_RAMP",
+      "TWO_QUARTER_TURN_RAMP",
+      "TWO_STRAIGHT_RUN_RAMP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29341,7 +31686,20 @@
   {
     "name": "IfcReferent",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOUNDARY",
+      "INTERSECTION",
+      "KILOPOINT",
+      "LANDMARK",
+      "MILEPOINT",
+      "POSITION",
+      "REFERENCEMARKER",
+      "STATION",
+      "SUPERELEVATIONEVENT",
+      "WIDTHEVENT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29457,7 +31815,16 @@
   {
     "name": "IfcReinforcedSoil",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "DYNAMICALLYCOMPACTED",
+      "GROUTED",
+      "REPLACED",
+      "ROLLERCOMPACTED",
+      "SURCHARGEPRELOADED",
+      "VERTICALLYDRAINED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29601,7 +31968,19 @@
   {
     "name": "IfcReinforcingBar",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORING",
+      "EDGE",
+      "LIGATURE",
+      "MAIN",
+      "PUNCHING",
+      "RING",
+      "SHEAR",
+      "SPACEBAR",
+      "STUD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29684,7 +32063,19 @@
   {
     "name": "IfcReinforcingBarType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ANCHORING",
+      "EDGE",
+      "LIGATURE",
+      "MAIN",
+      "PUNCHING",
+      "RING",
+      "SHEAR",
+      "SPACEBAR",
+      "STUD",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -29905,7 +32296,10 @@
   {
     "name": "IfcReinforcingMesh",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -30008,7 +32402,10 @@
   {
     "name": "IfcReinforcingMeshType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32192,7 +34589,10 @@
   {
     "name": "IfcRoad",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32255,7 +34655,34 @@
   {
     "name": "IfcRoadPart",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BICYCLECROSSING",
+      "BUS_STOP",
+      "CARRIAGEWAY",
+      "CENTRALISLAND",
+      "CENTRALRESERVE",
+      "HARDSHOULDER",
+      "INTERSECTION",
+      "LAYBY",
+      "PARKINGBAY",
+      "PASSINGBAY",
+      "PEDESTRIAN_CROSSING",
+      "RAILWAYCROSSING",
+      "REFUGEISLAND",
+      "ROADSEGMENT",
+      "ROADSIDE",
+      "ROADSIDEPART",
+      "ROADWAYPLATEAU",
+      "ROUNDABOUT",
+      "SHOULDER",
+      "SIDEWALK",
+      "SOFTSHOULDER",
+      "TOLLPLAZA",
+      "TRAFFICISLAND",
+      "TRAFFICLANE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32393,7 +34820,20 @@
   {
     "name": "IfcSanitaryTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BATH",
+      "BIDET",
+      "CISTERN",
+      "SANITARYFOUNTAIN",
+      "SHOWER",
+      "SINK",
+      "TOILETPAN",
+      "URINAL",
+      "WASHHANDBASIN",
+      "WCSEAT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32451,7 +34891,20 @@
   {
     "name": "IfcSanitaryTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BATH",
+      "BIDET",
+      "CISTERN",
+      "SANITARYFOUNTAIN",
+      "SHOWER",
+      "SINK",
+      "TOILETPAN",
+      "URINAL",
+      "WASHHANDBASIN",
+      "WCSEAT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32660,7 +35113,13 @@
   {
     "name": "IfcShadingDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AWNING",
+      "JALOUSIE",
+      "SHUTTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32718,7 +35177,13 @@
   {
     "name": "IfcShadingDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AWNING",
+      "JALOUSIE",
+      "SHUTTER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32781,7 +35246,13 @@
   {
     "name": "IfcSign",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "MARKER",
+      "MIRROR",
+      "PICTORAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32839,7 +35310,13 @@
   {
     "name": "IfcSignType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "MARKER",
+      "MIRROR",
+      "PICTORAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32902,7 +35379,13 @@
   {
     "name": "IfcSignal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AUDIO",
+      "MIXED",
+      "VISUAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -32960,7 +35443,13 @@
   {
     "name": "IfcSignalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AUDIO",
+      "MIXED",
+      "VISUAL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33056,7 +35545,12 @@
   {
     "name": "IfcSolarDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SOLARCOLLECTOR",
+      "SOLARPANEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33114,7 +35608,12 @@
   {
     "name": "IfcSolarDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "SOLARCOLLECTOR",
+      "SOLARPANEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33467,7 +35966,13 @@
   {
     "name": "IfcStackTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BIRDCAGE",
+      "COWL",
+      "RAINWATERHOPPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33525,7 +36030,13 @@
   {
     "name": "IfcStackTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BIRDCAGE",
+      "COWL",
+      "RAINWATERHOPPER",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33716,7 +36227,13 @@
   {
     "name": "IfcStructuralAnalysisModel",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "IN_PLANE_LOADING_2D",
+      "LOADING_3D",
+      "OUT_PLANE_LOADING_2D",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33830,7 +36347,17 @@
   {
     "name": "IfcStructuralLinearAction",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONST",
+      "DISCRETE",
+      "EQUIDISTANT",
+      "LINEAR",
+      "PARABOLA",
+      "POLYGONAL",
+      "SINUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -33924,7 +36451,13 @@
   {
     "name": "IfcStructuralLoadCase",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "LOAD_CASE",
+      "LOAD_COMBINATION",
+      "LOAD_GROUP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -34020,7 +36553,13 @@
   {
     "name": "IfcStructuralLoadGroup",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "LOAD_CASE",
+      "LOAD_COMBINATION",
+      "LOAD_GROUP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -34501,7 +37040,14 @@
   {
     "name": "IfcStructuralPlanarAction",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BILINEAR",
+      "CONST",
+      "DISCRETE",
+      "ISOCONTOUR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -34873,7 +37419,12 @@
   {
     "name": "IfcSubContractResource",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PURCHASE",
+      "WORK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -34941,7 +37492,12 @@
   {
     "name": "IfcSubContractResourceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PURCHASE",
+      "WORK",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35042,7 +37598,21 @@
   {
     "name": "IfcSwitchingDevice",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONTACTOR",
+      "DIMMERSWITCH",
+      "EMERGENCYSTOP",
+      "KEYPAD",
+      "MOMENTARYSWITCH",
+      "RELAY",
+      "SELECTORSWITCH",
+      "STARTER",
+      "START_AND_STOP_EQUIPMENT",
+      "SWITCHDISCONNECTOR",
+      "TOGGLESWITCH",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35100,7 +37670,21 @@
   {
     "name": "IfcSwitchingDeviceType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONTACTOR",
+      "DIMMERSWITCH",
+      "EMERGENCYSTOP",
+      "KEYPAD",
+      "MOMENTARYSWITCH",
+      "RELAY",
+      "SELECTORSWITCH",
+      "STARTER",
+      "START_AND_STOP_EQUIPMENT",
+      "SWITCHDISCONNECTOR",
+      "TOGGLESWITCH",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35207,7 +37791,13 @@
   {
     "name": "IfcSystemFurnitureElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PANEL",
+      "SUBRACK",
+      "WORKSURFACE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35265,7 +37855,13 @@
   {
     "name": "IfcSystemFurnitureElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "PANEL",
+      "SUBRACK",
+      "WORKSURFACE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35379,7 +37975,18 @@
   {
     "name": "IfcTank",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASIN",
+      "BREAKPRESSURE",
+      "EXPANSION",
+      "FEEDANDEXPANSION",
+      "OILRETENTIONTRAY",
+      "PRESSUREVESSEL",
+      "STORAGE",
+      "VESSEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35437,7 +38044,18 @@
   {
     "name": "IfcTankType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASIN",
+      "BREAKPRESSURE",
+      "EXPANSION",
+      "FEEDANDEXPANSION",
+      "OILRETENTIONTRAY",
+      "PRESSUREVESSEL",
+      "STORAGE",
+      "VESSEL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35500,7 +38118,31 @@
   {
     "name": "IfcTask",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADJUSTMENT",
+      "ATTENDANCE",
+      "CALIBRATION",
+      "CONSTRUCTION",
+      "DEMOLITION",
+      "DISMANTLE",
+      "DISPOSAL",
+      "EMERGENCY",
+      "INSPECTION",
+      "INSTALLATION",
+      "LOGISTIC",
+      "MAINTENANCE",
+      "MOVE",
+      "OPERATION",
+      "REMOVAL",
+      "RENOVATION",
+      "SAFETY",
+      "SHUTDOWN",
+      "STARTUP",
+      "TESTING",
+      "TROUBLESHOOTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35811,7 +38453,31 @@
   {
     "name": "IfcTaskType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ADJUSTMENT",
+      "ATTENDANCE",
+      "CALIBRATION",
+      "CONSTRUCTION",
+      "DEMOLITION",
+      "DISMANTLE",
+      "DISPOSAL",
+      "EMERGENCY",
+      "INSPECTION",
+      "INSTALLATION",
+      "LOGISTIC",
+      "MAINTENANCE",
+      "MOVE",
+      "OPERATION",
+      "REMOVAL",
+      "RENOVATION",
+      "SAFETY",
+      "SHUTDOWN",
+      "STARTUP",
+      "TESTING",
+      "TROUBLESHOOTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -35937,7 +38603,14 @@
   {
     "name": "IfcTendon",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BAR",
+      "COATED",
+      "STRAND",
+      "WIRE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36035,7 +38708,13 @@
   {
     "name": "IfcTendonAnchor",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COUPLER",
+      "FIXED_END",
+      "TENSIONING_END",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36098,7 +38777,13 @@
   {
     "name": "IfcTendonAnchorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COUPLER",
+      "FIXED_END",
+      "TENSIONING_END",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36161,7 +38846,15 @@
   {
     "name": "IfcTendonConduit",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COUPLER",
+      "DIABOLO",
+      "DUCT",
+      "GROUTING_DUCT",
+      "TRUMPET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36224,7 +38917,15 @@
   {
     "name": "IfcTendonConduitType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COUPLER",
+      "DIABOLO",
+      "DUCT",
+      "GROUTING_DUCT",
+      "TRUMPET",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36287,7 +38988,14 @@
   {
     "name": "IfcTendonType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BAR",
+      "COATED",
+      "STRAND",
+      "WIRE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36923,7 +39631,18 @@
   {
     "name": "IfcTrackElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLOCKINGDEVICE",
+      "DERAILER",
+      "FROG",
+      "HALF_SET_OF_BLADES",
+      "SLEEPER",
+      "SPEEDREGULATOR",
+      "TRACKENDOFALIGNMENT",
+      "VEHICLESTOP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -36981,7 +39700,18 @@
   {
     "name": "IfcTrackElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BLOCKINGDEVICE",
+      "DERAILER",
+      "FROG",
+      "HALF_SET_OF_BLADES",
+      "SLEEPER",
+      "SPEEDREGULATOR",
+      "TRACKENDOFALIGNMENT",
+      "VEHICLESTOP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37044,7 +39774,17 @@
   {
     "name": "IfcTransformer",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHOPPER",
+      "COMBINED",
+      "CURRENT",
+      "FREQUENCY",
+      "INVERTER",
+      "RECTIFIER",
+      "VOLTAGE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37102,7 +39842,17 @@
   {
     "name": "IfcTransformerType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHOPPER",
+      "COMBINED",
+      "CURRENT",
+      "FREQUENCY",
+      "INVERTER",
+      "RECTIFIER",
+      "VOLTAGE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37165,7 +39915,16 @@
   {
     "name": "IfcTransportElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CRANEWAY",
+      "ELEVATOR",
+      "ESCALATOR",
+      "HAULINGGEAR",
+      "LIFTINGGEAR",
+      "MOVINGWALKWAY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37223,7 +39982,16 @@
   {
     "name": "IfcTransportElementType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CRANEWAY",
+      "ELEVATOR",
+      "ESCALATOR",
+      "HAULINGGEAR",
+      "LIFTINGGEAR",
+      "MOVINGWALKWAY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37486,7 +40254,11 @@
   {
     "name": "IfcTubeBundle",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FINNED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37544,7 +40316,11 @@
   {
     "name": "IfcTubeBundleType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FINNED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37732,7 +40508,15 @@
   {
     "name": "IfcUnitaryEquipment",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCONDITIONINGUNIT",
+      "AIRHANDLER",
+      "DEHUMIDIFIER",
+      "ROOFTOPUNIT",
+      "SPLITSYSTEM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37790,7 +40574,15 @@
   {
     "name": "IfcUnitaryEquipmentType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AIRCONDITIONINGUNIT",
+      "AIRHANDLER",
+      "DEHUMIDIFIER",
+      "ROOFTOPUNIT",
+      "SPLITSYSTEM",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37876,7 +40668,17 @@
   {
     "name": "IfcVehicle",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CARGO",
+      "ROLLINGSTOCK",
+      "VEHICLE",
+      "VEHICLEAIR",
+      "VEHICLEMARINE",
+      "VEHICLETRACKED",
+      "VEHICLEWHEELED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -37934,7 +40736,17 @@
   {
     "name": "IfcVehicleType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CARGO",
+      "ROLLINGSTOCK",
+      "VEHICLE",
+      "VEHICLEAIR",
+      "VEHICLEMARINE",
+      "VEHICLETRACKED",
+      "VEHICLEWHEELED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38047,7 +40859,16 @@
   {
     "name": "IfcVibrationDamper",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AXIAL_YIELD",
+      "BENDING_YIELD",
+      "FRICTION",
+      "RUBBER",
+      "SHEAR_YIELD",
+      "VISCOUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38105,7 +40926,16 @@
   {
     "name": "IfcVibrationDamperType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "AXIAL_YIELD",
+      "BENDING_YIELD",
+      "FRICTION",
+      "RUBBER",
+      "SHEAR_YIELD",
+      "VISCOUS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38168,7 +40998,13 @@
   {
     "name": "IfcVibrationIsolator",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASE",
+      "COMPRESSION",
+      "SPRING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38226,7 +41062,13 @@
   {
     "name": "IfcVibrationIsolatorType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BASE",
+      "COMPRESSION",
+      "SPRING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38289,7 +41131,13 @@
   {
     "name": "IfcVirtualElement",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BOUNDARY",
+      "CLEARANCE",
+      "PROVISIONFORVOID",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38347,7 +41195,16 @@
   {
     "name": "IfcVoidingFeature",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CHAMFER",
+      "CUTOUT",
+      "EDGE",
+      "HOLE",
+      "MITER",
+      "NOTCH",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38405,7 +41262,17 @@
   {
     "name": "IfcWasteTerminal",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLOORTRAP",
+      "FLOORWASTE",
+      "GULLYSUMP",
+      "GULLYTRAP",
+      "ROOFDRAIN",
+      "WASTEDISPOSALUNIT",
+      "WASTETRAP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38463,7 +41330,17 @@
   {
     "name": "IfcWasteTerminalType",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLOORTRAP",
+      "FLOORWASTE",
+      "GULLYSUMP",
+      "GULLYTRAP",
+      "ROOFDRAIN",
+      "WASTEDISPOSALUNIT",
+      "WASTETRAP",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38549,7 +41426,13 @@
   {
     "name": "IfcWorkCalendar",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FIRSTSHIFT",
+      "SECONDSHIFT",
+      "THIRDSHIFT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38607,7 +41490,13 @@
   {
     "name": "IfcWorkPlan",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACTUAL",
+      "BASELINE",
+      "PLANNED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38690,7 +41579,13 @@
   {
     "name": "IfcWorkSchedule",
     "category": "Other",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ACTUAL",
+      "BASELINE",
+      "PLANNED",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38816,7 +41711,15 @@
   {
     "name": "IfcActuator",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTRICACTUATOR",
+      "HANDOPERATEDACTUATOR",
+      "HYDRAULICACTUATOR",
+      "PNEUMATICACTUATOR",
+      "THERMOSTATICACTUATOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38874,7 +41777,15 @@
   {
     "name": "IfcActuatorType",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ELECTRICACTUATOR",
+      "HANDOPERATEDACTUATOR",
+      "HYDRAULICACTUATOR",
+      "PNEUMATICACTUATOR",
+      "THERMOSTATICACTUATOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -38989,7 +41900,15 @@
   {
     "name": "IfcController",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLOATING",
+      "MULTIPOSITION",
+      "PROGRAMMABLE",
+      "PROPORTIONAL",
+      "TWOPOSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39047,7 +41966,15 @@
   {
     "name": "IfcControllerType",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FLOATING",
+      "MULTIPOSITION",
+      "PROGRAMMABLE",
+      "PROPORTIONAL",
+      "TWOPOSITION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39237,7 +42164,13 @@
   {
     "name": "IfcElectricTimeControl",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "RELAY",
+      "TIMECLOCK",
+      "TIMEDELAY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39295,7 +42228,13 @@
   {
     "name": "IfcElectricTimeControlType",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "RELAY",
+      "TIMECLOCK",
+      "TIMEDELAY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39511,7 +42450,42 @@
   {
     "name": "IfcSensor",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CO2SENSOR",
+      "CONDUCTANCESENSOR",
+      "CONTACTSENSOR",
+      "COSENSOR",
+      "EARTHQUAKESENSOR",
+      "FIRESENSOR",
+      "FLOWSENSOR",
+      "FOREIGNOBJECTDETECTIONSENSOR",
+      "FROSTSENSOR",
+      "GASSENSOR",
+      "HEATSENSOR",
+      "HUMIDITYSENSOR",
+      "IDENTIFIERSENSOR",
+      "IONCONCENTRATIONSENSOR",
+      "LEVELSENSOR",
+      "LIGHTSENSOR",
+      "MOISTURESENSOR",
+      "MOVEMENTSENSOR",
+      "OBSTACLESENSOR",
+      "PHSENSOR",
+      "PRESSURESENSOR",
+      "RADIATIONSENSOR",
+      "RADIOACTIVITYSENSOR",
+      "RAINSENSOR",
+      "SMOKESENSOR",
+      "SNOWDEPTHSENSOR",
+      "SOUNDSENSOR",
+      "TEMPERATURESENSOR",
+      "TRAINSENSOR",
+      "TURNOUTCLOSURESENSOR",
+      "WHEELSENSOR",
+      "WINDSENSOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39569,7 +42543,42 @@
   {
     "name": "IfcSensorType",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CO2SENSOR",
+      "CONDUCTANCESENSOR",
+      "CONTACTSENSOR",
+      "COSENSOR",
+      "EARTHQUAKESENSOR",
+      "FIRESENSOR",
+      "FLOWSENSOR",
+      "FOREIGNOBJECTDETECTIONSENSOR",
+      "FROSTSENSOR",
+      "GASSENSOR",
+      "HEATSENSOR",
+      "HUMIDITYSENSOR",
+      "IDENTIFIERSENSOR",
+      "IONCONCENTRATIONSENSOR",
+      "LEVELSENSOR",
+      "LIGHTSENSOR",
+      "MOISTURESENSOR",
+      "MOVEMENTSENSOR",
+      "OBSTACLESENSOR",
+      "PHSENSOR",
+      "PRESSURESENSOR",
+      "RADIATIONSENSOR",
+      "RADIOACTIVITYSENSOR",
+      "RAINSENSOR",
+      "SMOKESENSOR",
+      "SNOWDEPTHSENSOR",
+      "SOUNDSENSOR",
+      "TEMPERATURESENSOR",
+      "TRAINSENSOR",
+      "TURNOUTCLOSURESENSOR",
+      "WHEELSENSOR",
+      "WINDSENSOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39694,7 +42703,20 @@
   {
     "name": "IfcUnitaryControlElement",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ALARMPANEL",
+      "BASESTATIONCONTROLLER",
+      "COMBINED",
+      "CONTROLPANEL",
+      "GASDETECTIONPANEL",
+      "HUMIDISTAT",
+      "INDICATORPANEL",
+      "MIMICPANEL",
+      "THERMOSTAT",
+      "WEATHERSTATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39752,7 +42774,20 @@
   {
     "name": "IfcUnitaryControlElementType",
     "category": "Process & Control",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "ALARMPANEL",
+      "BASESTATIONCONTROLLER",
+      "COMBINED",
+      "CONTROLPANEL",
+      "GASDETECTIONPANEL",
+      "HUMIDISTAT",
+      "INDICATORPANEL",
+      "MIMICPANEL",
+      "THERMOSTAT",
+      "WEATHERSTATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -39997,7 +43032,15 @@
   {
     "name": "IfcBuildingElementPart",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "APRON",
+      "ARMOURUNIT",
+      "INSULATION",
+      "PRECASTPANEL",
+      "SAFETYCAGE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40055,7 +43098,15 @@
   {
     "name": "IfcBuildingElementPartType",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "APRON",
+      "ARMOURUNIT",
+      "INSULATION",
+      "PRECASTPANEL",
+      "SAFETYCAGE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40118,7 +43169,15 @@
   {
     "name": "IfcBuildingElementProxy",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COMPLEX",
+      "ELEMENT",
+      "PARTIAL",
+      "PROVISIONFORSPACE",
+      "PROVISIONFORVOID",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40176,7 +43235,15 @@
   {
     "name": "IfcBuildingElementProxyType",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "COMPLEX",
+      "ELEMENT",
+      "PARTIAL",
+      "PROVISIONFORSPACE",
+      "PROVISIONFORVOID",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40302,7 +43369,16 @@
   {
     "name": "IfcBuildingSystem",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "FENESTRATION",
+      "FOUNDATION",
+      "LOADBEARING",
+      "OUTERSHELL",
+      "SHADING",
+      "TRANSPORT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40919,7 +43995,16 @@
   {
     "name": "IfcSpace",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BERTH",
+      "EXTERNAL",
+      "GFA",
+      "INTERNAL",
+      "PARKING",
+      "SPACE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -40987,7 +44072,12 @@
   {
     "name": "IfcSpaceHeater",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONVECTOR",
+      "RADIATOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41045,7 +44135,12 @@
   {
     "name": "IfcSpaceHeaterType",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONVECTOR",
+      "RADIATOR",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41108,7 +44203,16 @@
   {
     "name": "IfcSpaceType",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BERTH",
+      "EXTERNAL",
+      "GFA",
+      "INTERNAL",
+      "PARKING",
+      "SPACE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41176,7 +44280,20 @@
   {
     "name": "IfcSpatialZone",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSTRUCTION",
+      "FIRESAFETY",
+      "INTERFERENCE",
+      "LIGHTING",
+      "OCCUPANCY",
+      "RESERVATION",
+      "SECURITY",
+      "THERMAL",
+      "TRANSPORT",
+      "VENTILATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41234,7 +44351,20 @@
   {
     "name": "IfcSpatialZoneType",
     "category": "Spatial Structure",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CONSTRUCTION",
+      "FIRESAFETY",
+      "INTERFERENCE",
+      "LIGHTING",
+      "OCCUPANCY",
+      "RESERVATION",
+      "SECURITY",
+      "THERMAL",
+      "TRANSPORT",
+      "VENTILATION",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41345,7 +44475,12 @@
   {
     "name": "IfcCaissonFoundation",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CAISSON",
+      "WELL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41403,7 +44538,12 @@
   {
     "name": "IfcCaissonFoundationType",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CAISSON",
+      "WELL",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41780,7 +44920,15 @@
   {
     "name": "IfcFooting",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CAISSON_FOUNDATION",
+      "FOOTING_BEAM",
+      "PAD_FOOTING",
+      "PILE_CAP",
+      "STRIP_FOOTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41838,7 +44986,15 @@
   {
     "name": "IfcFootingType",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "CAISSON_FOUNDATION",
+      "FOOTING_BEAM",
+      "PAD_FOOTING",
+      "PILE_CAP",
+      "STRIP_FOOTING",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41901,7 +45057,13 @@
   {
     "name": "IfcMotorConnection",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELTDRIVE",
+      "COUPLING",
+      "DIRECTDRIVE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -41959,7 +45121,13 @@
   {
     "name": "IfcMotorConnectionType",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BELTDRIVE",
+      "COUPLING",
+      "DIRECTDRIVE",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -42022,7 +45190,16 @@
   {
     "name": "IfcPile",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BORED",
+      "COHESION",
+      "DRIVEN",
+      "FRICTION",
+      "JETGROUTING",
+      "SUPPORT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",
@@ -42085,7 +45262,16 @@
   {
     "name": "IfcPileType",
     "category": "Structural Element",
-    "predefinedTypes": [],
+    "predefinedTypes": [
+      "BORED",
+      "COHESION",
+      "DRIVEN",
+      "FRICTION",
+      "JETGROUTING",
+      "SUPPORT",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
     "attributes": [
       {
         "name": "GlobalId",

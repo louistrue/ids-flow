@@ -265,18 +265,31 @@ export function getEntitiesForVersion(version: IFCVersion): string[] {
 }
 
 export function getPredefinedTypesForEntity(entityName: string, version: IFCVersion): string[] {
-  // Return predefined types for common entities
-  const predefinedTypes: Record<string, string[]> = {
-    'IFCWALL': ['STANDARD', 'POLYGONAL', 'ELEMENTEDWALL', 'PLUMBINGWALL', 'SHEAR', 'RETAININGWALL'],
-    'IFCSLAB': ['FLOOR', 'ROOF', 'LANDING', 'BASESLAB', 'APPROACH_SLAB', 'PAVING', 'WEARING'],
-    'IFCCOLUMN': ['COLUMN', 'PILASTER', 'PIERSTEM', 'STANDCOLUMN'],
-    'IFCBEAM': ['BEAM', 'JOIST', 'HOLLOWCORE', 'LINTEL', 'SPANDREL', 'T_BEAM', 'GIRDER_SEGMENT'],
-    'IFCDOOR': ['DOOR', 'GATE', 'TRAPDOOR', 'BOOM_BARRIER', 'TURNSTILE'],
-    'IFCWINDOW': ['WINDOW', 'SKYLIGHT', 'LIGHTDOME'],
-    'IFCSPACE': ['SPACE', 'PARKING', 'GFA', 'INTERNAL', 'EXTERNAL']
+  // Legacy synchronous fallback - use getPredefinedTypesForEntityAsync for complete data
+  return []
+}
+
+export async function getPredefinedTypesForEntityAsync(entityName: string, version: IFCVersion): Promise<string[]> {
+  const entities = await loadEntities(version)
+  const normalizedName = entityName.toUpperCase()
+
+  // Find entity by case-insensitive name match
+  const entity = entities.find(e => e.name.toUpperCase() === normalizedName)
+  if (entity?.predefinedTypes && entity.predefinedTypes.length > 0) {
+    return entity.predefinedTypes
   }
 
-  return predefinedTypes[entityName] || []
+  // Also check the corresponding Type entity (e.g., IfcWallType for IfcWall)
+  // In some IFC versions, predefined types are only on the Type entity
+  const typeName = normalizedName.endsWith('TYPE') ? normalizedName : normalizedName + 'TYPE'
+  if (typeName !== normalizedName) {
+    const typeEntity = entities.find(e => e.name.toUpperCase() === typeName)
+    if (typeEntity?.predefinedTypes && typeEntity.predefinedTypes.length > 0) {
+      return typeEntity.predefinedTypes
+    }
+  }
+
+  return []
 }
 
 export function getPropertySetsForEntity(entityName: string): string[] {

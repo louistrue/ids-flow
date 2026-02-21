@@ -22,7 +22,7 @@ import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/s
 import { CollapsibleSection } from "@/components/ui/collapsible-section"
 import {
   getEntitiesForVersion,
-  getPredefinedTypesForEntity,
+  getPredefinedTypesForEntityAsync,
   getPropertiesForPropertySet,
   getExpectedDataTypesForProperty,
   getExpectedDataTypesForPropertyAsync,
@@ -502,6 +502,7 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   // Load comprehensive entities from schema
   const [allEntities, setAllEntities] = useState<SearchableSelectOption[]>([])
   const [loading, setLoading] = useState(true)
+  const [predefinedTypes, setPredefinedTypes] = useState<string[]>([])
 
   useEffect(() => {
     const loadEntities = async () => {
@@ -532,7 +533,13 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
     loadEntities()
   }, [ifcVersion])
 
-  const predefinedTypes = data.name ? getPredefinedTypesForEntity(data.name, ifcVersion) : []
+  useEffect(() => {
+    if (!data.name) {
+      setPredefinedTypes([])
+      return
+    }
+    getPredefinedTypesForEntityAsync(data.name, ifcVersion).then(setPredefinedTypes)
+  }, [data.name, ifcVersion])
 
   return (
     <>
