@@ -53,11 +53,17 @@ def export_complete_entities():
                     # Get entity declaration
                     entity_decl = schema.declaration_by_name(entity_name)
                     
-                    # Extract predefined types
+                    # Extract predefined types from the PredefinedType attribute's enum
                     predefined_types = []
-                    if hasattr(entity_decl, 'enumeration_items'):
+                    if hasattr(entity_decl, 'all_attributes'):
                         try:
-                            predefined_types = [item.name() for item in entity_decl.enumeration_items()]
+                            for attr in entity_decl.all_attributes():
+                                if attr.name() == 'PredefinedType':
+                                    toa = attr.type_of_attribute()
+                                    dt = toa.declared_type()
+                                    if hasattr(dt, 'enumeration_items'):
+                                        predefined_types = list(dt.enumeration_items())
+                                    break
                         except:
                             pass
                     
