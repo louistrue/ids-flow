@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react"
-import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
 import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
@@ -30,6 +30,7 @@ interface GraphCanvasProps {
     sourceEdges: GraphEdge[],
     offset?: { x: number; y: number },
   ) => string[]
+  onAddNode?: (type: string, position: { x: number; y: number }) => void
 }
 
 const nodeTypes = {
@@ -44,13 +45,42 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
   const [focusedSourceNodeId, setFocusedSourceNodeId] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isDragOver, setIsDragOver] = useState(false)
   const reactFlowContainerRef = useRef<HTMLDivElement>(null)
+  const reactFlowInstance = useReactFlow()
+
+  const onPaletteDragOver = useCallback((event: React.DragEvent) => {
+    if (!event.dataTransfer.types.includes('application/reactflow-node-type')) return
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'copy'
+    if (!isDragOver) setIsDragOver(true)
+  }, [isDragOver])
+
+  const onPaletteDragLeave = useCallback((event: React.DragEvent) => {
+    // Only clear when leaving the canvas wrapper itself, not its children
+    if (event.currentTarget === event.target) {
+      setIsDragOver(false)
+    }
+  }, [])
+
+  const onPaletteDrop = useCallback((event: React.DragEvent) => {
+    const type = event.dataTransfer.getData('application/reactflow-node-type')
+    if (!type) return
+    event.preventDefault()
+    setIsDragOver(false)
+    if (!onAddNode) return
+    const position = reactFlowInstance.screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    })
+    onAddNode(type, position)
+  }, [onAddNode, reactFlowInstance])
 
   // Memoize nodes without focus state to avoid recalculation during selection changes
   const baseNodes: Node[] = useMemo(() =>
@@ -303,6 +333,18 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     pendingSelectionRef.current = null
   }, [reactFlowNodes, setNodes])
 
+  // Mirror frequently-changing values into refs so the keydown handler effect
+  // below can register the listener once and read fresh values without
+  // re-binding on every selection or position change.
+  const reactFlowNodesRef = useRef(reactFlowNodes)
+  const nodesRef = useRef(nodes)
+  const edgesRef = useRef(edges)
+  const onDuplicateNodesRef = useRef(onDuplicateNodes)
+  useEffect(() => { reactFlowNodesRef.current = reactFlowNodes }, [reactFlowNodes])
+  useEffect(() => { nodesRef.current = nodes }, [nodes])
+  useEffect(() => { edgesRef.current = edges }, [edges])
+  useEffect(() => { onDuplicateNodesRef.current = onDuplicateNodes }, [onDuplicateNodes])
+
   // Handle Duplicate (Cmd/Ctrl+D), Copy (Cmd/Ctrl+C) and Paste (Cmd/Ctrl+V).
   // Mirrors the select-all handler: ignored while the user is typing in inputs
   // so native copy/paste continues to work in text fields.
@@ -319,11 +361,11 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
 
     const getSelectedSource = () => {
       const selectedIds = new Set(
-        reactFlowNodes.filter((n) => n.selected).map((n) => n.id),
+        reactFlowNodesRef.current.filter((n) => n.selected).map((n) => n.id),
       )
       if (selectedIds.size === 0) return null
-      const sourceNodes = nodes.filter((n) => selectedIds.has(n.id))
-      const sourceEdges = edges.filter(
+      const sourceNodes = nodesRef.current.filter((n) => selectedIds.has(n.id))
+      const sourceEdges = edgesRef.current.filter(
         (e) => selectedIds.has(e.source) && selectedIds.has(e.target),
       )
       return { sourceNodes, sourceEdges }
@@ -338,10 +380,10 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
 
       if (key === 'd') {
         event.preventDefault()
-        if (!onDuplicateNodes) return
+        if (!onDuplicateNodesRef.current) return
         const source = getSelectedSource()
         if (!source) return
-        const newIds = onDuplicateNodes(source.sourceNodes, source.sourceEdges, {
+        const newIds = onDuplicateNodesRef.current(source.sourceNodes, source.sourceEdges, {
           x: 40,
           y: 40,
         })
@@ -358,11 +400,11 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         }
         pasteCountRef.current = 0
       } else if (key === 'v') {
-        if (!onDuplicateNodes || !clipboardRef.current) return
+        if (!onDuplicateNodesRef.current || !clipboardRef.current) return
         event.preventDefault()
         pasteCountRef.current += 1
         const step = 40 * pasteCountRef.current
-        const newIds = onDuplicateNodes(
+        const newIds = onDuplicateNodesRef.current(
           clipboardRef.current.nodes,
           clipboardRef.current.edges,
           { x: step, y: step },
@@ -377,11 +419,19 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [reactFlowNodes, nodes, edges, onDuplicateNodes])
+  }, [])
 
 
   return (
-    <div className="w-full h-full" ref={reactFlowContainerRef} tabIndex={0} style={{ outline: 'none' }}>
+    <div
+      className={`w-full h-full relative transition-colors ${isDragOver ? 'ring-2 ring-inset ring-accent/60 bg-accent/5' : ''}`}
+      ref={reactFlowContainerRef}
+      tabIndex={0}
+      style={{ outline: 'none' }}
+      onDragOver={onPaletteDragOver}
+      onDragLeave={onPaletteDragLeave}
+      onDrop={onPaletteDrop}
+    >
       <ReactFlow
         nodes={reactFlowNodes}
         edges={reactFlowEdges.map(e => ({

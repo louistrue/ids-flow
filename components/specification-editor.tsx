@@ -569,6 +569,68 @@ export function SpecificationEditor() {
     return newNodes.map((n) => n.id)
   }, [takeSnapshot])
 
+  // Convert a single facet field carrying multiple values (e.g. "[R60, R90]")
+  // into an enumeration restriction node that sits between the facet and the
+  // spec it feeds. Clears the facet's field after conversion.
+  const convertValueToRestriction = useCallback((
+    facetNodeId: string,
+    fieldName: string,
+    values: string[],
+  ) => {
+    const facet = nodes.find((n) => n.id === facetNodeId)
+    if (!facet) return
+    const cleanValues = values.map((v) => v.trim()).filter(Boolean)
+    if (cleanValues.length === 0) return
+
+    takeSnapshot()
+
+    const timestamp = Date.now()
+    const restrictionId = `restriction-${timestamp}`
+
+    // Position the restriction immediately to the right of the facet
+    const restrictionNode: GraphNode = {
+      id: restrictionId,
+      type: 'restriction',
+      position: { x: facet.position.x + 280, y: facet.position.y },
+      data: {
+        restrictionType: 'enumeration',
+        values: cleanValues,
+      } as NodeData,
+    }
+
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === facetNodeId
+          ? { ...node, data: { ...node.data, [fieldName]: '' } }
+          : node,
+      ).concat(restrictionNode),
+    )
+
+    setEdges((eds) => {
+      // Find the existing edge from facet -> spec (if any) and rewire through the restriction
+      const directEdge = eds.find((e) => e.source === facetNodeId)
+      const filtered = directEdge
+        ? eds.filter((e) => e.id !== directEdge.id)
+        : eds
+      const newEdges: GraphEdge[] = [
+        {
+          id: `edge-${timestamp}-fr`,
+          source: facetNodeId,
+          target: restrictionId,
+        },
+      ]
+      if (directEdge) {
+        newEdges.push({
+          id: `edge-${timestamp}-rs`,
+          source: restrictionId,
+          target: directEdge.target,
+          targetHandle: directEdge.targetHandle,
+        })
+      }
+      return [...filtered, ...newEdges]
+    })
+  }, [nodes, takeSnapshot])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -805,6 +867,7 @@ export function SpecificationEditor() {
                 onNodesDelete={handleNodesDelete}
                 onEdgesDelete={handleEdgesDelete}
                 onDuplicateNodes={duplicateNodes}
+                onAddNode={addNode}
               />
             </Panel>
             <CustomPanelResizeHandle />
@@ -819,6 +882,7 @@ export function SpecificationEditor() {
                 ifcVersion={ifcVersion}
                 nodes={nodes}
                 edges={edges}
+                onConvertValueToRestriction={convertValueToRestriction}
               />
             </Panel>
           </PanelGroup>

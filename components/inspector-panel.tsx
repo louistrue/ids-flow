@@ -44,7 +44,7 @@ import {
   type CustomPropertySet
 } from "@/lib/custom-schema-store"
 import type { ValidationState } from "@/lib/use-ids-validation"
-import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw, MousePointerClick, Info, Zap, PlusCircle, Link2, Eye, ExternalLink, BookOpen } from "lucide-react"
+import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw, MousePointerClick, Info, Zap, PlusCircle, Link2, Eye, ExternalLink, BookOpen, Filter } from "lucide-react"
 
 interface InspectorPanelProps {
   selectedNode: Node<any> | null
@@ -56,6 +56,53 @@ interface InspectorPanelProps {
   ifcVersion?: IFCVersion
   nodes: GraphNode[]
   edges: GraphEdge[]
+  onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void
+}
+
+// Parse a bracketed list like "[R60, R90, R120]" into ["R60", "R90", "R120"].
+// Returns null when the input is not in bracketed form, so callers can keep
+// treating it as a single value.
+export function parseBracketedValueList(input: string): string[] | null {
+  if (typeof input !== 'string') return null
+  const trimmed = input.trim()
+  if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) return null
+  const inner = trimmed.slice(1, -1)
+  const parts = inner
+    .split(',')
+    .map((part) => part.trim().replace(/^['"]|['"]$/g, ''))
+    .filter(Boolean)
+  return parts
+}
+
+// Inline button shown beneath a value Input. When the user has typed a
+// bracketed list, offers a one-click conversion that creates an enumeration
+// restriction node wired between the facet and the spec it feeds.
+function ConvertToRestrictionHint({
+  value,
+  onConvert,
+}: {
+  value: string
+  onConvert: (values: string[]) => void
+}) {
+  const parsed = parseBracketedValueList(value)
+  if (!parsed || parsed.length < 2) return null
+  return (
+    <div className="flex items-center justify-between gap-2 rounded-md border border-dashed border-accent/40 bg-accent/5 px-2 py-1.5">
+      <span className="text-[11px] text-muted-foreground">
+        {parsed.length} values detected — convert to a Restriction node?
+      </span>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        className="h-6 px-2 text-[11px]"
+        onClick={() => onConvert(parsed)}
+      >
+        <Filter className="h-3 w-3 mr-1" />
+        Make Restriction
+      </Button>
+    </div>
+  )
 }
 
 // Helper function to check if a facet node is in the requirements section
@@ -129,7 +176,8 @@ export function InspectorPanel({
   isValidationDisabled = false,
   ifcVersion = "IFC4X3_ADD2",
   nodes,
-  edges
+  edges,
+  onConvertValueToRestriction
 }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
@@ -244,7 +292,7 @@ export function InspectorPanel({
                 </p>
                 <p className="flex items-start gap-1.5">
                   <span className="text-accent">•</span>
-                  <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+D</kbd> to duplicate, <kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+C</kbd>/<kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">V</kbd> to copy &amp; paste</span>
+                  <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+D</kbd> to duplicate, <kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+C</kbd>/<kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+V</kbd> to copy &amp; paste</span>
                 </p>
               </div>
             </div>
@@ -329,10 +377,10 @@ export function InspectorPanel({
           {/* Node Properties */}
           {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
           {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
+          {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+          {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+          {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+          {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
           {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
           {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
         </div>
@@ -614,7 +662,7 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   )
 }
 
-function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
+function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertValueToRestriction }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[]; onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void }) {
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
@@ -894,7 +942,16 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
           placeholder={getPlaceholderForDataType(data.dataType)}
           className="bg-input border-border text-foreground"
         />
-        {data.value && (
+        <p className="text-[11px] text-muted-foreground">
+          For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — you can convert to a Restriction node below.
+        </p>
+        {onConvertValueToRestriction && (
+          <ConvertToRestrictionHint
+            value={data.value || ""}
+            onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
+          />
+        )}
+        {data.value && !parseBracketedValueList(data.value || "") && (
           <p className="text-xs text-muted-foreground">This property will be used as an applicability condition</p>
         )}
       </div>
@@ -956,7 +1013,7 @@ function getPlaceholderForDataType(dataType?: string): string {
   }
 }
 
-function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
+function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertValueToRestriction }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[]; onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void }) {
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
@@ -1053,9 +1110,18 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
           id="attribute-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Fire Door"
+          placeholder="e.g., Fire Door — or [Fire Door, Exit Door] for multiple"
           className="bg-input border-border text-foreground"
         />
+        <p className="text-[11px] text-muted-foreground">
+          Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
+        </p>
+        {onConvertValueToRestriction && (
+          <ConvertToRestrictionHint
+            value={data.value || ""}
+            onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
+          />
+        )}
       </div>
       {inRequirements && (
         <CardinalitySelector
@@ -1083,7 +1149,7 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges }: { node: N
   )
 }
 
-function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
+function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConvertValueToRestriction }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[]; onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void }) {
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
@@ -1184,9 +1250,18 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
           id="classification-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Pr_20_70_05_05"
+          placeholder="e.g., Pr_20_70_05_05 — or [Pr_20_70_05_05, Pr_20_70_05_06]"
           className="bg-input border-border text-foreground font-mono"
         />
+        <p className="text-[11px] text-muted-foreground">
+          Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
+        </p>
+        {onConvertValueToRestriction && (
+          <ConvertToRestrictionHint
+            value={data.value || ""}
+            onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
+          />
+        )}
       </div>
       {inRequirements && (
         <CardinalitySelector
@@ -1226,7 +1301,7 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges }: { no
   )
 }
 
-function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[] }) {
+function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertValueToRestriction }: { node: Node<any>; onChange: (field: string, value: any) => void; ifcVersion: IFCVersion; nodes: GraphNode[]; edges: GraphEdge[]; onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void }) {
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
@@ -1288,38 +1363,27 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges }: { node: No
             </span>
           )}
         </Label>
-        {materialOptions.length > 0 ? (
-          <SearchableSelect
-            options={materialOptions}
+        <SearchableSelect
+          options={materialOptions}
+          value={data.value || ""}
+          onValueChange={(value) => onChange("value", value)}
+          placeholder="Search or type a material name..."
+          searchPlaceholder={entityContext.entityName ? `Search materials for ${entityContext.entityName}...` : "Type any material name (e.g., 'oak', 'rebar steel')..."}
+          emptyText="No matching materials — press Enter to use this name"
+          showCategories={true}
+          maxHeight={300}
+          disabled={loading}
+          allowCustom={true}
+          onCreateOption={(name) => onChange("value", name)}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Per the IDS schema, any material name is valid. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
+        </p>
+        {onConvertValueToRestriction && (
+          <ConvertToRestrictionHint
             value={data.value || ""}
-            onValueChange={(value) => onChange("value", value)}
-            placeholder="Search materials..."
-            searchPlaceholder={entityContext.entityName ? `Search materials for ${entityContext.entityName}...` : "Search materials..."}
-            emptyText="No materials found"
-            showCategories={true}
-            maxHeight={300}
-            disabled={loading}
+            onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
           />
-        ) : (
-          <Select
-            value={data.value || ""}
-            onValueChange={(value) => onChange("value", value)}
-          >
-            <SelectTrigger className="bg-input border-border text-foreground font-mono">
-              <SelectValue placeholder="Select material" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="concrete">Concrete</SelectItem>
-              <SelectItem value="steel">Steel</SelectItem>
-              <SelectItem value="wood">Wood</SelectItem>
-              <SelectItem value="brick">Brick</SelectItem>
-              <SelectItem value="glass">Glass</SelectItem>
-              <SelectItem value="aluminum">Aluminum</SelectItem>
-              <SelectItem value="plastic">Plastic</SelectItem>
-              <SelectItem value="composite">Composite</SelectItem>
-              <SelectItem value="custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
         )}
       </div>
       {inRequirements && (
