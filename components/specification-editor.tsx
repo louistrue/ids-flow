@@ -120,10 +120,10 @@ export function SpecificationEditor() {
       id: `${type}-${Date.now()}`,
       type,
       position: smartPosition,
-      data: getDefaultNodeData(type) as NodeData,
+      data: getDefaultNodeData(type, ifcVersion) as NodeData,
     }
     setNodes((nds) => [...nds, newNode])
-  }, [nodes, edges, takeSnapshot])
+  }, [nodes, edges, ifcVersion, takeSnapshot])
 
   const arrangeAll = useCallback(() => {
     takeSnapshot() // Capture BEFORE rearranging
@@ -900,12 +900,12 @@ export function SpecificationEditor() {
   )
 }
 
-function getDefaultNodeData(type: string) {
+function getDefaultNodeData(type: string, ifcVersion: IFCVersion = "IFC4X3_ADD2") {
   switch (type) {
     case "spec":
       return {
         name: "New Specification",
-        ifcVersion: "IFC4X3_ADD2",
+        ifcVersion,
         description: "",
       }
     case "entity":
