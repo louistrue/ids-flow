@@ -25,6 +25,11 @@ interface GraphCanvasProps {
   onConnect: (sourceId: string, targetId: string, targetHandle?: string) => void
   onNodesDelete?: (nodeIds: string[]) => void
   onEdgesDelete?: (edgeIds: string[]) => void
+  onDuplicateNodes?: (
+    sourceNodes: GraphNode[],
+    sourceEdges: GraphEdge[],
+    offset?: { x: number; y: number },
+  ) => string[]
 }
 
 const nodeTypes = {
@@ -39,7 +44,7 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -272,6 +277,107 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [setNodes])
+
+  // In-memory clipboard for copy/paste of nodes (and their internal edges).
+  // Lives on the canvas so it persists across selection changes within a session
+  // but does not pollute the system clipboard.
+  const clipboardRef = useRef<{ nodes: GraphNode[]; edges: GraphEdge[] } | null>(null)
+  const pasteCountRef = useRef(0)
+  // After a duplicate/paste, mark the new nodes as selected (and clear the previous
+  // selection) once they appear in the canvas state.
+  const pendingSelectionRef = useRef<Set<string> | null>(null)
+
+  useEffect(() => {
+    const pending = pendingSelectionRef.current
+    if (!pending || pending.size === 0) return
+    const allPresent = reactFlowNodes.length > 0 && [...pending].every((id) =>
+      reactFlowNodes.some((n) => n.id === id),
+    )
+    if (!allPresent) return
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => ({
+        ...node,
+        selected: pending.has(node.id),
+      })),
+    )
+    pendingSelectionRef.current = null
+  }, [reactFlowNodes, setNodes])
+
+  // Handle Duplicate (Cmd/Ctrl+D), Copy (Cmd/Ctrl+C) and Paste (Cmd/Ctrl+V).
+  // Mirrors the select-all handler: ignored while the user is typing in inputs
+  // so native copy/paste continues to work in text fields.
+  useEffect(() => {
+    const isEditableTarget = () => {
+      const el = document.activeElement
+      return (
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        el instanceof HTMLSelectElement ||
+        (el instanceof HTMLElement && el.isContentEditable)
+      )
+    }
+
+    const getSelectedSource = () => {
+      const selectedIds = new Set(
+        reactFlowNodes.filter((n) => n.selected).map((n) => n.id),
+      )
+      if (selectedIds.size === 0) return null
+      const sourceNodes = nodes.filter((n) => selectedIds.has(n.id))
+      const sourceEdges = edges.filter(
+        (e) => selectedIds.has(e.source) && selectedIds.has(e.target),
+      )
+      return { sourceNodes, sourceEdges }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey)) return
+      const key = event.key.toLowerCase()
+      if (key !== 'd' && key !== 'c' && key !== 'v') return
+      if (event.shiftKey || event.altKey) return
+      if (isEditableTarget()) return
+
+      if (key === 'd') {
+        event.preventDefault()
+        if (!onDuplicateNodes) return
+        const source = getSelectedSource()
+        if (!source) return
+        const newIds = onDuplicateNodes(source.sourceNodes, source.sourceEdges, {
+          x: 40,
+          y: 40,
+        })
+        if (newIds.length > 0) {
+          pendingSelectionRef.current = new Set(newIds)
+        }
+      } else if (key === 'c') {
+        const source = getSelectedSource()
+        if (!source) return
+        event.preventDefault()
+        clipboardRef.current = {
+          nodes: JSON.parse(JSON.stringify(source.sourceNodes)) as GraphNode[],
+          edges: JSON.parse(JSON.stringify(source.sourceEdges)) as GraphEdge[],
+        }
+        pasteCountRef.current = 0
+      } else if (key === 'v') {
+        if (!onDuplicateNodes || !clipboardRef.current) return
+        event.preventDefault()
+        pasteCountRef.current += 1
+        const step = 40 * pasteCountRef.current
+        const newIds = onDuplicateNodes(
+          clipboardRef.current.nodes,
+          clipboardRef.current.edges,
+          { x: step, y: step },
+        )
+        if (newIds.length > 0) {
+          pendingSelectionRef.current = new Set(newIds)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [reactFlowNodes, nodes, edges, onDuplicateNodes])
 
 
   return (

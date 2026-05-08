@@ -236,11 +236,15 @@ export function InspectorPanel({
               <div className="space-y-1 text-[11px] text-muted-foreground">
                 <p className="flex items-start gap-1.5">
                   <span className="text-accent">•</span>
-                  <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">Ctrl+Z</kbd> to undo</span>
+                  <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+Z</kbd> to undo</span>
                 </p>
                 <p className="flex items-start gap-1.5">
                   <span className="text-accent">•</span>
                   <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl</kbd> + click for multi-select</span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <span className="text-accent">•</span>
+                  <span><kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+D</kbd> to duplicate, <kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">⌘/Ctrl+C</kbd>/<kbd className="px-1 py-0.5 rounded bg-accent/10 border border-border text-[10px] font-mono">V</kbd> to copy &amp; paste</span>
                 </p>
               </div>
             </div>

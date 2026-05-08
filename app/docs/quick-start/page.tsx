@@ -82,9 +82,20 @@ Popular templates:
 
 ## Keyboard Shortcuts
 
-- **Ctrl+Z**: Undo
-- **Ctrl+Shift+Z**: Redo
-- **Delete**: Remove selected nodes/edges
+Use **Ctrl** on Windows/Linux and **⌘ Cmd** on macOS.
+
+- **Ctrl/Cmd+Z**: Undo
+- **Ctrl/Cmd+Shift+Z** (or **Ctrl/Cmd+Y**): Redo
+- **Ctrl/Cmd+A**: Select all nodes
+- **Ctrl/Cmd+D**: Duplicate selected node(s)
+- **Ctrl/Cmd+C**: Copy selected node(s) to the in-canvas clipboard
+- **Ctrl/Cmd+V**: Paste copied node(s)
+- **Delete** / **Backspace**: Remove selected nodes/edges
+
+Duplicate, copy and paste also clone any edges that connect the selected nodes
+to each other, so you can copy a small sub-graph in one shot. Paste places
+copies at an increasing offset so successive pastes don't stack on top of each
+other.
 
 ## Validating Your IDS
 

@@ -528,6 +528,47 @@ export function SpecificationEditor() {
     setEdges((eds) => eds.filter(edge => !edgeIds.includes(edge.id)))
   }, [takeSnapshot])
 
+  // Duplicate the given nodes (and any edges entirely contained within the selection),
+  // returning the IDs of the newly-created nodes so callers can update selection state.
+  const duplicateNodes = useCallback((
+    sourceNodes: GraphNode[],
+    sourceEdges: GraphEdge[],
+    offset: { x: number; y: number } = { x: 40, y: 40 },
+  ): string[] => {
+    if (sourceNodes.length === 0) return []
+    takeSnapshot() // Capture BEFORE duplication
+
+    const timestamp = Date.now()
+    const idMap = new Map<string, string>()
+
+    const newNodes: GraphNode[] = sourceNodes.map((node, index) => {
+      const newId = `${node.type}-${timestamp}-${index}`
+      idMap.set(node.id, newId)
+      return {
+        ...node,
+        id: newId,
+        position: { x: node.position.x + offset.x, y: node.position.y + offset.y },
+        data: JSON.parse(JSON.stringify(node.data)) as NodeData,
+      }
+    })
+
+    const newEdges: GraphEdge[] = sourceEdges
+      .filter((edge) => idMap.has(edge.source) && idMap.has(edge.target))
+      .map((edge, index) => ({
+        id: `edge-${timestamp}-dup-${index}`,
+        source: idMap.get(edge.source)!,
+        target: idMap.get(edge.target)!,
+        targetHandle: edge.targetHandle,
+      }))
+
+    setNodes((nds) => [...nds, ...newNodes])
+    if (newEdges.length > 0) {
+      setEdges((eds) => [...eds, ...newEdges])
+    }
+
+    return newNodes.map((n) => n.id)
+  }, [takeSnapshot])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -763,6 +804,7 @@ export function SpecificationEditor() {
                 onConnect={handleConnect}
                 onNodesDelete={handleNodesDelete}
                 onEdgesDelete={handleEdgesDelete}
+                onDuplicateNodes={duplicateNodes}
               />
             </Panel>
             <CustomPanelResizeHandle />
