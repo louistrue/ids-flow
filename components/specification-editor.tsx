@@ -120,10 +120,10 @@ export function SpecificationEditor() {
       id: `${type}-${Date.now()}`,
       type,
       position: smartPosition,
-      data: getDefaultNodeData(type) as NodeData,
+      data: getDefaultNodeData(type, ifcVersion) as NodeData,
     }
     setNodes((nds) => [...nds, newNode])
-  }, [nodes, edges, takeSnapshot])
+  }, [nodes, edges, ifcVersion, takeSnapshot])
 
   const arrangeAll = useCallback(() => {
     takeSnapshot() // Capture BEFORE rearranging
@@ -528,6 +528,109 @@ export function SpecificationEditor() {
     setEdges((eds) => eds.filter(edge => !edgeIds.includes(edge.id)))
   }, [takeSnapshot])
 
+  // Duplicate the given nodes (and any edges entirely contained within the selection),
+  // returning the IDs of the newly-created nodes so callers can update selection state.
+  const duplicateNodes = useCallback((
+    sourceNodes: GraphNode[],
+    sourceEdges: GraphEdge[],
+    offset: { x: number; y: number } = { x: 40, y: 40 },
+  ): string[] => {
+    if (sourceNodes.length === 0) return []
+    takeSnapshot() // Capture BEFORE duplication
+
+    const timestamp = Date.now()
+    const idMap = new Map<string, string>()
+
+    const newNodes: GraphNode[] = sourceNodes.map((node, index) => {
+      const newId = `${node.type}-${timestamp}-${index}`
+      idMap.set(node.id, newId)
+      return {
+        ...node,
+        id: newId,
+        position: { x: node.position.x + offset.x, y: node.position.y + offset.y },
+        data: JSON.parse(JSON.stringify(node.data)) as NodeData,
+      }
+    })
+
+    const newEdges: GraphEdge[] = sourceEdges
+      .filter((edge) => idMap.has(edge.source) && idMap.has(edge.target))
+      .map((edge, index) => ({
+        id: `edge-${timestamp}-dup-${index}`,
+        source: idMap.get(edge.source)!,
+        target: idMap.get(edge.target)!,
+        targetHandle: edge.targetHandle,
+      }))
+
+    setNodes((nds) => [...nds, ...newNodes])
+    if (newEdges.length > 0) {
+      setEdges((eds) => [...eds, ...newEdges])
+    }
+
+    return newNodes.map((n) => n.id)
+  }, [takeSnapshot])
+
+  // Convert a single facet field carrying multiple values (e.g. "[R60, R90]")
+  // into an enumeration restriction node that sits between the facet and the
+  // spec it feeds. Clears the facet's field after conversion.
+  const convertValueToRestriction = useCallback((
+    facetNodeId: string,
+    fieldName: string,
+    values: string[],
+  ) => {
+    const facet = nodes.find((n) => n.id === facetNodeId)
+    if (!facet) return
+    const cleanValues = values.map((v) => v.trim()).filter(Boolean)
+    if (cleanValues.length === 0) return
+
+    takeSnapshot()
+
+    const timestamp = Date.now()
+    const restrictionId = `restriction-${timestamp}`
+
+    // Position the restriction immediately to the right of the facet
+    const restrictionNode: GraphNode = {
+      id: restrictionId,
+      type: 'restriction',
+      position: { x: facet.position.x + 280, y: facet.position.y },
+      data: {
+        restrictionType: 'enumeration',
+        values: cleanValues,
+      } as NodeData,
+    }
+
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === facetNodeId
+          ? { ...node, data: { ...node.data, [fieldName]: '' } }
+          : node,
+      ).concat(restrictionNode),
+    )
+
+    setEdges((eds) => {
+      // Find the existing edge from facet -> spec (if any) and rewire through the restriction
+      const directEdge = eds.find((e) => e.source === facetNodeId)
+      const filtered = directEdge
+        ? eds.filter((e) => e.id !== directEdge.id)
+        : eds
+      const newEdges: GraphEdge[] = [
+        {
+          id: `edge-${timestamp}-fr`,
+          source: facetNodeId,
+          target: restrictionId,
+        },
+      ]
+      if (directEdge) {
+        newEdges.push({
+          id: `edge-${timestamp}-rs`,
+          source: restrictionId,
+          target: directEdge.target,
+          targetHandle: directEdge.targetHandle,
+        })
+      }
+      return [...filtered, ...newEdges]
+    })
+  }, [nodes, takeSnapshot])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -763,6 +866,8 @@ export function SpecificationEditor() {
                 onConnect={handleConnect}
                 onNodesDelete={handleNodesDelete}
                 onEdgesDelete={handleEdgesDelete}
+                onDuplicateNodes={duplicateNodes}
+                onAddNode={addNode}
               />
             </Panel>
             <CustomPanelResizeHandle />
@@ -777,6 +882,7 @@ export function SpecificationEditor() {
                 ifcVersion={ifcVersion}
                 nodes={nodes}
                 edges={edges}
+                onConvertValueToRestriction={convertValueToRestriction}
               />
             </Panel>
           </PanelGroup>
@@ -794,12 +900,12 @@ export function SpecificationEditor() {
   )
 }
 
-function getDefaultNodeData(type: string) {
+function getDefaultNodeData(type: string, ifcVersion: IFCVersion = "IFC4X3_ADD2") {
   switch (type) {
     case "spec":
       return {
         name: "New Specification",
-        ifcVersion: "IFC4X3_ADD2",
+        ifcVersion,
         description: "",
       }
     case "entity":

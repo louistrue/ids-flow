@@ -24,7 +24,10 @@ Every IDS document contains one or more **Specification** nodes. These are the r
 
 1. Look at the left sidebar (Node Palette)
 2. Find the **Specification** node under "Core Nodes"
-3. Drag it onto the canvas
+3. **Drag it onto the canvas** (or click to drop one in the center)
+
+> Tip: every entry in the Node Palette can be dragged and dropped to the
+> exact spot you want, or single-clicked to drop one in the canvas centre.
 
 ### Step 2: Add Applicability Facets
 
@@ -66,6 +69,26 @@ Restrictions define **specific values** that properties or attributes must have.
 3. Add values: "R60", "R90"
 4. Connect it to the Property node's restriction port
 
+#### Shortcut: type multiple values directly
+
+Any single-value field on a facet (Property value, Attribute value, Material
+value, Classification code, …) accepts a bracketed list:
+
+\`\`\`
+[R60, R90, R120]
+\`\`\`
+
+When the editor sees more than one value, an inline **"Make Restriction"**
+button appears below the field. Clicking it:
+
+1. Creates an enumeration **Restriction** node next to the facet
+2. Wires it between the facet and the spec it feeds (preserving
+   applicability/requirements wiring)
+3. Clears the original field, since the values now live on the restriction
+
+This is the recommended way to express "value must be one of X, Y, Z" — a bare
+list in a single value field is not valid IDS XML.
+
 ## Using Templates
 
 IDSedit comes with pre-built templates for common scenarios:
@@ -82,9 +105,20 @@ Popular templates:
 
 ## Keyboard Shortcuts
 
-- **Ctrl+Z**: Undo
-- **Ctrl+Shift+Z**: Redo
-- **Delete**: Remove selected nodes/edges
+Use **Ctrl** on Windows/Linux and **⌘ Cmd** on macOS.
+
+- **Ctrl/Cmd+Z**: Undo
+- **Ctrl/Cmd+Shift+Z** (or **Ctrl/Cmd+Y**): Redo
+- **Ctrl/Cmd+A**: Select all nodes
+- **Ctrl/Cmd+D**: Duplicate selected node(s)
+- **Ctrl/Cmd+C**: Copy selected node(s) to the in-canvas clipboard
+- **Ctrl/Cmd+V**: Paste copied node(s)
+- **Delete** / **Backspace**: Remove selected nodes/edges
+
+Duplicate, copy and paste also clone any edges that connect the selected nodes
+to each other, so you can copy a small sub-graph in one shot. Paste places
+copies at an increasing offset so successive pastes don't stack on top of each
+other.
 
 ## Validating Your IDS
 
@@ -125,6 +159,11 @@ You can also:
 3. **Validate Often**: Check your work frequently to catch errors early
 4. **Name Things Clearly**: Use descriptive names for specifications
 5. **Test with Real Models**: Try your IDS files with actual IFC models
+6. **Material names are free-form**: The Material facet's value is just a
+   string per the IDS schema, so you can type any material identifier (e.g.,
+   "oak", "rebar steel B500B") in addition to the suggested presets
+7. **Multiple allowed values?** Use \`[a, b, c]\` on the value field and click
+   "Make Restriction" — single fields can only carry one value in valid IDS
 
 ## Getting Help
 

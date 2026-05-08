@@ -61,6 +61,11 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
     }
   }
 
+  const handleDragStart = (event: React.DragEvent<HTMLButtonElement>, type: string) => {
+    event.dataTransfer.setData('application/reactflow-node-type', type)
+    event.dataTransfer.effectAllowed = 'copy'
+  }
+
   return (
     <Card className="hidden md:flex md:flex-col w-56 shrink-0 rounded-none border-r border-border bg-sidebar">
       <ScrollArea className="flex-1 min-h-0">
@@ -78,9 +83,12 @@ export function NodePalette({ onAddNode, ifcVersion }: NodePaletteProps) {
                     <Button
                       key={node.type}
                       variant="ghost"
-                      className="node-palette-btn w-full justify-start gap-2 h-auto py-2 hover:bg-sidebar-accent transition-all"
+                      className="node-palette-btn w-full justify-start gap-2 h-auto py-2 hover:bg-sidebar-accent transition-all cursor-grab active:cursor-grabbing"
                       data-facet={node.type}
                       onClick={() => handleAddNode(node.type)}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, node.type)}
+                      title={`Click or drag to add a ${node.label} node`}
                     >
                       <Icon className={`h-3.5 w-3.5 ${facet?.text ?? "text-primary"} transition-transform group-hover:scale-110`} />
                       <span className="text-xs text-sidebar-foreground">{node.label}</span>
