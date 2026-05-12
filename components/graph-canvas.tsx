@@ -14,6 +14,8 @@ import { MaterialNode } from "./nodes/material-node"
 import { PartOfNode } from "./nodes/partof-node"
 import { RestrictionNode } from "./nodes/restriction-node"
 import { FACET_COLORS } from "@/lib/facet-colors"
+import { CanvasValidationOverlay } from "./canvas-validation-overlay"
+import type { ValidationState } from "@/lib/use-ids-validation"
 
 interface GraphCanvasProps {
   nodes: GraphNode[]
@@ -31,6 +33,10 @@ interface GraphCanvasProps {
     offset?: { x: number; y: number },
   ) => string[]
   onAddNode?: (type: string, position: { x: number; y: number }) => void
+  validationState?: ValidationState
+  isValidating?: boolean
+  isValidationDisabled?: boolean
+  onValidateNow?: () => void
 }
 
 const nodeTypes = {
@@ -45,7 +51,7 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, validationState, isValidating = false, isValidationDisabled = false, onValidateNow }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -486,6 +492,14 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         )}
         {/* Inject focus hint into the spec node via data, so labels highlight */}
         <style>{`/* no-op style tag needed to avoid empty JSX warnings */`}</style>
+        {validationState && (
+          <CanvasValidationOverlay
+            validationState={validationState}
+            isValidating={isValidating}
+            isDisabled={isValidationDisabled}
+            onValidateNow={onValidateNow}
+          />
+        )}
       </ReactFlow>
     </div>
   )

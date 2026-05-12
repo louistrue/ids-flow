@@ -868,6 +868,10 @@ export function SpecificationEditor() {
                 onEdgesDelete={handleEdgesDelete}
                 onDuplicateNodes={duplicateNodes}
                 onAddNode={addNode}
+                validationState={validationState}
+                isValidating={isValidating}
+                isValidationDisabled={isValidationDisabled}
+                onValidateNow={validateNow}
               />
             </Panel>
             <CustomPanelResizeHandle />
