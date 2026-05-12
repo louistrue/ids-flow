@@ -25,12 +25,32 @@ export const docsConfig: DocSection[] = [
     ],
   },
   {
-    title: "Core Concepts",
+    title: "Using the Editor",
+    items: [
+      {
+        title: "Editor interactions",
+        href: "/docs/using-the-editor",
+        mdFile: "using-the-editor.md",
+      },
+    ],
+  },
+  {
+    title: "Building Specifications",
     items: [
       {
         title: "Specifications",
         href: "/docs/specifications",
         mdFile: "specifications.md",
+      },
+      {
+        title: "Match any value",
+        href: "/docs/match-any-value",
+        mdFile: "match-any-value.md",
+      },
+      {
+        title: "Restrictions",
+        href: "/docs/restrictions",
+        mdFile: "restrictions.md",
       },
       {
         title: "IDS Metadata",
@@ -40,7 +60,7 @@ export const docsConfig: DocSection[] = [
     ],
   },
   {
-    title: "Facet Types",
+    title: "Facet Reference",
     items: [
       {
         title: "Entity Facet",
@@ -71,16 +91,6 @@ export const docsConfig: DocSection[] = [
         title: "PartOf Facet",
         href: "/docs/facets/partof",
         mdFile: "partof-facet.md",
-      },
-    ],
-  },
-  {
-    title: "Advanced Topics",
-    items: [
-      {
-        title: "Restrictions",
-        href: "/docs/restrictions",
-        mdFile: "restrictions.md",
       },
     ],
   },
