@@ -5,7 +5,7 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
 ## Features
 
 - **Visual Graph Editor**: Drag-and-drop interface for creating IDS specifications
-- **Real-time Validation**: Automatic IDS validation using the IfcTester-Service API
+- **Real-time Validation**: Automatic IDS validation in the browser via [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids) — no backend required
 - **Multiple Node Types**: Support for all IDS facet types (Entity, Property, Attribute, Classification, Material, PartOf, Restriction)
 - **Template System**: Pre-built specification templates
 - **Export/Import**: Save and load canvas configurations
@@ -24,18 +24,7 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
    npm install
    ```
 
-3. **Configure environment**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Update `.env.local` with your IfcTester-Service configuration:
-   ```env
-   NEXT_PUBLIC_IDS_AUDIT_API_URL=https://your-service.run.app
-   IDS_AUDIT_API_KEY=your-api-key-here
-   ```
-
-4. **Run the development server**
+3. **Run the development server**
    ```bash
    npm run dev
    ```
@@ -44,14 +33,14 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
 
 ## IDS Validation
 
-The application automatically validates your IDS specifications using the IfcTester-Service API:
+Validation runs entirely in the browser using [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids):
 
 - **Automatic Validation**: Validates 2 seconds after you stop editing
-- **Manual Validation**: Click "Validate Now" in the Inspector Panel
-- **Status Indicators**: 
-  - ✅ Valid IDS - No errors
-  - ⚠️ Issues found - Check the status message
-  - ❌ Error - Validation failed or service unavailable
+- **Manual Validation**: Click "Re-validate" on the canvas overlay or in the Inspector Panel
+- **Status Indicators**:
+  - 🟢 Valid IDS — no issues
+  - 🟠 Warnings — non-blocking issues
+  - 🔴 Invalid — parse error or blocking client-side issue
 
 ## Usage
 
@@ -92,9 +81,10 @@ The application automatically validates your IDS specifications using the IfcTes
 
 - `components/specification-editor.tsx` - Main editor component
 - `components/inspector-panel.tsx` - Property editor and validation display
+- `components/canvas-validation-overlay.tsx` - Canvas-level validation status
 - `lib/ids-xml-converter.ts` - Graph to IDS XML conversion
-- `lib/use-ids-validation.ts` - Validation hook
-- `app/api/validate-ids/route.ts` - API proxy for validation
+- `lib/use-ids-validation.ts` - Validation hook (powered by `@ifc-lite/ids`)
+- `lib/ids-validation-service.ts` - Wrapper around `parseIDS` from `@ifc-lite/ids`
 
 ### Adding New Node Types
 
@@ -108,8 +98,9 @@ The application automatically validates your IDS specifications using the IfcTes
 
 The application is designed to deploy on Vercel:
 
-1. **Environment Variables**: Set `NEXT_PUBLIC_IDS_AUDIT_API_URL` and `IDS_AUDIT_API_KEY` in Vercel
-2. **Deploy**: Push to your main branch to trigger deployment
+1. **Deploy**: Push to your main branch to trigger deployment
+
+No backend or environment variables are required — validation runs in the browser.
 
 ## Contributing
 
