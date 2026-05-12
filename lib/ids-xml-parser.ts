@@ -489,6 +489,9 @@ function createFacetWithOptionalRestriction(input: FacetCreationInput) {
   const valueExtraction = parseValueNode(valueNode)
   if (valueExtraction.simpleValue !== undefined && valueExtraction.simpleValue !== "") {
     ; (node.data as any).value = valueExtraction.simpleValue
+  } else if (valueNode === undefined && !valueExtraction.restriction) {
+    // No <value> element in the source XML → existence-only / wildcard facet.
+    ; (node.data as any).anyValue = true
   }
 
   if (valueExtraction.restriction) {

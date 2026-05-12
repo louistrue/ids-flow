@@ -25,6 +25,7 @@ export function PropertyNode({ data, selected }: NodeProps) {
   const facet = getFacet("property")
   const showCardinality = data.isInRequirements === true
   const badge = showCardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
+  const anyValue = data.anyValue === true
 
   return (
     <Card
@@ -48,14 +49,25 @@ export function PropertyNode({ data, selected }: NodeProps) {
             <p className="text-xs text-muted-foreground font-mono">{data.propertySet}</p>
             <p className="text-xs text-muted-foreground">
               <span className={facet.text}>{data.dataType}</span>
-              {data.value && <span className="ml-2 text-foreground">= {data.value}</span>}
+              {anyValue ? (
+                <span className="ml-2 italic">= any value</span>
+              ) : data.value ? (
+                <span className="ml-2 text-foreground">= {data.value}</span>
+              ) : null}
             </p>
           </div>
-          {badge && (
-            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
-              {badge.label}
-            </span>
-          )}
+          <div className="flex items-center gap-1">
+            {anyValue && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30" title="Existence-only check (any value)">
+                Any
+              </span>
+            )}
+            {badge && (
+              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
+                {badge.label}
+              </span>
+            )}
+          </div>
         </div>
       </div>
       <Handle type="source" position={Position.Right} className={facet.handle} />

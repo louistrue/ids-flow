@@ -56,6 +56,7 @@ export interface PropertyNodeData {
   baseName: string
   dataType?: string  // Optional - valid per IDS spec to omit dataType
   value?: string
+  anyValue?: boolean  // Wildcard: match any value (omit <value> in IDS XML)
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
   uri?: string  // URI attribute for requirement properties (optional)
   instructions?: string  // Instructions attribute for requirement properties (optional)
@@ -64,6 +65,7 @@ export interface PropertyNodeData {
 export interface AttributeNodeData {
   name: string
   value?: string
+  anyValue?: boolean  // Wildcard: match any value (omit <value> in IDS XML)
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
   instructions?: string  // Instructions attribute for requirement attributes (optional)
 }
@@ -71,6 +73,7 @@ export interface AttributeNodeData {
 export interface ClassificationNodeData {
   system: string
   value?: string
+  anyValue?: boolean  // Wildcard: match any classification value (omit <value> in IDS XML)
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
   instructions?: string  // Instructions attribute for requirement classifications (optional)
@@ -78,6 +81,7 @@ export interface ClassificationNodeData {
 
 export interface MaterialNodeData {
   value: string
+  anyValue?: boolean  // Wildcard: match any material value (omit <value> in IDS XML)
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
   instructions?: string  // Instructions attribute for requirement materials (optional)

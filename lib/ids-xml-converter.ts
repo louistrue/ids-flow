@@ -345,6 +345,9 @@ function buildPropertyFacet(node: GraphNode, parent: any, cardinality?: string, 
   idsSimple(prop, "ids:propertySet", data.propertySet)
   idsSimple(prop, "ids:baseName", normalizePropertyName(data.baseName))
 
+  // Wildcard mode: existence-only check, no <value> element
+  if (data.anyValue) return
+
   // Handle restrictions by checking for connected restriction nodes
   if (edges && nodes) {
     const restrictionEdge = edges.find(e => e.source === node.id)
@@ -382,6 +385,9 @@ function buildAttributeFacet(node: GraphNode, parent: any, cardinality?: string,
 
   const attr = parent.ele("ids:attribute", attrs)
   idsSimple(attr, "ids:name", data.name)
+
+  // Wildcard mode: existence-only check, no <value> element
+  if (data.anyValue) return
 
   // Handle restrictions by checking for connected restriction nodes
   if (edges && nodes) {
@@ -423,16 +429,22 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
 
   const cls = parent.ele("ids:classification", attrs)
 
-  // Per IDS XSD schema, 'value' must come before 'system'
-  // Handle restrictions by checking for connected restriction nodes
-  if (edges && nodes) {
-    const restrictionEdge = edges.find(e => e.source === node.id)
-    if (restrictionEdge) {
-      const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
-      if (restrictionNode && restrictionNode.type === 'restriction') {
-        // Create value element with restriction
-        const valueElement = cls.ele("ids:value")
-        buildValueRestriction(valueElement, restrictionNode)
+  // Per IDS XSD schema, 'value' must come before 'system'.
+  // Wildcard mode skips the <value> element entirely.
+  if (!data.anyValue) {
+    // Handle restrictions by checking for connected restriction nodes
+    if (edges && nodes) {
+      const restrictionEdge = edges.find(e => e.source === node.id)
+      if (restrictionEdge) {
+        const restrictionNode = nodes.find(n => n.id === restrictionEdge.target)
+        if (restrictionNode && restrictionNode.type === 'restriction') {
+          // Create value element with restriction
+          const valueElement = cls.ele("ids:value")
+          buildValueRestriction(valueElement, restrictionNode)
+        } else if (data.value) {
+          // Simple value constraint
+          idsSimple(cls, "ids:value", data.value)
+        }
       } else if (data.value) {
         // Simple value constraint
         idsSimple(cls, "ids:value", data.value)
@@ -441,9 +453,6 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
       // Simple value constraint
       idsSimple(cls, "ids:value", data.value)
     }
-  } else if (data.value) {
-    // Simple value constraint
-    idsSimple(cls, "ids:value", data.value)
   }
 
   // System must come after value per IDS XSD schema
@@ -466,6 +475,9 @@ function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, 
   }
 
   const mat = parent.ele("ids:material", attrs)
+
+  // Wildcard mode: existence-only check, no <value> element
+  if (data.anyValue) return
 
   // Handle restrictions by checking for connected restriction nodes
   if (edges && nodes) {

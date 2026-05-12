@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -101,6 +102,61 @@ function ConvertToRestrictionHint({
         <Filter className="h-3 w-3 mr-1" />
         Make Restriction
       </Button>
+    </div>
+  )
+}
+
+// Returns true when this facet node has a Restriction node attached as its
+// next hop. Used to warn the user that an attached restriction will be ignored
+// while "Match any value" is on.
+function hasConnectedRestriction(
+  nodeId: string,
+  nodes: GraphNode[],
+  edges: GraphEdge[]
+): boolean {
+  return edges.some((edge) => {
+    if (edge.source !== nodeId) return false
+    const target = nodes.find((n) => n.id === edge.target)
+    return target?.type === "restriction"
+  })
+}
+
+// Toggle that flips a facet between specific-value and existence-only mode.
+// When on, the facet emits the IDS XML element without a <value> child
+// (XSD-compliant), which a validator reads as "match any value".
+function AnyValueToggle({
+  id,
+  checked,
+  onCheckedChange,
+  fieldLabel,
+  hasRestriction = false,
+}: {
+  id: string
+  checked: boolean
+  onCheckedChange: (next: boolean) => void
+  fieldLabel: string
+  hasRestriction?: boolean
+}) {
+  return (
+    <div className="rounded-md border border-border bg-card/50 px-2 py-1.5 space-y-1">
+      <label htmlFor={id} className="flex items-center gap-2 cursor-pointer">
+        <Checkbox
+          id={id}
+          checked={checked}
+          onCheckedChange={(v) => onCheckedChange(v === true)}
+        />
+        <span className="text-xs font-medium text-sidebar-foreground">
+          Match any {fieldLabel}
+        </span>
+      </label>
+      <p className="text-[10px] text-muted-foreground leading-snug pl-6">
+        Existence check — matches as long as the field is present, regardless of its value.
+      </p>
+      {checked && hasRestriction ? (
+        <p className="text-[10px] text-amber-600 dark:text-amber-500 leading-snug pl-6">
+          A connected Restriction node will be ignored while this is on.
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -931,6 +987,13 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           maxHeight={300}
         />
       </div>
+      <AnyValueToggle
+        id={`property-anyvalue-${node.id}`}
+        checked={data.anyValue === true}
+        onCheckedChange={(v) => onChange("anyValue", v)}
+        fieldLabel="value"
+        hasRestriction={hasConnectedRestriction(node.id, nodes, edges)}
+      />
       <div className="space-y-2">
         <Label htmlFor="value" className="text-sidebar-foreground">
           Value (Optional)
@@ -941,17 +1004,18 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           onChange={(e) => onChange("value", e.target.value)}
           placeholder={getPlaceholderForDataType(data.dataType)}
           className="bg-input border-border text-foreground"
+          disabled={data.anyValue === true}
         />
         <p className="text-[11px] text-muted-foreground">
           For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — you can convert to a Restriction node below.
         </p>
-        {onConvertValueToRestriction && (
+        {data.anyValue !== true && onConvertValueToRestriction && (
           <ConvertToRestrictionHint
             value={data.value || ""}
             onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
           />
         )}
-        {data.value && !parseBracketedValueList(data.value || "") && (
+        {data.anyValue !== true && data.value && !parseBracketedValueList(data.value || "") && (
           <p className="text-xs text-muted-foreground">This property will be used as an applicability condition</p>
         )}
       </div>
@@ -1102,6 +1166,13 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
           />
         )}
       </div>
+      <AnyValueToggle
+        id={`attribute-anyvalue-${node.id}`}
+        checked={data.anyValue === true}
+        onCheckedChange={(v) => onChange("anyValue", v)}
+        fieldLabel="value"
+        hasRestriction={hasConnectedRestriction(node.id, nodes, edges)}
+      />
       <div className="space-y-2">
         <Label htmlFor="attribute-value" className="text-sidebar-foreground">
           Value (Optional)
@@ -1112,11 +1183,12 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
           onChange={(e) => onChange("value", e.target.value)}
           placeholder="e.g., Fire Door — or [Fire Door, Exit Door] for multiple"
           className="bg-input border-border text-foreground"
+          disabled={data.anyValue === true}
         />
         <p className="text-[11px] text-muted-foreground">
           Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
         </p>
-        {onConvertValueToRestriction && (
+        {data.anyValue !== true && onConvertValueToRestriction && (
           <ConvertToRestrictionHint
             value={data.value || ""}
             onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
@@ -1242,6 +1314,13 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           </Select>
         )}
       </div>
+      <AnyValueToggle
+        id={`classification-anyvalue-${node.id}`}
+        checked={data.anyValue === true}
+        onCheckedChange={(v) => onChange("anyValue", v)}
+        fieldLabel="classification code"
+        hasRestriction={hasConnectedRestriction(node.id, nodes, edges)}
+      />
       <div className="space-y-2">
         <Label htmlFor="classification-value" className="text-sidebar-foreground">
           Classification Code (Optional)
@@ -1252,11 +1331,12 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           onChange={(e) => onChange("value", e.target.value)}
           placeholder="e.g., Pr_20_70_05_05 — or [Pr_20_70_05_05, Pr_20_70_05_06]"
           className="bg-input border-border text-foreground font-mono"
+          disabled={data.anyValue === true}
         />
         <p className="text-[11px] text-muted-foreground">
           Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
         </p>
-        {onConvertValueToRestriction && (
+        {data.anyValue !== true && onConvertValueToRestriction && (
           <ConvertToRestrictionHint
             value={data.value || ""}
             onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}
@@ -1351,8 +1431,18 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
     loadMaterialTypes()
   }, [entityContext.entityName, ifcVersion])
 
+  const anyValue = data.anyValue === true
+  const restrictionAttached = hasConnectedRestriction(node.id, nodes, edges)
+
   return (
     <>
+      <AnyValueToggle
+        id={`material-anyvalue-${node.id}`}
+        checked={anyValue}
+        onCheckedChange={(v) => onChange("anyValue", v)}
+        fieldLabel="material"
+        hasRestriction={restrictionAttached}
+      />
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
           Material Value
@@ -1372,14 +1462,14 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           emptyText="No matching materials — press Enter to use this name"
           showCategories={true}
           maxHeight={300}
-          disabled={loading}
+          disabled={loading || anyValue}
           allowCustom={true}
           onCreateOption={(name) => onChange("value", name)}
         />
         <p className="text-[11px] text-muted-foreground">
           Per the IDS schema, any material name is valid. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
         </p>
-        {onConvertValueToRestriction && (
+        {!anyValue && onConvertValueToRestriction && (
           <ConvertToRestrictionHint
             value={data.value || ""}
             onConvert={(values) => onConvertValueToRestriction(node.id, "value", values)}

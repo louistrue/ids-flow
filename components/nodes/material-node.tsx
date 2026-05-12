@@ -24,6 +24,8 @@ export function MaterialNode({ data, selected }: NodeProps) {
     const facet = getFacet("material")
     const showCardinality = data.isInRequirements === true
     const badge = showCardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
+    const anyValue = data.anyValue === true
+    const title = anyValue ? "Any material" : (data.value as string) || "Material"
 
     return (
         <Card
@@ -34,7 +36,7 @@ export function MaterialNode({ data, selected }: NodeProps) {
                     <div className={`p-1.5 rounded ${facet.iconBg}`}>
                         <Package className={`h-4 w-4 ${facet.text}`} />
                     </div>
-                    <h3 className="font-semibold text-sm text-foreground font-mono flex-1 truncate">{data.value || "Material"}</h3>
+                    <h3 className="font-semibold text-sm text-foreground font-mono flex-1 truncate">{title}</h3>
                 </div>
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
@@ -46,11 +48,18 @@ export function MaterialNode({ data, selected }: NodeProps) {
                             </p>
                         )}
                     </div>
-                    {badge && (
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
-                            {badge.label}
-                        </span>
-                    )}
+                    <div className="flex items-center gap-1">
+                        {anyValue && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30" title="Existence-only check (any value)">
+                                Any
+                            </span>
+                        )}
+                        {badge && (
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
+                                {badge.label}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
             <Handle type="source" position={Position.Right} className={facet.handle} />

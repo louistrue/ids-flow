@@ -24,6 +24,7 @@ export function ClassificationNode({ data, selected }: NodeProps) {
     const facet = getFacet("classification")
     const showCardinality = data.isInRequirements === true
     const badge = showCardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
+    const anyValue = data.anyValue === true
 
     return (
         <Card
@@ -39,12 +40,14 @@ export function ClassificationNode({ data, selected }: NodeProps) {
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
                         <p className="text-xs text-muted-foreground font-mono">Classification</p>
-                        {data.value && (
+                        {anyValue ? (
+                            <p className="text-xs text-muted-foreground italic">Any code</p>
+                        ) : data.value ? (
                             <p className="text-xs text-muted-foreground">
                                 <span className={facet.text}>Code:</span>
                                 <span className="ml-2 text-foreground font-mono">{data.value}</span>
                             </p>
-                        )}
+                        ) : null}
                         {data.uri && (
                             <p className="text-xs text-muted-foreground truncate">
                                 <span className={facet.text}>URI:</span>
@@ -52,11 +55,18 @@ export function ClassificationNode({ data, selected }: NodeProps) {
                             </p>
                         )}
                     </div>
-                    {badge && (
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
-                            {badge.label}
-                        </span>
-                    )}
+                    <div className="flex items-center gap-1">
+                        {anyValue && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30" title="Existence-only check (any value)">
+                                Any
+                            </span>
+                        )}
+                        {badge && (
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${badge.color}`} title={badge.title}>
+                                {badge.label}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
             <Handle type="source" position={Position.Right} className={facet.handle} />
