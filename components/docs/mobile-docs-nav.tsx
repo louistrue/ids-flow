@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { docsConfig } from "@/lib/docs-config";
+import type { DocsSearchEntry } from "@/lib/docs-search";
+import { searchDocs } from "@/components/docs/docs-search-utils";
 import { cn } from "@/lib/utils";
 import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function MobileDocsNav() {
+interface MobileDocsNavProps {
+  searchIndex: DocsSearchEntry[];
+}
+
+export function MobileDocsNav({ searchIndex }: MobileDocsNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -49,17 +55,12 @@ export function MobileDocsNav() {
     }
   }, [isOpen]);
 
-  // Filter docs based on search query
-  const filteredConfig = searchQuery
-    ? docsConfig
-        .map((section) => ({
-          ...section,
-          items: section.items.filter((item) =>
-            item.title.toLowerCase().includes(searchQuery.toLowerCase())
-          ),
-        }))
-        .filter((section) => section.items.length > 0)
-    : docsConfig;
+  const trimmed = searchQuery.trim();
+  const isSearching = trimmed.length > 0;
+  const results = useMemo(
+    () => (isSearching ? searchDocs(trimmed, searchIndex) : []),
+    [trimmed, searchIndex, isSearching]
+  );
 
   const modalContent = isOpen && mounted ? (
     <>
@@ -161,8 +162,48 @@ export function MobileDocsNav() {
             }}
           >
             <nav className="px-4 py-6 space-y-6">
-              {filteredConfig.length > 0 ? (
-                filteredConfig.map((section) => (
+              {isSearching ? (
+                results.length > 0 ? (
+                  results.map((section) => (
+                    <div key={section.section}>
+                      <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {section.section}
+                      </h3>
+                      <ul className="space-y-1">
+                        {section.matches.map(({ entry, snippet }) => {
+                          const isActive = pathname === entry.href;
+                          return (
+                            <li key={entry.href}>
+                              <Link
+                                href={entry.href}
+                                onClick={() => setIsOpen(false)}
+                                className={cn(
+                                  "block px-3 py-2.5 text-sm rounded-lg transition-colors",
+                                  isActive
+                                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-medium"
+                                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700"
+                                )}
+                              >
+                                <div className="font-medium">{entry.title}</div>
+                                {snippet ? (
+                                  <div className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400 line-clamp-2">
+                                    {snippet}
+                                  </div>
+                                ) : null}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 dark:text-slate-400 px-2">
+                    No results found for &quot;{trimmed}&quot;
+                  </p>
+                )
+              ) : (
+                docsConfig.map((section) => (
                   <div key={section.title}>
                     <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       {section.title}
@@ -190,10 +231,6 @@ export function MobileDocsNav() {
                     </ul>
                   </div>
                 ))
-              ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400 px-2">
-                  No results found for &quot;{searchQuery}&quot;
-                </p>
               )}
 
               {/* Attribution */}

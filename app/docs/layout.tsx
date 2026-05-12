@@ -1,16 +1,18 @@
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import { MobileDocsNav } from "@/components/docs/mobile-docs-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { buildDocsSearchIndex } from "@/lib/docs-search";
 
-export default function DocsLayout({
+export default async function DocsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const searchIndex = await buildDocsSearchIndex();
   return (
     <div className="flex min-h-screen">
       {/* Sidebar Navigation - Desktop */}
-      <DocsSidebar />
+      <DocsSidebar searchIndex={searchIndex} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
@@ -18,7 +20,7 @@ export default function DocsLayout({
         <header className="sticky top-0 z-[90] border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 md:px-8 py-4">
             <div className="flex items-center gap-4">
-              <MobileDocsNav />
+              <MobileDocsNav searchIndex={searchIndex} />
               <div>
                 <h1 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100">
                   IDSedit Documentation
