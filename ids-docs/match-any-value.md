@@ -1,47 +1,59 @@
-A lot of real IDS checks aren't "this property must equal *X*" — they're "this element must **have** this property at all, whatever the value." The IDS schema supports both: every value-bearing facet (`property`, `attribute`, `classification`, `material`) makes the `<value>` element **optional**, and the classification's `<system>` element accepts a pattern restriction. An omitted or wildcarded value is a match-anything check.
+A lot of real IDS checks aren't "this property must equal *X*" — they're "this element must **have** this property at all, whatever the value." The IDS schema supports both: every value-bearing facet (`property`, `attribute`, `classification`, `material`) makes the `<value>` element optional, and the classification's `<system>` element accepts a pattern restriction.
 
-In the editor, this is just **leave the value field empty**. The canvas and inspector make the wildcard state obvious — italic *"Any …"* labels and a clear `×` affordance in the input — so you can tell wildcard from in-progress at a glance.
+In the editor this is just one rule, applied uniformly across all four value-bearing facets: **leave the field empty.** A fresh node lands in the wildcard state by default — the canvas and inspector make the state obvious so you can tell wildcard from in-progress at a glance.
 
-## The pattern, four ways
+## Same UX everywhere
 
-Each value-bearing facet renders its empty-value state slightly differently — but always italicised and muted, with no concrete value present:
+All four value-bearing facets use a plain text input. No curated dropdown, no special "clear" affordance — clear it like any other field. The IDS schema doesn't constrain these values to a closed list anyway:
 
-![Four facets on one canvas — three in their "Any" state, one Material showing a concrete "concrete" value for contrast](/docs/screenshots/18-any-facets-overview.png)
+![Four facets on one canvas — all in the wildcard state by default. The classification inspector on the right is the same plain-input UX you get for every facet field.](/docs/screenshots/18-any-facets-overview.png)
 
-| Facet | When the value is empty | Maps to IDS XML |
+| Facet | When the field is empty | Maps to IDS XML |
 |---|---|---|
-| **Material** | Node title becomes italic *"Any material"* | `<material/>` (no `<value>`) |
-| **Classification** (value only) | *"Any code"* under the system name | `<classification><system>…</system></classification>` |
-| **Classification** (system + value) | Node title becomes italic *"Any classification"* | `<classification><system><xs:restriction base="xs:string"><xs:pattern value=".+"/></xs:restriction></system></classification>` |
-| **Attribute** | *"Any value"* under the attribute name | `<attribute><name>…</name></attribute>` |
-| **Property** | *"= any value"* after the data type | `<property><propertySet>…</propertySet><baseName>…</baseName></property>` |
+| **Material** value | Node title becomes italic *"Any material"* | `<material/>` (no `<value>`) |
+| **Classification** value (system set) | *"Any code"* under the system name | `<classification><system>…</system></classification>` |
+| **Classification** system *and* value | Node title becomes italic *"Any classification"*, hint *"Any code"* | `<classification><system><xs:restriction base="xs:string"><xs:pattern value=".+"/></xs:restriction></system></classification>` |
+| **Attribute** value | *"Any value"* under the attribute name | `<attribute><name>…</name></attribute>` |
+| **Property** value | *"= any value"* after the data type | `<property><propertySet>…</propertySet><baseName>…</baseName></property>` |
 
 If a Restriction node is connected to the facet, the editor shows *"restricted"* instead of *"Any …"* — the facet is still constrained, just via the restriction node rather than a fixed value.
 
-## How to leave a value empty
+## How to leave a field empty
 
-Property, attribute, and classification-code use plain text inputs — clear them with `Backspace`. **Material** and the **classification system** use a searchable dropdown, so they have an explicit `×` clear button inside the trigger (`Backspace` / `Delete` on the focused trigger does the same thing):
+Just don't type anything. New material and classification nodes default to empty (no pre-filled "concrete" or "Uniclass 2015"), so you can drop one in and it's already a wildcard. Type a specific value when you actually want to constrain.
 
-![Material inspector with the X clear button visible inside the value selector](/docs/screenshots/13-material-inspector-clearable.png)
+To revert a field back to wildcard, select all the text and `Backspace` — same as any text input on the web.
 
-After clearing, the node title switches to italic *"Any material"* and the inspector's placeholder reads *"Any material (leave empty) — or pick / type a name"*:
+![Material inspector — plain text input, helper line: "Leave empty to match any material. Multiple acceptable values? Use [a, b, c]."](/docs/screenshots/13-material-inspector.png)
 
-![Material node titled "Any material" in italics after clearing](/docs/screenshots/14-material-node-any.png)
+![Classification inspector — both fields plain text, helper for system reads "Leave empty to match any classification (any system). Type any string — the IDS schema doesn't constrain the system name."](/docs/screenshots/17c-classification-inspector-empty.png)
 
-Classification works the same way: clear the system to mean "any classification (any system)". When emitted, the editor writes an XSD pattern restriction (`.+`) on `<system>` to make "any non-empty string" explicit — the IDS schema requires `<system>` to be present, so an empty simpleValue would semantically mean "match the empty string" rather than "any system".
-
-![Classification inspector — Classification System cleared, helper line: "Leave empty to match any classification (any system)"](/docs/screenshots/17c-classification-inspector-empty.png)
-
-Property and attribute use a plain text input — the helper line tells you the leave-empty trick:
+Property and attribute are the same shape — same input, same helper text:
 
 ![Property inspector — empty Value field with the "Leave empty to match any value" helper line](/docs/screenshots/15-property-inspector-empty.png)
 
+## What the IDS XML looks like
+
+For the value-bearing fields (material value, classification value, attribute value, property value), empty just means the `<value>` element is omitted entirely. The facet element itself remains.
+
+Classification system is the one exception: per the XSD it's `minOccurs="1"`, so the editor still has to emit a `<system>` element. When empty, it writes a pattern restriction that matches any non-empty string — unambiguously "any system":
+
+```xml
+<system>
+  <xs:restriction base="xs:string">
+    <xs:pattern value=".+"/>
+  </xs:restriction>
+</system>
+```
+
+An empty `<simpleValue/>` would semantically mean "match the empty string", which most validators would treat as a no-match — the pattern approach side-steps that.
+
 ## When to use it
 
-- **Applicability**: "applies to anything that has a material assigned" (regardless of which one). Useful when you care about *whether* the model carries a piece of information, not the specific value.
+- **Applicability**: "applies to anything that has a material assigned" (or any classification, or any value for some attribute). You care that the model carries a piece of information, not the specific value.
 - **Requirements**: combined with cardinality, you can express "this property must be present" (`cardinality="required"`) or "must not be present" (`cardinality="prohibited"`) without committing to a value.
-- **Classification with no system**: "every element in this applicability must have *some* classification — system doesn't matter, value doesn't matter." Useful for early-stage IDS that just checks the team did the classification work at all.
+- **Classification with empty system and value**: "every applicable element must have *some* classification — system doesn't matter, value doesn't matter." Useful for early-stage IDS that just checks the team did the classification work at all.
 
 ## When NOT to use it
 
-If you actually want to constrain the value to a finite set (`["R60", "R90", "R120"]`), don't leave the field empty — use the [bracketed-list shortcut](/docs/quick-start) to convert your typed values into a Restriction node. A wildcard facet means *any value passes*, including values you'd rather not.
+If you actually want to constrain the value to a finite set (`["R60", "R90", "R120"]`), don't leave the field empty — type the bracketed list and use the **Make Restriction** shortcut to convert it into a Restriction node. A wildcard facet means *any value passes*, including values you'd rather not.
