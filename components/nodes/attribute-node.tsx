@@ -44,6 +44,11 @@ export function AttributeNode({ data, selected }: NodeProps) {
                                 <span className={facet.text}>Value:</span>
                                 <span className="ml-2 text-foreground">{data.value}</span>
                             </p>
+                        ) : data.hasRestriction ? (
+                            <p className="text-xs text-muted-foreground">
+                                <span className={facet.text}>Value:</span>
+                                <span className="ml-2 text-foreground">restricted (see attached)</span>
+                            </p>
                         ) : (
                             <p className="text-xs italic text-muted-foreground">Any value</p>
                         )}

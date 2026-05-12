@@ -50,6 +50,8 @@ export function PropertyNode({ data, selected }: NodeProps) {
               <span className={facet.text}>{data.dataType}</span>
               {data.value ? (
                 <span className="ml-2 text-foreground">= {data.value}</span>
+              ) : data.hasRestriction ? (
+                <span className="ml-2 text-foreground">∈ restricted</span>
               ) : (
                 <span className="ml-2 italic">= any value</span>
               )}

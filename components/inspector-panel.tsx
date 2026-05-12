@@ -993,9 +993,9 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
   )
 }
 
-function getPlaceholderForDataType(dataType?: string): string {
+function getPlaceholderForDataType(dataType?: string): string | undefined {
   if (!dataType) {
-    return "Enter value..."
+    return undefined
   }
   switch (dataType) {
     case "IFCBOOLEAN":
@@ -1009,7 +1009,7 @@ function getPlaceholderForDataType(dataType?: string): string {
     case "IFCTEXT":
       return "Enter text..."
     default:
-      return "Enter value..."
+      return undefined
   }
 }
 

@@ -34,8 +34,8 @@ export function MaterialNode({ data, selected }: NodeProps) {
                     <div className={`p-1.5 rounded ${facet.iconBg}`}>
                         <Package className={`h-4 w-4 ${facet.text}`} />
                     </div>
-                    <h3 className={`font-semibold text-sm font-mono flex-1 truncate ${data.value ? "text-foreground" : "italic text-muted-foreground"}`}>
-                        {data.value || "Any material"}
+                    <h3 className={`font-semibold text-sm font-mono flex-1 truncate ${data.value || data.hasRestriction ? "text-foreground" : "italic text-muted-foreground"}`}>
+                        {data.value || (data.hasRestriction ? "Restricted material" : "Any material")}
                     </h3>
                 </div>
                 <div className="flex items-start justify-between gap-2">

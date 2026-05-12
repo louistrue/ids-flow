@@ -141,6 +141,14 @@ export function SearchableSelect({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
+                    onKeyDown={(e) => {
+                        if (!clearable || !value || disabled) return
+                        if (e.key === "Backspace" || e.key === "Delete") {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            onValueChange("")
+                        }
+                    }}
                     className={cn(
                         "w-full justify-between font-mono text-left",
                         !selectedOption && !value && "text-muted-foreground",

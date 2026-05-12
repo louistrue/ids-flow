@@ -93,6 +93,14 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     nodes.map(node => {
       const entityContext = getEntityContext(node.id, nodes, edges)
       const inRequirements = isInRequirementsSection(node.id, edges)
+      // A value-bearing facet with an attached restriction is not a wildcard
+      // (the restriction node still constrains the value at XML emission),
+      // so node components use this to suppress the "Any …" hint.
+      const hasRestriction = edges.some(edge => {
+        if (edge.source !== node.id) return false
+        const target = nodes.find(n => n.id === edge.target)
+        return target?.type === 'restriction'
+      })
       return {
         id: node.id,
         type: node.type,
@@ -101,6 +109,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
           ...node.data,
           entityContext: entityContext.entityName,
           isInRequirements: inRequirements,
+          hasRestriction,
         },
       }
     }), [nodes, edges]
