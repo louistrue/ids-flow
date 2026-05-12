@@ -33,6 +33,13 @@ interface GraphCanvasProps {
     offset?: { x: number; y: number },
   ) => string[]
   onAddNode?: (type: string, position: { x: number; y: number }) => void
+  /**
+   * Newly created nodes that should become the current selection as soon as
+   * they're present in ReactFlow's internal node state. Owned by spec-editor;
+   * the canvas clears it via onPendingSelectionConsumed after applying.
+   */
+  pendingSelectionIds?: string[] | null
+  onPendingSelectionConsumed?: () => void
   validationState?: ValidationState
   isValidating?: boolean
   isValidationDisabled?: boolean
@@ -51,7 +58,7 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, validationState, isValidating = false, isValidationDisabled = false, onValidateNow }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, validationState, isValidating = false, isValidationDisabled = false, onValidateNow }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -175,18 +182,24 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     })
   }, [baseNodes]) // Only depend on baseNodes, not on isDragging state changes
 
-  // Separate effect to update only focus/highlight data without recreating nodes
+  // Update only the spec nodes' highlight data on focus changes.
+  // Skipping non-spec nodes avoids creating new object refs for every node on
+  // every selection — they don't consume highlight props anyway.
   useEffect(() => {
     setNodes((currentNodes) =>
-      currentNodes.map(node => ({
-        ...node,
-        data: {
-          ...node.data,
-          highlightTarget: (node.type === 'spec' && focusedSpecTargets[node.id]) ? focusedSpecTargets[node.id] : undefined,
-          highlightColor: (focusedFacetColor && node.type === 'spec') ? focusedFacetColor : undefined,
-          highlightSourceId: (node.type === 'spec' && focusedSpecTargets[node.id]) ? focusedSourceNodeId : undefined,
-        },
-      }))
+      currentNodes.map(node => {
+        if (node.type !== 'spec') return node
+        const targetForThis = focusedSpecTargets[node.id]
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            highlightTarget: targetForThis ?? undefined,
+            highlightColor: targetForThis ? (focusedFacetColor ?? undefined) : undefined,
+            highlightSourceId: targetForThis ? (focusedSourceNodeId ?? undefined) : undefined,
+          },
+        }
+      })
     )
   }, [focusedSpecTargets, focusedFacetColor, focusedSourceNodeId, setNodes])
 
@@ -328,25 +341,24 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   // but does not pollute the system clipboard.
   const clipboardRef = useRef<{ nodes: GraphNode[]; edges: GraphEdge[] } | null>(null)
   const pasteCountRef = useRef(0)
-  // After a duplicate/paste, mark the new nodes as selected (and clear the previous
-  // selection) once they appear in the canvas state.
-  const pendingSelectionRef = useRef<Set<string> | null>(null)
 
+  // Apply spec-editor's pending-selection request as soon as the new nodes are
+  // present in ReactFlow's internal state. spec-editor owns the state; we just
+  // flip `selected` on the matching nodes and signal back when done.
   useEffect(() => {
-    const pending = pendingSelectionRef.current
-    if (!pending || pending.size === 0) return
-    const allPresent = reactFlowNodes.length > 0 && [...pending].every((id) =>
-      reactFlowNodes.some((n) => n.id === id),
-    )
+    if (!pendingSelectionIds || pendingSelectionIds.length === 0) return
+    const ids = new Set(pendingSelectionIds)
+    const allPresent =
+      reactFlowNodes.length > 0 && [...ids].every((id) => reactFlowNodes.some((n) => n.id === id))
     if (!allPresent) return
     setNodes((currentNodes) =>
       currentNodes.map((node) => ({
         ...node,
-        selected: pending.has(node.id),
+        selected: ids.has(node.id),
       })),
     )
-    pendingSelectionRef.current = null
-  }, [reactFlowNodes, setNodes])
+    onPendingSelectionConsumed?.()
+  }, [pendingSelectionIds, reactFlowNodes, setNodes, onPendingSelectionConsumed])
 
   // Mirror frequently-changing values into refs so the keydown handler effect
   // below can register the listener once and read fresh values without
@@ -398,13 +410,12 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         if (!onDuplicateNodesRef.current) return
         const source = getSelectedSource()
         if (!source) return
-        const newIds = onDuplicateNodesRef.current(source.sourceNodes, source.sourceEdges, {
+        // duplicateNodes (in spec-editor) sets pendingSelectionIds itself;
+        // we don't need to capture the returned IDs here.
+        onDuplicateNodesRef.current(source.sourceNodes, source.sourceEdges, {
           x: 40,
           y: 40,
         })
-        if (newIds.length > 0) {
-          pendingSelectionRef.current = new Set(newIds)
-        }
       } else if (key === 'c') {
         const source = getSelectedSource()
         if (!source) return
@@ -419,14 +430,11 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         event.preventDefault()
         pasteCountRef.current += 1
         const step = 40 * pasteCountRef.current
-        const newIds = onDuplicateNodesRef.current(
+        onDuplicateNodesRef.current(
           clipboardRef.current.nodes,
           clipboardRef.current.edges,
           { x: step, y: step },
         )
-        if (newIds.length > 0) {
-          pendingSelectionRef.current = new Set(newIds)
-        }
       }
     }
 

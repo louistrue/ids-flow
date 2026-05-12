@@ -57,6 +57,24 @@ interface InspectorPanelProps {
   onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void
 }
 
+// Module-level cache for inspector schema lookups. Each field component's
+// useEffect runs fresh whenever the selected node changes (because React
+// unmounts the previous field component), and the schema fetchers do real
+// work (or worse, an async network/disk hop). Without this cache, every
+// click on a Property/Attribute/Entity node re-loads the same data and the
+// inspector flickers through "(Loading...)" — perceived as selection lag.
+const inspectorCache = new Map<string, Promise<unknown>>()
+async function cachedLoad<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  const existing = inspectorCache.get(key) as Promise<T> | undefined
+  if (existing) return existing
+  const promise = loader().catch((err) => {
+    inspectorCache.delete(key) // Don't cache failures — retry next time
+    throw err
+  })
+  inspectorCache.set(key, promise)
+  return promise
+}
+
 // Parse a bracketed list like "[R60, R90, R120]" into ["R60", "R90", "R120"].
 // Returns null when the input is not in bracketed form, so callers can keep
 // treating it as a single value.
@@ -553,25 +571,28 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   const [predefinedTypes, setPredefinedTypes] = useState<string[]>([])
 
   useEffect(() => {
-    const loadEntities = async () => {
-      try {
-        const entities = await getAllEntities(ifcVersion)
-        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+    let cancelled = false
+    cachedLoad(`entities:${ifcVersion}`, () => getAllEntities(ifcVersion))
+      .then((entities) => {
+        if (cancelled) return
+        const entityOptions: SearchableSelectOption[] = entities.map((entity) => ({
           value: entity.name,
           label: entity.name,
           description: entity.description,
-          category: entity.category
+          category: entity.category,
         }))
         setAllEntities(entityOptions)
-      } catch (error) {
+      })
+      .catch((error) => {
         console.warn('Failed to load entities from schema:', error)
-        setAllEntities([])
-      } finally {
-        setLoading(false)
-      }
+        if (!cancelled) setAllEntities([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    loadEntities()
   }, [ifcVersion])
 
   useEffect(() => {
@@ -579,7 +600,15 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
       setPredefinedTypes([])
       return
     }
-    getPredefinedTypesForEntityAsync(data.name, ifcVersion).then(setPredefinedTypes)
+    let cancelled = false
+    cachedLoad(`predefined:${ifcVersion}:${data.name}`, () =>
+      getPredefinedTypesForEntityAsync(data.name, ifcVersion),
+    ).then((types) => {
+      if (!cancelled) setPredefinedTypes(types)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [data.name, ifcVersion])
 
   return (
@@ -675,87 +704,71 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
     return getEntityContext(node.id, nodes, edges)
   }, [node.id, nodes, edges])
 
-  // Load property sets based on entity context
+  // Load property sets based on entity context. The schema lookups are
+  // memoised in `inspectorCache`, so the first selection of a Property node
+  // is async but subsequent selections of the same entity context resolve
+  // synchronously — keeping selection snappy.
   useEffect(() => {
-    const loadPropertySets = async () => {
+    let cancelled = false
+    const run = async () => {
       try {
-        const dataTypes = await getAllSimpleTypes(ifcVersion)
+        const dataTypesPromise = cachedLoad(`simpleTypes:${ifcVersion}`, () =>
+          getAllSimpleTypes(ifcVersion),
+        )
+        const psetsPromise = entityContext.entityName
+          ? cachedLoad(`psetsFor:${ifcVersion}:${entityContext.entityName}`, () =>
+              getPropertySetsForEntityAsync(entityContext.entityName, ifcVersion),
+            )
+          : cachedLoad(`allPsets:${ifcVersion}`, () => getAllPropertySets(ifcVersion))
+        // Warm the property data type cache once per ifcVersion (any property name).
+        const warmPromise = cachedLoad(`dataTypeWarm:${ifcVersion}`, () =>
+          getExpectedDataTypesForPropertyAsync('Reference', ifcVersion),
+        )
+        const [dataTypes, psets] = await Promise.all([dataTypesPromise, psetsPromise, warmPromise])
+        if (cancelled) return
+
         setAllDataTypes(dataTypes)
 
-        // Build property data type cache for accurate recommendations
-        // This needs to be called at least once to populate the cache
-        await getExpectedDataTypesForPropertyAsync('Reference', ifcVersion)
+        // Deduplicate property sets by name (keep first occurrence).
+        const unique = psets.filter(
+          (pset, index, self) => index === self.findIndex((p) => p.name === pset.name),
+        )
 
-        // Get custom property sets
         const customPsets = getCustomPropertySets()
-
-        if (!entityContext.entityName) {
-          // Show ALL property sets if no entity connected
-          const allPsets = await getAllPropertySets(ifcVersion)
-
-          // Deduplicate property sets by name (keep first occurrence)
-          const uniquePsets = allPsets.filter((pset, index, self) =>
-            index === self.findIndex(p => p.name === pset.name)
-          )
-
-          // Merge IFC and custom property sets, avoiding duplicates
-          const ifcOptions: SearchableSelectOption[] = uniquePsets.map(pset => ({
+        const ifcOptions: SearchableSelectOption[] = unique.map((pset) => ({
+          value: pset.name,
+          label: pset.name,
+          description: `${pset.properties?.length || 0} properties`,
+          category: 'IFC Property Sets',
+        }))
+        const customOptions: SearchableSelectOption[] = customPsets
+          .filter((customPset) => !unique.some((ifcPset) => ifcPset.name === customPset.name))
+          .map((pset) => ({
             value: pset.name,
             label: pset.name,
-            description: `${pset.properties?.length || 0} properties`,
-            category: 'IFC Property Sets'
+            description: `${pset.properties.length} custom properties`,
+            category: 'Custom Property Sets',
           }))
 
-          const customOptions: SearchableSelectOption[] = customPsets
-            .filter(customPset => !uniquePsets.some(ifcPset => ifcPset.name === customPset.name))
-            .map(pset => ({
-              value: pset.name,
-              label: pset.name,
-              description: `${pset.properties.length} custom properties`,
-              category: 'Custom Property Sets'
-            }))
-
-          setPropertySetOptions([...ifcOptions, ...customOptions])
-          setLoadedPropertySets([...uniquePsets, ...customPsets.filter(customPset => !uniquePsets.some(ifcPset => ifcPset.name === customPset.name))])
-        } else {
-          // Show only applicable property sets for connected entity
-          const filteredPsets = await getPropertySetsForEntityAsync(entityContext.entityName, ifcVersion)
-
-          // Deduplicate filtered property sets by name (keep first occurrence)
-          const uniqueFilteredPsets = filteredPsets.filter((pset, index, self) =>
-            index === self.findIndex(p => p.name === pset.name)
-          )
-
-          // Custom property sets are always available (entity-agnostic)
-          const ifcOptions: SearchableSelectOption[] = uniqueFilteredPsets.map(pset => ({
-            value: pset.name,
-            label: pset.name,
-            description: `${pset.properties?.length || 0} properties`,
-            category: 'IFC Property Sets'
-          }))
-
-          const customOptions: SearchableSelectOption[] = customPsets
-            .filter(customPset => !uniqueFilteredPsets.some(ifcPset => ifcPset.name === customPset.name))
-            .map(pset => ({
-              value: pset.name,
-              label: pset.name,
-              description: `${pset.properties.length} custom properties`,
-              category: 'Custom Property Sets'
-            }))
-
-          setPropertySetOptions([...ifcOptions, ...customOptions])
-          setLoadedPropertySets([...uniqueFilteredPsets, ...customPsets.filter(customPset => !uniqueFilteredPsets.some(ifcPset => ifcPset.name === customPset.name))])
-        }
+        setPropertySetOptions([...ifcOptions, ...customOptions])
+        setLoadedPropertySets([
+          ...unique,
+          ...customPsets.filter((customPset) => !unique.some((ifcPset) => ifcPset.name === customPset.name)),
+        ])
       } catch (error) {
         console.warn('Failed to load property sets from schema:', error)
-        setPropertySetOptions([])
-        setAllDataTypes([])
+        if (!cancelled) {
+          setPropertySetOptions([])
+          setAllDataTypes([])
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
-
-    loadPropertySets()
+    run()
+    return () => {
+      cancelled = true
+    }
   }, [entityContext.entityName, ifcVersion])
 
   // Get properties for the selected property set
@@ -1025,45 +1038,46 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadAttributes = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show common attributes if no entity connected
-          const commonAttributes = [
-            { name: "Name", type: "IFCLABEL", optional: false },
-            { name: "Description", type: "IFCTEXT", optional: true },
-            { name: "Tag", type: "IFCLABEL", optional: true },
-            { name: "GlobalId", type: "IFCGLOBALLYUNIQUEID", optional: false },
-            { name: "ObjectType", type: "IFCLABEL", optional: true },
-            { name: "OwnerHistory", type: "IFCOWNERHISTORY", optional: false }
-          ]
-          const attributeOptions: SearchableSelectOption[] = commonAttributes.map(attr => ({
-            value: attr.name,
-            label: attr.name,
-            description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
-            category: attr.optional ? 'Optional' : 'Required'
-          }))
-          setAttributeOptions(attributeOptions)
-        } else {
-          // Show only attributes for connected entity
-          const entityAttributes = await getAttributesForEntity(entityContext.entityName, ifcVersion)
-          const attributeOptions: SearchableSelectOption[] = entityAttributes.map(attr => ({
-            value: attr.name,
-            label: attr.name,
-            description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
-            category: attr.optional ? 'Optional' : 'Required'
-          }))
-          setAttributeOptions(attributeOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load attributes:', error)
-        setAttributeOptions([])
-      } finally {
-        setLoading(false)
-      }
+    let cancelled = false
+    const commonAttributes = [
+      { name: "Name", type: "IFCLABEL", optional: false },
+      { name: "Description", type: "IFCTEXT", optional: true },
+      { name: "Tag", type: "IFCLABEL", optional: true },
+      { name: "GlobalId", type: "IFCGLOBALLYUNIQUEID", optional: false },
+      { name: "ObjectType", type: "IFCLABEL", optional: true },
+      { name: "OwnerHistory", type: "IFCOWNERHISTORY", optional: false },
+    ]
+    const toOptions = (attrs: Array<{ name: string; type: string; optional: boolean }>) =>
+      attrs.map((attr) => ({
+        value: attr.name,
+        label: attr.name,
+        description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
+        category: attr.optional ? 'Optional' : 'Required',
+      }))
+
+    if (!entityContext.entityName) {
+      setAttributeOptions(toOptions(commonAttributes))
+      setLoading(false)
+      return
     }
 
-    loadAttributes()
+    const entityName = entityContext.entityName
+    cachedLoad(`attributesFor:${ifcVersion}:${entityName}`, () =>
+      getAttributesForEntity(entityName, ifcVersion),
+    )
+      .then((entityAttributes) => {
+        if (!cancelled) setAttributeOptions(toOptions(entityAttributes))
+      })
+      .catch((error) => {
+        console.warn('Failed to load attributes:', error)
+        if (!cancelled) setAttributeOptions([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [entityContext.entityName, ifcVersion])
 
   return (
@@ -1301,25 +1315,28 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   const [entitiesLoading, setEntitiesLoading] = useState(true)
 
   useEffect(() => {
-    const loadEntities = async () => {
-      try {
-        const entities = await getAllEntities(ifcVersion)
-        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+    let cancelled = false
+    cachedLoad(`entities:${ifcVersion}`, () => getAllEntities(ifcVersion))
+      .then((entities) => {
+        if (cancelled) return
+        const entityOptions: SearchableSelectOption[] = entities.map((entity) => ({
           value: entity.name,
           label: entity.name,
           description: entity.description,
-          category: entity.category
+          category: entity.category,
         }))
         setAllEntities(entityOptions)
-      } catch (error) {
+      })
+      .catch((error) => {
         console.warn('Failed to load entities from schema:', error)
-        setAllEntities([])
-      } finally {
-        setEntitiesLoading(false)
-      }
+        if (!cancelled) setAllEntities([])
+      })
+      .finally(() => {
+        if (!cancelled) setEntitiesLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    loadEntities()
   }, [ifcVersion])
 
   // Load spatial relations - always show all 6 valid IDS relations

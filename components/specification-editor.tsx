@@ -43,6 +43,13 @@ export function SpecificationEditor() {
     return saved ? saved.edges : initialEdges
   })
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
+  // Pending selection request for newly created nodes. GraphCanvas picks this
+  // up via prop, marks the IDs selected on React Flow's internal node state,
+  // and then calls onPendingSelectionConsumed to clear it. This is how new
+  // nodes (from palette click, template apply, paste, duplicate, restriction
+  // conversion, IDS/JSON import) become the current selection without a
+  // manual click.
+  const [pendingSelectionIds, setPendingSelectionIds] = useState<string[] | null>(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
     const saved = loadProjectState()
     return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
@@ -90,25 +97,19 @@ export function SpecificationEditor() {
   }, [nodes, edges, ifcVersion])
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
-    console.log('SpecificationEditor updateNodeData:', { nodeId, data })
     setNodes((nds) => {
-      const updatedNodes = nds.map((node) => {
+      return nds.map((node) => {
         if (node.id === nodeId) {
           const updatedNode = { ...node, data: { ...node.data, ...data } }
-          console.log('Updated node:', updatedNode)
-
-          // Update selectedNode if it's the same node
+          // Update selectedNode if it's the same node so the inspector
+          // reflects the new value without a manual re-click.
           if (selectedNode && selectedNode.id === nodeId) {
             setSelectedNode(updatedNode)
-            console.log('Updated selectedNode:', updatedNode)
           }
-
           return updatedNode
         }
         return node
       })
-      console.log('All nodes after update:', updatedNodes)
-      return updatedNodes
     })
   }, [selectedNode])
 
@@ -123,6 +124,7 @@ export function SpecificationEditor() {
       data: getDefaultNodeData(type, ifcVersion) as NodeData,
     }
     setNodes((nds) => [...nds, newNode])
+    setPendingSelectionIds([newNode.id])
   }, [nodes, edges, ifcVersion, takeSnapshot])
 
   const arrangeAll = useCallback(() => {
@@ -133,9 +135,6 @@ export function SpecificationEditor() {
 
   const applyTemplate = useCallback((template: SpecTemplate) => {
     const timestamp = Date.now()
-
-    console.log(`🚀 Applying template: ${template.name}`)
-    console.log(`📋 Template nodes:`, template.nodes.map(n => ({ type: n.type, data: n.data })))
 
     // Find a clear area for the new template (stack vertically)
     const offset = findTemplateOffset(nodes, { x: 600, y: 150 })
@@ -254,6 +253,11 @@ export function SpecificationEditor() {
     takeSnapshot() // Capture BEFORE applying template
     setNodes((nds) => [...nds, ...nodesToAdd])
     setEdges((eds) => [...eds, ...newEdges])
+
+    // Auto-select the new spec node so the inspector reflects what was just
+    // dropped in. Templates always include a spec in nodesToAdd[0].
+    const newSpec = nodesToAdd.find((n) => n.type === 'spec')
+    if (newSpec) setPendingSelectionIds([newSpec.id])
   }, [nodes, takeSnapshot])
 
   const cloneAsProfile = useCallback(() => {
@@ -347,6 +351,7 @@ export function SpecificationEditor() {
     takeSnapshot() // Capture BEFORE cloning profile
     setNodes((nds) => [...nds, clonedSpec, ...nodesToAdd])
     setEdges((eds) => [...eds, ...clonedEdges])
+    setPendingSelectionIds([clonedSpec.id])
   }, [selectedNode, nodes, edges, takeSnapshot])
 
   const exportCanvas = useCallback(() => {
@@ -436,7 +441,12 @@ export function SpecificationEditor() {
         takeSnapshot()
         setNodes(canvasData.nodes)
         setEdges(canvasData.edges)
-        setSelectedNode(null) // Clear selection
+        setSelectedNode(null)
+
+        // Auto-select the first spec node from the import so the user lands
+        // on something meaningful in the inspector instead of "No Selection".
+        const firstSpec = canvasData.nodes.find((n: GraphNode) => n.type === 'spec')
+        if (firstSpec) setPendingSelectionIds([firstSpec.id])
 
         // Update IFC version if present in metadata
         const detectedVersion = normalizeIfcVersion(canvasData.metadata?.ifcVersion)
@@ -471,6 +481,11 @@ export function SpecificationEditor() {
         setNodes(importedNodes)
         setEdges(importedEdges)
         setSelectedNode(null)
+
+        // Auto-select the first spec from the imported IDS — the user can
+        // start reviewing/editing immediately without hunting for it.
+        const firstSpec = importedNodes.find((n) => n.type === 'spec')
+        if (firstSpec) setPendingSelectionIds([firstSpec.id])
 
         const detectedVersion = normalizeIfcVersion(importedIfcVersion)
         if (detectedVersion) {
@@ -566,7 +581,9 @@ export function SpecificationEditor() {
       setEdges((eds) => [...eds, ...newEdges])
     }
 
-    return newNodes.map((n) => n.id)
+    const newIds = newNodes.map((n) => n.id)
+    setPendingSelectionIds(newIds)
+    return newIds
   }, [takeSnapshot])
 
   // Convert a single facet field carrying multiple values (e.g. "[R60, R90]")
@@ -629,6 +646,10 @@ export function SpecificationEditor() {
       }
       return [...filtered, ...newEdges]
     })
+
+    // Auto-select the new Restriction node so the inspector lands on the
+    // enumeration values for further editing.
+    setPendingSelectionIds([restrictionId])
   }, [nodes, takeSnapshot])
 
   return (
@@ -868,6 +889,8 @@ export function SpecificationEditor() {
                 onEdgesDelete={handleEdgesDelete}
                 onDuplicateNodes={duplicateNodes}
                 onAddNode={addNode}
+                pendingSelectionIds={pendingSelectionIds}
+                onPendingSelectionConsumed={() => setPendingSelectionIds(null)}
                 validationState={validationState}
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
