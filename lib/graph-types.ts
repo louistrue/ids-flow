@@ -80,7 +80,7 @@ export interface ClassificationNodeData {
 }
 
 export interface MaterialNodeData {
-  value: string
+  value?: string
   anyValue?: boolean  // Wildcard: match any material value (omit <value> in IDS XML)
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
