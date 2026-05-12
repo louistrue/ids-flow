@@ -771,7 +771,7 @@ export function SpecificationEditor() {
               className="gap-1.5 h-8 px-2.5 bg-card"
               title="View Documentation"
             >
-              <Link href="/docs">
+              <Link href="/docs" target="_blank" rel="noopener noreferrer">
                 <HelpCircle className="h-3.5 w-3.5" />
                 <span className="hidden xl:inline">Help</span>
               </Link>
@@ -843,7 +843,7 @@ export function SpecificationEditor() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/docs">
+                  <Link href="/docs" target="_blank" rel="noopener noreferrer">
                     <HelpCircle className="h-4 w-4 mr-2" />
                     Help
                   </Link>

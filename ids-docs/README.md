@@ -19,8 +19,12 @@ Key concepts:
 
 ## Learn More
 
-- [Quick Start Guide](quick-start.md) - Get up and running with IDSedit
-- [Integration Guide](integration-guide.md) - IDS file format and workflow integration
+- [**Quick Start**](/docs/quick-start) — your first IDS in two minutes
+- [**Editor interactions**](/docs/using-the-editor) — every shortcut and selection trick
+- [**Match any value**](/docs/match-any-value) — leave the value field empty for existence checks
+- [**Specifications**](/docs/specifications), [**Restrictions**](/docs/restrictions), [**IDS Metadata**](/docs/metadata)
+- [**Facet Reference**](/docs/facets/entity) — Entity, Property, Attribute, Classification, Material, PartOf
+- [**Integration Guide**](/docs/integration-guide) — IDS file format and downstream workflow
 
 ### Official IDS Resources
 
