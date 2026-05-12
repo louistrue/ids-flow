@@ -48,7 +48,11 @@ export function PropertyNode({ data, selected }: NodeProps) {
             <p className="text-xs text-muted-foreground font-mono">{data.propertySet}</p>
             <p className="text-xs text-muted-foreground">
               <span className={facet.text}>{data.dataType}</span>
-              {data.value && <span className="ml-2 text-foreground">= {data.value}</span>}
+              {data.value ? (
+                <span className="ml-2 text-foreground">= {data.value}</span>
+              ) : (
+                <span className="ml-2 italic">= any value</span>
+              )}
             </p>
           </div>
           {badge && (

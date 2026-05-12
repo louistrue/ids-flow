@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, Search } from "lucide-react"
+import { Check, ChevronsUpDown, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,6 +40,12 @@ interface SearchableSelectProps {
     maxHeight?: number
     allowCustom?: boolean
     onCreateOption?: (value: string) => void
+    /**
+     * Show an inline clear (X) affordance inside the trigger when a value is
+     * selected. Useful for facets where an empty value is meaningful
+     * ("match any") rather than just "not yet filled in".
+     */
+    clearable?: boolean
 }
 
 export function SearchableSelect({
@@ -55,6 +61,7 @@ export function SearchableSelect({
     maxHeight = 300,
     allowCustom = false,
     onCreateOption,
+    clearable = false,
 }: SearchableSelectProps) {
     const [open, setOpen] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
@@ -144,7 +151,25 @@ export function SearchableSelect({
                     <span className="truncate">
                         {selectedOption ? selectedOption.label : (value || placeholder)}
                     </span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <div className="ml-2 flex shrink-0 items-center gap-1">
+                        {clearable && value && !disabled && (
+                            <span
+                                role="button"
+                                tabIndex={-1}
+                                aria-label="Clear selection"
+                                title="Clear (match any)"
+                                onPointerDown={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    onValueChange("")
+                                }}
+                                className="inline-flex h-4 w-4 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+                            >
+                                <X className="h-3 w-3" />
+                            </span>
+                        )}
+                        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                    </div>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0" align="start">

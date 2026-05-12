@@ -39,11 +39,13 @@ export function ClassificationNode({ data, selected }: NodeProps) {
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
                         <p className="text-xs text-muted-foreground font-mono">Classification</p>
-                        {data.value && (
+                        {data.value ? (
                             <p className="text-xs text-muted-foreground">
                                 <span className={facet.text}>Code:</span>
                                 <span className="ml-2 text-foreground font-mono">{data.value}</span>
                             </p>
+                        ) : (
+                            <p className="text-xs italic text-muted-foreground">Any code</p>
                         )}
                         {data.uri && (
                             <p className="text-xs text-muted-foreground truncate">

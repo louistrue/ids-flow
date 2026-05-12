@@ -939,11 +939,11 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           id="value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder={getPlaceholderForDataType(data.dataType)}
+          placeholder={getPlaceholderForDataType(data.dataType) || "Any value — leave empty to match any"}
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
-          For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — you can convert to a Restriction node below.
+          Leave empty to match any value. For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — convertible to a Restriction node below.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1110,11 +1110,11 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
           id="attribute-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Fire Door — or [Fire Door, Exit Door] for multiple"
+          placeholder="Any value — or e.g. Fire Door / [Fire Door, Exit Door]"
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
-          Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
+          Leave empty to match any value. Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1250,11 +1250,11 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           id="classification-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Pr_20_70_05_05 — or [Pr_20_70_05_05, Pr_20_70_05_06]"
+          placeholder="Any code — or e.g. Pr_20_70_05_05 / [Pr_20_70_05_05, Pr_20_70_05_06]"
           className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
+          Leave empty to match any code under this system. Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1355,7 +1355,7 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
     <>
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
-          Material Value
+          Material Value <span className="text-muted-foreground font-normal">(Optional)</span>
           {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
           {entityContext.entityName && (
             <span className="ml-2 text-xs text-muted-foreground">
@@ -1367,17 +1367,18 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           options={materialOptions}
           value={data.value || ""}
           onValueChange={(value) => onChange("value", value)}
-          placeholder="Search or type a material name..."
+          placeholder="Any material (leave empty) — or pick / type a name"
           searchPlaceholder={entityContext.entityName ? `Search materials for ${entityContext.entityName}...` : "Type any material name (e.g., 'oak', 'rebar steel')..."}
           emptyText="No matching materials — press Enter to use this name"
           showCategories={true}
           maxHeight={300}
           disabled={loading}
           allowCustom={true}
+          clearable={true}
           onCreateOption={(name) => onChange("value", name)}
         />
         <p className="text-[11px] text-muted-foreground">
-          Per the IDS schema, any material name is valid. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
+          Leave empty to match any material. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
