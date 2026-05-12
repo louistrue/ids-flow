@@ -109,19 +109,9 @@ export async function validateGraphClientSide(
         }
     }
 
-    // Validate classification nodes
-    const classificationNodes = nodes.filter(node => node.type === 'classification')
-    for (const node of classificationNodes) {
-        const data = node.data as any
-        if (!data.system) {
-            issues.push({
-                severity: 'warning',
-                message: 'Classification node is missing system',
-                nodeId: node.id,
-                nodeType: 'classification',
-            })
-        }
-    }
+    // Note: an empty classification system is intentional — it means
+    // "match any classification (any system)" and is emitted as an XSD-valid
+    // pattern restriction `.+` by the XML converter. No warning needed.
 
     // Validate that specifications have applicability
     for (const specNode of specNodes) {

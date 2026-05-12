@@ -1211,36 +1211,23 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
             </span>
           )}
         </Label>
-        {classificationOptions.length > 0 ? (
-          <SearchableSelect
-            options={classificationOptions}
-            value={data.system || ""}
-            onValueChange={(value) => onChange("system", value)}
-            placeholder="Search classification systems..."
-            searchPlaceholder={entityContext.entityName ? `Search systems for ${entityContext.entityName}...` : "Search classification systems..."}
-            emptyText="No classification systems found"
-            showCategories={true}
-            maxHeight={300}
-            disabled={loading}
-          />
-        ) : (
-          <Select
-            value={data.system || ""}
-            onValueChange={(value) => onChange("system", value)}
-          >
-            <SelectTrigger className="bg-input border-border text-foreground font-mono">
-              <SelectValue placeholder="Select system" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Uniclass 2015">Uniclass 2015</SelectItem>
-              <SelectItem value="ETIM">ETIM</SelectItem>
-              <SelectItem value="CCI">CCI</SelectItem>
-              <SelectItem value="OmniClass">OmniClass</SelectItem>
-              <SelectItem value="MasterFormat">MasterFormat</SelectItem>
-              <SelectItem value="Custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
+        <SearchableSelect
+          options={classificationOptions}
+          value={data.system || ""}
+          onValueChange={(value) => onChange("system", value)}
+          placeholder="Any system (leave empty) — or pick / type a name"
+          searchPlaceholder={entityContext.entityName ? `Search systems for ${entityContext.entityName}...` : "Type any system name (e.g., 'Uniclass 2015', 'OmniClass')..."}
+          emptyText="No matching systems — press Enter to use this name"
+          showCategories={true}
+          maxHeight={300}
+          disabled={loading}
+          allowCustom={true}
+          clearable={true}
+          onCreateOption={(name) => onChange("system", name)}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Leave empty to match any classification (any system). Type any system name to add a custom one — the IDS schema doesn't constrain the system value.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="classification-value" className="text-sidebar-foreground">

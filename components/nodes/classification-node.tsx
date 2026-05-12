@@ -24,6 +24,7 @@ export function ClassificationNode({ data, selected }: NodeProps) {
     const facet = getFacet("classification")
     const showCardinality = data.isInRequirements === true
     const badge = showCardinality ? getCardinalityBadge(data.cardinality as Cardinality) : null
+    const hasSystem = Boolean(data.system)
 
     return (
         <Card
@@ -34,7 +35,9 @@ export function ClassificationNode({ data, selected }: NodeProps) {
                     <div className={`p-1.5 rounded ${facet.iconBg}`}>
                         <Layers className={`h-4 w-4 ${facet.text}`} />
                     </div>
-                    <h3 className="font-semibold text-sm text-foreground font-mono flex-1 truncate">{data.system}</h3>
+                    <h3 className={`font-semibold text-sm font-mono flex-1 truncate ${hasSystem ? "text-foreground" : "italic text-muted-foreground"}`}>
+                        {hasSystem ? data.system : "Any classification"}
+                    </h3>
                 </div>
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
