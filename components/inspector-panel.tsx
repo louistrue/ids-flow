@@ -30,8 +30,6 @@ import {
   getAllEntities,
   getPropertySetsForEntityAsync,
   getAttributesForEntity,
-  getClassificationSystemsForEntity,
-  getMaterialTypesForEntity,
   type IFCVersion,
 } from "@/lib/ifc-schema"
 import { getEntityContext } from "@/lib/graph-utils"
@@ -57,6 +55,24 @@ interface InspectorPanelProps {
   nodes: GraphNode[]
   edges: GraphEdge[]
   onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void
+}
+
+// Module-level cache for inspector schema lookups. Each field component's
+// useEffect runs fresh whenever the selected node changes (because React
+// unmounts the previous field component), and the schema fetchers do real
+// work (or worse, an async network/disk hop). Without this cache, every
+// click on a Property/Attribute/Entity node re-loads the same data and the
+// inspector flickers through "(Loading...)" — perceived as selection lag.
+const inspectorCache = new Map<string, Promise<unknown>>()
+async function cachedLoad<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  const existing = inspectorCache.get(key) as Promise<T> | undefined
+  if (existing) return existing
+  const promise = loader().catch((err) => {
+    inspectorCache.delete(key) // Don't cache failures — retry next time
+    throw err
+  })
+  inspectorCache.set(key, promise)
+  return promise
 }
 
 // Parse a bracketed list like "[R60, R90, R120]" into ["R60", "R90", "R120"].
@@ -555,25 +571,28 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   const [predefinedTypes, setPredefinedTypes] = useState<string[]>([])
 
   useEffect(() => {
-    const loadEntities = async () => {
-      try {
-        const entities = await getAllEntities(ifcVersion)
-        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+    let cancelled = false
+    cachedLoad(`entities:${ifcVersion}`, () => getAllEntities(ifcVersion))
+      .then((entities) => {
+        if (cancelled) return
+        const entityOptions: SearchableSelectOption[] = entities.map((entity) => ({
           value: entity.name,
           label: entity.name,
           description: entity.description,
-          category: entity.category
+          category: entity.category,
         }))
         setAllEntities(entityOptions)
-      } catch (error) {
+      })
+      .catch((error) => {
         console.warn('Failed to load entities from schema:', error)
-        setAllEntities([])
-      } finally {
-        setLoading(false)
-      }
+        if (!cancelled) setAllEntities([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    loadEntities()
   }, [ifcVersion])
 
   useEffect(() => {
@@ -581,7 +600,15 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
       setPredefinedTypes([])
       return
     }
-    getPredefinedTypesForEntityAsync(data.name, ifcVersion).then(setPredefinedTypes)
+    let cancelled = false
+    cachedLoad(`predefined:${ifcVersion}:${data.name}`, () =>
+      getPredefinedTypesForEntityAsync(data.name, ifcVersion),
+    ).then((types) => {
+      if (!cancelled) setPredefinedTypes(types)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [data.name, ifcVersion])
 
   return (
@@ -677,87 +704,71 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
     return getEntityContext(node.id, nodes, edges)
   }, [node.id, nodes, edges])
 
-  // Load property sets based on entity context
+  // Load property sets based on entity context. The schema lookups are
+  // memoised in `inspectorCache`, so the first selection of a Property node
+  // is async but subsequent selections of the same entity context resolve
+  // synchronously — keeping selection snappy.
   useEffect(() => {
-    const loadPropertySets = async () => {
+    let cancelled = false
+    const run = async () => {
       try {
-        const dataTypes = await getAllSimpleTypes(ifcVersion)
+        const dataTypesPromise = cachedLoad(`simpleTypes:${ifcVersion}`, () =>
+          getAllSimpleTypes(ifcVersion),
+        )
+        const psetsPromise = entityContext.entityName
+          ? cachedLoad(`psetsFor:${ifcVersion}:${entityContext.entityName}`, () =>
+              getPropertySetsForEntityAsync(entityContext.entityName, ifcVersion),
+            )
+          : cachedLoad(`allPsets:${ifcVersion}`, () => getAllPropertySets(ifcVersion))
+        // Warm the property data type cache once per ifcVersion (any property name).
+        const warmPromise = cachedLoad(`dataTypeWarm:${ifcVersion}`, () =>
+          getExpectedDataTypesForPropertyAsync('Reference', ifcVersion),
+        )
+        const [dataTypes, psets] = await Promise.all([dataTypesPromise, psetsPromise, warmPromise])
+        if (cancelled) return
+
         setAllDataTypes(dataTypes)
 
-        // Build property data type cache for accurate recommendations
-        // This needs to be called at least once to populate the cache
-        await getExpectedDataTypesForPropertyAsync('Reference', ifcVersion)
+        // Deduplicate property sets by name (keep first occurrence).
+        const unique = psets.filter(
+          (pset, index, self) => index === self.findIndex((p) => p.name === pset.name),
+        )
 
-        // Get custom property sets
         const customPsets = getCustomPropertySets()
-
-        if (!entityContext.entityName) {
-          // Show ALL property sets if no entity connected
-          const allPsets = await getAllPropertySets(ifcVersion)
-
-          // Deduplicate property sets by name (keep first occurrence)
-          const uniquePsets = allPsets.filter((pset, index, self) =>
-            index === self.findIndex(p => p.name === pset.name)
-          )
-
-          // Merge IFC and custom property sets, avoiding duplicates
-          const ifcOptions: SearchableSelectOption[] = uniquePsets.map(pset => ({
+        const ifcOptions: SearchableSelectOption[] = unique.map((pset) => ({
+          value: pset.name,
+          label: pset.name,
+          description: `${pset.properties?.length || 0} properties`,
+          category: 'IFC Property Sets',
+        }))
+        const customOptions: SearchableSelectOption[] = customPsets
+          .filter((customPset) => !unique.some((ifcPset) => ifcPset.name === customPset.name))
+          .map((pset) => ({
             value: pset.name,
             label: pset.name,
-            description: `${pset.properties?.length || 0} properties`,
-            category: 'IFC Property Sets'
+            description: `${pset.properties.length} custom properties`,
+            category: 'Custom Property Sets',
           }))
 
-          const customOptions: SearchableSelectOption[] = customPsets
-            .filter(customPset => !uniquePsets.some(ifcPset => ifcPset.name === customPset.name))
-            .map(pset => ({
-              value: pset.name,
-              label: pset.name,
-              description: `${pset.properties.length} custom properties`,
-              category: 'Custom Property Sets'
-            }))
-
-          setPropertySetOptions([...ifcOptions, ...customOptions])
-          setLoadedPropertySets([...uniquePsets, ...customPsets.filter(customPset => !uniquePsets.some(ifcPset => ifcPset.name === customPset.name))])
-        } else {
-          // Show only applicable property sets for connected entity
-          const filteredPsets = await getPropertySetsForEntityAsync(entityContext.entityName, ifcVersion)
-
-          // Deduplicate filtered property sets by name (keep first occurrence)
-          const uniqueFilteredPsets = filteredPsets.filter((pset, index, self) =>
-            index === self.findIndex(p => p.name === pset.name)
-          )
-
-          // Custom property sets are always available (entity-agnostic)
-          const ifcOptions: SearchableSelectOption[] = uniqueFilteredPsets.map(pset => ({
-            value: pset.name,
-            label: pset.name,
-            description: `${pset.properties?.length || 0} properties`,
-            category: 'IFC Property Sets'
-          }))
-
-          const customOptions: SearchableSelectOption[] = customPsets
-            .filter(customPset => !uniqueFilteredPsets.some(ifcPset => ifcPset.name === customPset.name))
-            .map(pset => ({
-              value: pset.name,
-              label: pset.name,
-              description: `${pset.properties.length} custom properties`,
-              category: 'Custom Property Sets'
-            }))
-
-          setPropertySetOptions([...ifcOptions, ...customOptions])
-          setLoadedPropertySets([...uniqueFilteredPsets, ...customPsets.filter(customPset => !uniqueFilteredPsets.some(ifcPset => ifcPset.name === customPset.name))])
-        }
+        setPropertySetOptions([...ifcOptions, ...customOptions])
+        setLoadedPropertySets([
+          ...unique,
+          ...customPsets.filter((customPset) => !unique.some((ifcPset) => ifcPset.name === customPset.name)),
+        ])
       } catch (error) {
         console.warn('Failed to load property sets from schema:', error)
-        setPropertySetOptions([])
-        setAllDataTypes([])
+        if (!cancelled) {
+          setPropertySetOptions([])
+          setAllDataTypes([])
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
-
-    loadPropertySets()
+    run()
+    return () => {
+      cancelled = true
+    }
   }, [entityContext.entityName, ifcVersion])
 
   // Get properties for the selected property set
@@ -939,11 +950,11 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           id="value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder={getPlaceholderForDataType(data.dataType)}
+          placeholder={getPlaceholderForDataType(data.dataType) || "Any value — leave empty to match any"}
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
-          For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — you can convert to a Restriction node below.
+          Leave empty to match any value. For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — convertible to a Restriction node below.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -993,9 +1004,9 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
   )
 }
 
-function getPlaceholderForDataType(dataType?: string): string {
+function getPlaceholderForDataType(dataType?: string): string | undefined {
   if (!dataType) {
-    return "Enter value..."
+    return undefined
   }
   switch (dataType) {
     case "IFCBOOLEAN":
@@ -1009,7 +1020,7 @@ function getPlaceholderForDataType(dataType?: string): string {
     case "IFCTEXT":
       return "Enter text..."
     default:
-      return "Enter value..."
+      return undefined
   }
 }
 
@@ -1027,45 +1038,46 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadAttributes = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show common attributes if no entity connected
-          const commonAttributes = [
-            { name: "Name", type: "IFCLABEL", optional: false },
-            { name: "Description", type: "IFCTEXT", optional: true },
-            { name: "Tag", type: "IFCLABEL", optional: true },
-            { name: "GlobalId", type: "IFCGLOBALLYUNIQUEID", optional: false },
-            { name: "ObjectType", type: "IFCLABEL", optional: true },
-            { name: "OwnerHistory", type: "IFCOWNERHISTORY", optional: false }
-          ]
-          const attributeOptions: SearchableSelectOption[] = commonAttributes.map(attr => ({
-            value: attr.name,
-            label: attr.name,
-            description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
-            category: attr.optional ? 'Optional' : 'Required'
-          }))
-          setAttributeOptions(attributeOptions)
-        } else {
-          // Show only attributes for connected entity
-          const entityAttributes = await getAttributesForEntity(entityContext.entityName, ifcVersion)
-          const attributeOptions: SearchableSelectOption[] = entityAttributes.map(attr => ({
-            value: attr.name,
-            label: attr.name,
-            description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
-            category: attr.optional ? 'Optional' : 'Required'
-          }))
-          setAttributeOptions(attributeOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load attributes:', error)
-        setAttributeOptions([])
-      } finally {
-        setLoading(false)
-      }
+    let cancelled = false
+    const commonAttributes = [
+      { name: "Name", type: "IFCLABEL", optional: false },
+      { name: "Description", type: "IFCTEXT", optional: true },
+      { name: "Tag", type: "IFCLABEL", optional: true },
+      { name: "GlobalId", type: "IFCGLOBALLYUNIQUEID", optional: false },
+      { name: "ObjectType", type: "IFCLABEL", optional: true },
+      { name: "OwnerHistory", type: "IFCOWNERHISTORY", optional: false },
+    ]
+    const toOptions = (attrs: Array<{ name: string; type: string; optional: boolean }>) =>
+      attrs.map((attr) => ({
+        value: attr.name,
+        label: attr.name,
+        description: `${attr.type}${attr.optional ? ' (optional)' : ''}`,
+        category: attr.optional ? 'Optional' : 'Required',
+      }))
+
+    if (!entityContext.entityName) {
+      setAttributeOptions(toOptions(commonAttributes))
+      setLoading(false)
+      return
     }
 
-    loadAttributes()
+    const entityName = entityContext.entityName
+    cachedLoad(`attributesFor:${ifcVersion}:${entityName}`, () =>
+      getAttributesForEntity(entityName, ifcVersion),
+    )
+      .then((entityAttributes) => {
+        if (!cancelled) setAttributeOptions(toOptions(entityAttributes))
+      })
+      .catch((error) => {
+        console.warn('Failed to load attributes:', error)
+        if (!cancelled) setAttributeOptions([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [entityContext.entityName, ifcVersion])
 
   return (
@@ -1110,11 +1122,11 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
           id="attribute-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Fire Door — or [Fire Door, Exit Door] for multiple"
+          placeholder="Any value — or e.g. Fire Door / [Fire Door, Exit Door]"
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
-          Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
+          Leave empty to match any value. Need several allowed values? Type them as <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1153,94 +1165,22 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
-  // Get entity context from graph connections
-  const entityContext = React.useMemo(() => {
-    return getEntityContext(node.id, nodes, edges)
-  }, [node.id, nodes, edges])
-
-  // Load classification systems based on entity context
-  const [classificationOptions, setClassificationOptions] = useState<SearchableSelectOption[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadClassificationSystems = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show all classification systems if no entity connected
-          const allSystems = [
-            "Uniclass 2015", "ETIM", "CCI", "OmniClass", "MasterFormat", "Custom"
-          ]
-          const systemOptions: SearchableSelectOption[] = allSystems.map(system => ({
-            value: system,
-            label: system,
-            description: 'Classification system',
-            category: 'All Systems'
-          }))
-          setClassificationOptions(systemOptions)
-        } else {
-          // Show only applicable classification systems for connected entity
-          const entitySystems = await getClassificationSystemsForEntity(entityContext.entityName, ifcVersion)
-          const systemOptions: SearchableSelectOption[] = entitySystems.map(system => ({
-            value: system,
-            label: system,
-            description: 'Applicable to ' + entityContext.entityName,
-            category: 'Entity Specific'
-          }))
-          setClassificationOptions(systemOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load classification systems:', error)
-        setClassificationOptions([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadClassificationSystems()
-  }, [entityContext.entityName, ifcVersion])
-
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="classification-system" className="text-sidebar-foreground">
-          Classification System
-          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
-          {entityContext.entityName && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              (Filtered for {entityContext.entityName})
-            </span>
-          )}
+          Classification System <span className="text-muted-foreground font-normal">(Optional)</span>
         </Label>
-        {classificationOptions.length > 0 ? (
-          <SearchableSelect
-            options={classificationOptions}
-            value={data.system || ""}
-            onValueChange={(value) => onChange("system", value)}
-            placeholder="Search classification systems..."
-            searchPlaceholder={entityContext.entityName ? `Search systems for ${entityContext.entityName}...` : "Search classification systems..."}
-            emptyText="No classification systems found"
-            showCategories={true}
-            maxHeight={300}
-            disabled={loading}
-          />
-        ) : (
-          <Select
-            value={data.system || ""}
-            onValueChange={(value) => onChange("system", value)}
-          >
-            <SelectTrigger className="bg-input border-border text-foreground font-mono">
-              <SelectValue placeholder="Select system" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Uniclass 2015">Uniclass 2015</SelectItem>
-              <SelectItem value="ETIM">ETIM</SelectItem>
-              <SelectItem value="CCI">CCI</SelectItem>
-              <SelectItem value="OmniClass">OmniClass</SelectItem>
-              <SelectItem value="MasterFormat">MasterFormat</SelectItem>
-              <SelectItem value="Custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
+        <Input
+          id="classification-system"
+          value={data.system || ""}
+          onChange={(e) => onChange("system", e.target.value)}
+          placeholder="Any system — or e.g. Uniclass 2015, OmniClass, ETIM"
+          className="bg-input border-border text-foreground font-mono"
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Leave empty to match any classification (any system). Type any string — the IDS schema doesn't constrain the system name.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="classification-value" className="text-sidebar-foreground">
@@ -1250,11 +1190,11 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           id="classification-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="e.g., Pr_20_70_05_05 — or [Pr_20_70_05_05, Pr_20_70_05_06]"
+          placeholder="Any code — or e.g. Pr_20_70_05_05 / [Pr_20_70_05_05, Pr_20_70_05_06]"
           className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
+          Leave empty to match any code under this system. Multiple acceptable codes? Use <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1305,79 +1245,21 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
-  // Get entity context from graph connections
-  const entityContext = React.useMemo(() => {
-    return getEntityContext(node.id, nodes, edges)
-  }, [node.id, nodes, edges])
-
-  // Load material types based on entity context
-  const [materialOptions, setMaterialOptions] = useState<SearchableSelectOption[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadMaterialTypes = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show all material types if no entity connected
-          const allMaterials = [
-            "concrete", "steel", "wood", "brick", "glass", "aluminum", "plastic", "composite", "custom"
-          ]
-          const materialOptions: SearchableSelectOption[] = allMaterials.map(material => ({
-            value: material,
-            label: material.charAt(0).toUpperCase() + material.slice(1),
-            description: 'Material type',
-            category: 'All Materials'
-          }))
-          setMaterialOptions(materialOptions)
-        } else {
-          // Show only applicable material types for connected entity
-          const entityMaterials = await getMaterialTypesForEntity(entityContext.entityName, ifcVersion)
-          const materialOptions: SearchableSelectOption[] = entityMaterials.map(material => ({
-            value: material.toLowerCase(),
-            label: material,
-            description: 'Applicable to ' + entityContext.entityName,
-            category: 'Entity Specific'
-          }))
-          setMaterialOptions(materialOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load material types:', error)
-        setMaterialOptions([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadMaterialTypes()
-  }, [entityContext.entityName, ifcVersion])
-
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
-          Material Value
-          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
-          {entityContext.entityName && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              (Filtered for {entityContext.entityName})
-            </span>
-          )}
+          Material Value <span className="text-muted-foreground font-normal">(Optional)</span>
         </Label>
-        <SearchableSelect
-          options={materialOptions}
+        <Input
+          id="material-value"
           value={data.value || ""}
-          onValueChange={(value) => onChange("value", value)}
-          placeholder="Search or type a material name..."
-          searchPlaceholder={entityContext.entityName ? `Search materials for ${entityContext.entityName}...` : "Type any material name (e.g., 'oak', 'rebar steel')..."}
-          emptyText="No matching materials — press Enter to use this name"
-          showCategories={true}
-          maxHeight={300}
-          disabled={loading}
-          allowCustom={true}
-          onCreateOption={(name) => onChange("value", name)}
+          onChange={(e) => onChange("value", e.target.value)}
+          placeholder="Any material — or e.g. concrete, oak, rebar steel"
+          className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Per the IDS schema, any material name is valid. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
+          Leave empty to match any material. Multiple acceptable values? Use <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1433,25 +1315,28 @@ function PartOfFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
   const [entitiesLoading, setEntitiesLoading] = useState(true)
 
   useEffect(() => {
-    const loadEntities = async () => {
-      try {
-        const entities = await getAllEntities(ifcVersion)
-        const entityOptions: SearchableSelectOption[] = entities.map(entity => ({
+    let cancelled = false
+    cachedLoad(`entities:${ifcVersion}`, () => getAllEntities(ifcVersion))
+      .then((entities) => {
+        if (cancelled) return
+        const entityOptions: SearchableSelectOption[] = entities.map((entity) => ({
           value: entity.name,
           label: entity.name,
           description: entity.description,
-          category: entity.category
+          category: entity.category,
         }))
         setAllEntities(entityOptions)
-      } catch (error) {
+      })
+      .catch((error) => {
         console.warn('Failed to load entities from schema:', error)
-        setAllEntities([])
-      } finally {
-        setEntitiesLoading(false)
-      }
+        if (!cancelled) setAllEntities([])
+      })
+      .finally(() => {
+        if (!cancelled) setEntitiesLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    loadEntities()
   }, [ifcVersion])
 
   // Load spatial relations - always show all 6 valid IDS relations

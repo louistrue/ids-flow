@@ -446,8 +446,18 @@ function buildClassificationFacet(node: GraphNode, parent: any, cardinality?: st
     idsSimple(cls, "ids:value", data.value)
   }
 
-  // System must come after value per IDS XSD schema
-  idsSimple(cls, "ids:system", data.system)
+  // System must come after value per IDS XSD schema.
+  // The system element is XSD-required (minOccurs="1"), so we can't omit it
+  // when the user wants "match any classification". Emit a pattern restriction
+  // that matches any non-empty string — this is unambiguously "any system"
+  // (an empty <simpleValue/> would be a literal empty-string match).
+  if (data.system) {
+    idsSimple(cls, "ids:system", data.system)
+  } else {
+    const sysEl = cls.ele("ids:system")
+    const sysRestriction = sysEl.ele("xs:restriction", { base: "xs:string" })
+    sysRestriction.ele("xs:pattern", { value: ".+" })
+  }
 }
 
 function buildMaterialFacet(node: GraphNode, parent: any, cardinality?: string, instructions?: string, edges?: GraphEdge[], nodes?: GraphNode[]) {

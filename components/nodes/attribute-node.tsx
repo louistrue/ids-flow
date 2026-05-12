@@ -39,11 +39,18 @@ export function AttributeNode({ data, selected }: NodeProps) {
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
                         <p className="text-xs text-muted-foreground font-mono">Attribute</p>
-                        {data.value && (
+                        {data.value ? (
                             <p className="text-xs text-muted-foreground">
                                 <span className={facet.text}>Value:</span>
                                 <span className="ml-2 text-foreground">{data.value}</span>
                             </p>
+                        ) : data.hasRestriction ? (
+                            <p className="text-xs text-muted-foreground">
+                                <span className={facet.text}>Value:</span>
+                                <span className="ml-2 text-foreground">restricted (see attached)</span>
+                            </p>
+                        ) : (
+                            <p className="text-xs italic text-muted-foreground">Any value</p>
                         )}
                     </div>
                     {badge && (

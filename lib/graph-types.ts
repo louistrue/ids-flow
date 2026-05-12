@@ -77,7 +77,7 @@ export interface ClassificationNodeData {
 }
 
 export interface MaterialNodeData {
-  value: string
+  value?: string  // Optional - empty value means "match any material" (XSD-valid omission of <value>)
   uri?: string
   cardinality?: Cardinality  // Cardinality for requirement facets (not used in applicability)
   instructions?: string  // Instructions attribute for requirement materials (optional)
