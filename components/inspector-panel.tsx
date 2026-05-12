@@ -30,8 +30,6 @@ import {
   getAllEntities,
   getPropertySetsForEntityAsync,
   getAttributesForEntity,
-  getClassificationSystemsForEntity,
-  getMaterialTypesForEntity,
   type IFCVersion,
 } from "@/lib/ifc-schema"
 import { getEntityContext } from "@/lib/graph-utils"
@@ -1153,80 +1151,21 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
-  // Get entity context from graph connections
-  const entityContext = React.useMemo(() => {
-    return getEntityContext(node.id, nodes, edges)
-  }, [node.id, nodes, edges])
-
-  // Load classification systems based on entity context
-  const [classificationOptions, setClassificationOptions] = useState<SearchableSelectOption[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadClassificationSystems = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show all classification systems if no entity connected
-          const allSystems = [
-            "Uniclass 2015", "ETIM", "CCI", "OmniClass", "MasterFormat", "Custom"
-          ]
-          const systemOptions: SearchableSelectOption[] = allSystems.map(system => ({
-            value: system,
-            label: system,
-            description: 'Classification system',
-            category: 'All Systems'
-          }))
-          setClassificationOptions(systemOptions)
-        } else {
-          // Show only applicable classification systems for connected entity
-          const entitySystems = await getClassificationSystemsForEntity(entityContext.entityName, ifcVersion)
-          const systemOptions: SearchableSelectOption[] = entitySystems.map(system => ({
-            value: system,
-            label: system,
-            description: 'Applicable to ' + entityContext.entityName,
-            category: 'Entity Specific'
-          }))
-          setClassificationOptions(systemOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load classification systems:', error)
-        setClassificationOptions([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadClassificationSystems()
-  }, [entityContext.entityName, ifcVersion])
-
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="classification-system" className="text-sidebar-foreground">
-          Classification System
-          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
-          {entityContext.entityName && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              (Filtered for {entityContext.entityName})
-            </span>
-          )}
+          Classification System <span className="text-muted-foreground font-normal">(Optional)</span>
         </Label>
-        <SearchableSelect
-          options={classificationOptions}
+        <Input
+          id="classification-system"
           value={data.system || ""}
-          onValueChange={(value) => onChange("system", value)}
-          placeholder="Any system (leave empty) — or pick / type a name"
-          searchPlaceholder={entityContext.entityName ? `Search systems for ${entityContext.entityName}...` : "Type any system name (e.g., 'Uniclass 2015', 'OmniClass')..."}
-          emptyText="No matching systems — press Enter to use this name"
-          showCategories={true}
-          maxHeight={300}
-          disabled={loading}
-          allowCustom={true}
-          clearable={true}
-          onCreateOption={(name) => onChange("system", name)}
+          onChange={(e) => onChange("system", e.target.value)}
+          placeholder="Any system — or e.g. Uniclass 2015, OmniClass, ETIM"
+          className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Leave empty to match any classification (any system). Type any system name to add a custom one — the IDS schema doesn't constrain the system value.
+          Leave empty to match any classification (any system). Type any string — the IDS schema doesn't constrain the system name.
         </p>
       </div>
       <div className="space-y-2">
@@ -1292,80 +1231,21 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
   const data = node.data as any // Type assertion for now
   const inRequirements = isInRequirementsSection(node.id, edges)
 
-  // Get entity context from graph connections
-  const entityContext = React.useMemo(() => {
-    return getEntityContext(node.id, nodes, edges)
-  }, [node.id, nodes, edges])
-
-  // Load material types based on entity context
-  const [materialOptions, setMaterialOptions] = useState<SearchableSelectOption[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadMaterialTypes = async () => {
-      try {
-        if (!entityContext.entityName) {
-          // Show all material types if no entity connected
-          const allMaterials = [
-            "concrete", "steel", "wood", "brick", "glass", "aluminum", "plastic", "composite", "custom"
-          ]
-          const materialOptions: SearchableSelectOption[] = allMaterials.map(material => ({
-            value: material,
-            label: material.charAt(0).toUpperCase() + material.slice(1),
-            description: 'Material type',
-            category: 'All Materials'
-          }))
-          setMaterialOptions(materialOptions)
-        } else {
-          // Show only applicable material types for connected entity
-          const entityMaterials = await getMaterialTypesForEntity(entityContext.entityName, ifcVersion)
-          const materialOptions: SearchableSelectOption[] = entityMaterials.map(material => ({
-            value: material.toLowerCase(),
-            label: material,
-            description: 'Applicable to ' + entityContext.entityName,
-            category: 'Entity Specific'
-          }))
-          setMaterialOptions(materialOptions)
-        }
-      } catch (error) {
-        console.warn('Failed to load material types:', error)
-        setMaterialOptions([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadMaterialTypes()
-  }, [entityContext.entityName, ifcVersion])
-
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="material-value" className="text-sidebar-foreground">
           Material Value <span className="text-muted-foreground font-normal">(Optional)</span>
-          {loading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
-          {entityContext.entityName && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              (Filtered for {entityContext.entityName})
-            </span>
-          )}
         </Label>
-        <SearchableSelect
-          options={materialOptions}
+        <Input
+          id="material-value"
           value={data.value || ""}
-          onValueChange={(value) => onChange("value", value)}
-          placeholder="Any material (leave empty) — or pick / type a name"
-          searchPlaceholder={entityContext.entityName ? `Search materials for ${entityContext.entityName}...` : "Type any material name (e.g., 'oak', 'rebar steel')..."}
-          emptyText="No matching materials — press Enter to use this name"
-          showCategories={true}
-          maxHeight={300}
-          disabled={loading}
-          allowCustom={true}
-          clearable={true}
-          onCreateOption={(name) => onChange("value", name)}
+          onChange={(e) => onChange("value", e.target.value)}
+          placeholder="Any material — or e.g. concrete, oak, rebar steel"
+          className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Leave empty to match any material. Type freely, then press Enter — use <code className="font-mono">[a, b, c]</code> for multiple options.
+          Leave empty to match any material. Multiple acceptable values? Use <code className="font-mono">[a, b, c]</code>.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint

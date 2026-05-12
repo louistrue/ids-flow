@@ -931,13 +931,13 @@ function getDefaultNodeData(type: string, ifcVersion: IFCVersion = "IFC4X3_ADD2"
       }
     case "classification":
       return {
-        system: "Uniclass 2015",
+        system: "",
         value: "",
         uri: "",
       }
     case "material":
       return {
-        value: "concrete",
+        value: "",
         uri: "",
       }
     case "partOf":
