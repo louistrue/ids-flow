@@ -25,8 +25,13 @@ export type DocsSearchEntry = {
 /** Markdown → plain text. */
 function stripMarkdown(md: string): string {
   return md
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
+    // Fenced code: keep the inner content (drop fence + optional lang). IFC
+    // identifiers and XML snippets in the docs commonly live in fenced blocks,
+    // so this preserves them in the search index.
+    .replace(/```\w*\n?([\s\S]*?)```/g, "$1")
+    // Inline code: keep the text. Terms like `Pset_WallCommon` or `IfcBoolean`
+    // appear almost exclusively in inline code spans in the IDS docs.
+    .replace(/`([^`]*)`/g, "$1")
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")

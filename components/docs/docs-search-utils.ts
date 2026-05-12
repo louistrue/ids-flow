@@ -21,14 +21,16 @@ export type DocsSearchPageResult = {
 /**
  * Build the deep-link URL for a search hit. We always carry the query along
  * in `?q=...` so the destination page can highlight the term, and we point
- * the fragment at the section slug so the browser scrolls there.
+ * the fragment at the section slug so the browser scrolls there. Falls back
+ * to `&` if the pageHref already has a query string.
  */
 export function buildHitHref(
   pageHref: string,
   hit: DocsSearchHit,
   query: string,
 ): string {
-  const q = `?q=${encodeURIComponent(query)}`;
+  const sep = pageHref.includes("?") ? "&" : "?";
+  const q = `${sep}q=${encodeURIComponent(query)}`;
   const frag = hit.slug ? `#${hit.slug}` : "";
   return `${pageHref}${q}${frag}`;
 }
@@ -65,18 +67,23 @@ export function searchDocs(
       });
       pageOrder.push(entry.href);
     }
-    byHref.get(entry.href)!.hits.push({
-      slug: entry.slug,
-      heading: entry.heading,
-      snippet: inContent ? makeSnippet(entry.content, q) : undefined,
-      headingMatch: inHeading,
-    });
-  }
 
-  // When the only reason a page matched is the section/title (no heading,
-  // no content hit), we still want a top-level entry pointing at the page.
-  // The first chunk already covers that case because it carries the full
-  // heading-less body, so no extra work needed here.
+    const page = byHref.get(entry.href)!;
+    if (inHeading || inContent) {
+      // Real chunk-level hit: link straight to the heading.
+      page.hits.push({
+        slug: entry.slug,
+        heading: entry.heading,
+        snippet: inContent ? makeSnippet(entry.content, q) : undefined,
+        headingMatch: inHeading,
+      });
+    } else if (page.hits.length === 0) {
+      // Section name or page title matched, but this chunk's body didn't.
+      // Add a single page-top fallback so the page appears in results once
+      // — without duplicating it for every chunk on the page.
+      page.hits.push({ slug: "", heading: "", headingMatch: false });
+    }
+  }
 
   return pageOrder.map((href) => byHref.get(href)!);
 }
