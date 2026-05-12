@@ -5,10 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { docsConfig } from "@/lib/docs-config";
 import type { DocsSearchEntry } from "@/lib/docs-search";
-import { searchDocs } from "@/components/docs/docs-search-utils";
+import { buildHitHref, searchDocs } from "@/components/docs/docs-search-utils";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Home, Search, X } from "lucide-react";
+import { BookOpen, ChevronRight, Home, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -75,36 +75,48 @@ export function DocsSidebar({ searchIndex }: DocsSidebarProps) {
           <nav className="space-y-6 px-4 py-6 pb-8">
             {isSearching ? (
               results.length > 0 ? (
-                results.map((section) => (
-                  <div key={section.section}>
-                    <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      {section.section}
-                    </h3>
-                    <ul className="space-y-1">
-                      {section.matches.map(({ entry, snippet }) => {
-                        const isActive = pathname === entry.href;
-                        return (
-                          <li key={entry.href}>
+                results.map((page) => (
+                  <div key={page.href}>
+                    <div className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {page.section}
+                    </div>
+                    <Link
+                      href={buildHitHref(page.href, page.hits[0], trimmed)}
+                      className={cn(
+                        "block px-2 py-1.5 text-sm font-medium rounded-md transition-colors",
+                        pathname === page.href
+                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      {page.pageTitle}
+                    </Link>
+                    {page.hits.length > 0 && (
+                      <ul className="mt-1 ml-2 space-y-0.5 border-l border-slate-200 dark:border-slate-800">
+                        {page.hits.map((hit, i) => (
+                          <li key={`${hit.slug}-${i}`}>
                             <Link
-                              href={entry.href}
-                              className={cn(
-                                "block px-2 py-1.5 text-sm rounded-md transition-colors",
-                                isActive
-                                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-medium"
-                                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                              )}
+                              href={buildHitHref(page.href, hit, trimmed)}
+                              className="group block pl-3 pr-2 py-1 text-xs rounded-r-md text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
                             >
-                              <div className="font-medium">{entry.title}</div>
-                              {snippet ? (
-                                <div className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400 line-clamp-2">
-                                  {highlight(snippet, trimmed)}
+                              <div className="flex items-center gap-1">
+                                <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50 group-hover:opacity-100" />
+                                <span className="truncate">
+                                  {hit.heading
+                                    ? highlight(hit.heading, trimmed)
+                                    : "Page top"}
+                                </span>
+                              </div>
+                              {hit.snippet ? (
+                                <div className="mt-0.5 ml-4 leading-snug text-slate-500 dark:text-slate-400 line-clamp-2">
+                                  {highlight(hit.snippet, trimmed)}
                                 </div>
                               ) : null}
                             </Link>
                           </li>
-                        );
-                      })}
-                    </ul>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 ))
               ) : (

@@ -1,58 +1,84 @@
 import type { DocsSearchEntry } from "@/lib/docs-search";
 
-export type DocsSearchMatch = {
-  entry: DocsSearchEntry;
-  /** Snippet of content around the match, only set when matched in content. */
+export type DocsSearchHit = {
+  /** Slug of the matched section; empty for the page-top chunk. */
+  slug: string;
+  /** Heading text; empty for the page-top chunk. */
+  heading: string;
+  /** Snippet of body content around the match, when matched in body only. */
   snippet?: string;
+  /** True when the search term hit the heading text itself. */
+  headingMatch: boolean;
 };
 
-export type DocsSearchSectionResult = {
+export type DocsSearchPageResult = {
+  href: string;
+  pageTitle: string;
   section: string;
-  matches: DocsSearchMatch[];
+  hits: DocsSearchHit[];
 };
 
 /**
- * Simple case-insensitive substring search across title and stripped content.
- * Section name is also searched so typing the section ("Using the Editor")
- * surfaces every page inside it.
- *
- * Returns one bucket per section in the order they first appear in the index,
- * so the rendered results follow the same top-to-bottom layout as the unfiltered
- * sidebar.
+ * Build the deep-link URL for a search hit. We always carry the query along
+ * in `?q=...` so the destination page can highlight the term, and we point
+ * the fragment at the section slug so the browser scrolls there.
+ */
+export function buildHitHref(
+  pageHref: string,
+  hit: DocsSearchHit,
+  query: string,
+): string {
+  const q = `?q=${encodeURIComponent(query)}`;
+  const frag = hit.slug ? `#${hit.slug}` : "";
+  return `${pageHref}${q}${frag}`;
+}
+
+/**
+ * Substring search across heading + content, returning one or more hits per
+ * page (grouped so the UI can show "Page Title › Section heading" entries).
+ * Sections within a page keep their original order; pages keep their
+ * docs-config order.
  */
 export function searchDocs(
   query: string,
-  index: DocsSearchEntry[]
-): DocsSearchSectionResult[] {
+  index: DocsSearchEntry[],
+): DocsSearchPageResult[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
 
-  const order: string[] = [];
-  const bySection = new Map<string, DocsSearchMatch[]>();
+  const pageOrder: string[] = [];
+  const byHref = new Map<string, DocsSearchPageResult>();
 
   for (const entry of index) {
-    const lowerTitle = entry.title.toLowerCase();
-    const lowerSection = entry.section.toLowerCase();
-    const lowerContent = entry.content.toLowerCase();
-    const titleMatch = lowerTitle.includes(q);
-    const sectionMatch = lowerSection.includes(q);
-    const contentMatch = lowerContent.includes(q);
-    if (!titleMatch && !sectionMatch && !contentMatch) continue;
+    const inHeading = entry.heading.toLowerCase().includes(q);
+    const inContent = entry.content.toLowerCase().includes(q);
+    const inSection = entry.section.toLowerCase().includes(q);
+    const inPageTitle = entry.pageTitle.toLowerCase().includes(q);
+    if (!inHeading && !inContent && !inSection && !inPageTitle) continue;
 
-    const snippet =
-      contentMatch && !titleMatch ? makeSnippet(entry.content, q) : undefined;
-
-    if (!bySection.has(entry.section)) {
-      bySection.set(entry.section, []);
-      order.push(entry.section);
+    if (!byHref.has(entry.href)) {
+      byHref.set(entry.href, {
+        href: entry.href,
+        pageTitle: entry.pageTitle,
+        section: entry.section,
+        hits: [],
+      });
+      pageOrder.push(entry.href);
     }
-    bySection.get(entry.section)!.push({ entry, snippet });
+    byHref.get(entry.href)!.hits.push({
+      slug: entry.slug,
+      heading: entry.heading,
+      snippet: inContent ? makeSnippet(entry.content, q) : undefined,
+      headingMatch: inHeading,
+    });
   }
 
-  return order.map((section) => ({
-    section,
-    matches: bySection.get(section)!,
-  }));
+  // When the only reason a page matched is the section/title (no heading,
+  // no content hit), we still want a top-level entry pointing at the page.
+  // The first chunk already covers that case because it carries the full
+  // heading-less body, so no extra work needed here.
+
+  return pageOrder.map((href) => byHref.get(href)!);
 }
 
 const SNIPPET_LENGTH = 140;
@@ -63,7 +89,6 @@ function makeSnippet(content: string, lowerQuery: string): string {
   if (idx === -1) {
     return content.slice(0, SNIPPET_LENGTH) + (content.length > SNIPPET_LENGTH ? "…" : "");
   }
-  // Center the snippet around the match, biased to keep it readable.
   const window = SNIPPET_LENGTH;
   const start = Math.max(0, idx - Math.floor(window / 3));
   const end = Math.min(content.length, start + window);
