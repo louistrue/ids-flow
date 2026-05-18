@@ -1,10 +1,11 @@
 "use client"
 
-import { Handle, Position, type NodeProps } from "@xyflow/react"
+import { Handle, type NodeProps } from "@xyflow/react"
 import { Card } from "@/components/ui/card"
 import { Box } from "lucide-react"
 import { getFacet } from "@/lib/facet-colors"
 import type { Cardinality } from "@/lib/graph-types"
+import { getFacetSourcePosition } from "./use-source-handle-position"
 
 // Helper function to get cardinality badge styling
 function getCardinalityBadge(cardinality?: Cardinality) {
@@ -46,7 +47,7 @@ export function EntityNode({ data, selected }: NodeProps) {
           )}
         </div>
       </div>
-      <Handle type="source" position={Position.Right} className={facet.handle} />
+      <Handle type="source" position={getFacetSourcePosition(data as any)} className={facet.handle} />
     </Card>
   )
 }

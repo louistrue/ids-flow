@@ -34,17 +34,26 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
     nodeHeight: 100,
 }
 
-// Width of one specification column in "stacked" arrange mode. Roughly the
-// spec card width (280px) plus a comfortable horizontal gutter so neighboring
-// columns don't visually collide with restriction nodes that sit to the right.
-const STACKED_COLUMN_WIDTH = 560
-// Vertical pitch between cards within a stacked column. Generous enough that
-// the orthogonal edges in the right-side gutter don't run into one another
-// and every facet card has clear breathing room.
-const STACKED_VERTICAL_SPACING = 190
-// Vertical gap inserted between the applicability and requirements sections.
-const STACKED_SECTION_GAP = 60
-// Horizontal offset of a restriction relative to its parent facet's column.
+// Spec card width — kept in sync with `w-[280px]` on SpecificationNode.
+const SPEC_CARD_WIDTH = 280
+// Horizontal offset between the spec card and its applicability stack on
+// the right. Picks up after the spec card with a small gutter so the
+// connecting edge has clear breathing room and the cards never abut.
+const STACKED_APPLICABILITY_X_OFFSET = SPEC_CARD_WIDTH + 80
+// Vertical offset of the requirements stack below the spec card. Big
+// enough to clear the full spec card (header + description + port rows)
+// and keep the first requirement visually separated from the spec.
+const STACKED_REQUIREMENTS_Y_OFFSET = 260
+// Width of one specification column in "stacked" arrange mode. Has to fit
+// the spec card, the applicability stack to its right, and a restriction
+// column on the far right, all with comfortable horizontal gutters before
+// the next spec column begins.
+const STACKED_COLUMN_WIDTH = 920
+// Vertical pitch between cards within a stacked column. Generous enough
+// that the orthogonal edges in the right-side gutter don't run into one
+// another and every facet card has clear breathing room.
+const STACKED_VERTICAL_SPACING = 170
+// Horizontal offset of a restriction relative to its parent facet.
 const STACKED_RESTRICTION_OFFSET = 280
 
 // Node type priority for ordering within groups
@@ -524,35 +533,43 @@ function relayoutNodesStacked(
         applicabilityFacets.sort(sortByPriority)
         requirementsFacets.sort(sortByPriority)
 
-        // Stack applicability facets directly below the spec.
-        let cursorY = baseY + STACKED_VERTICAL_SPACING
+        // Applicability facets stack to the RIGHT of the spec card. Their
+        // source handle attaches on the LEFT (see getFacetSourcePosition),
+        // so a clean horizontal edge runs from the spec's right-side
+        // applicability port straight into each facet's left handle.
+        const applicabilityX = columnX + STACKED_APPLICABILITY_X_OFFSET
+        let appY = baseY
         applicabilityFacets.forEach(facet => {
-            updatePosition(facet.id, { x: columnX, y: cursorY })
+            updatePosition(facet.id, { x: applicabilityX, y: appY })
             const restriction = restrictionForFacet.get(facet.id)
             if (restriction) {
+                // Park applicability restrictions further to the right of
+                // their facet. The chain is facet -> restriction -> spec;
+                // routing isn't perfectly straight here but stays readable
+                // because both segments stay inside this spec's column.
                 updatePosition(restriction.id, {
-                    x: columnX + STACKED_RESTRICTION_OFFSET,
-                    y: cursorY,
+                    x: applicabilityX + STACKED_RESTRICTION_OFFSET,
+                    y: appY,
                 })
             }
-            cursorY += STACKED_VERTICAL_SPACING
+            appY += STACKED_VERTICAL_SPACING
         })
 
-        // Group gap before requirements, so the two sections read as distinct.
-        if (requirementsFacets.length > 0) {
-            cursorY += STACKED_SECTION_GAP
-        }
-
+        // Requirements facets stack directly BELOW the spec card. Their
+        // source handle stays on the RIGHT, so each edge takes a clean
+        // smoothstep U-shape from the spec's right-side requirements port
+        // down the right gutter to the facet's right handle.
+        let reqY = baseY + STACKED_REQUIREMENTS_Y_OFFSET
         requirementsFacets.forEach(facet => {
-            updatePosition(facet.id, { x: columnX, y: cursorY })
+            updatePosition(facet.id, { x: columnX, y: reqY })
             const restriction = restrictionForFacet.get(facet.id)
             if (restriction) {
                 updatePosition(restriction.id, {
                     x: columnX + STACKED_RESTRICTION_OFFSET,
-                    y: cursorY,
+                    y: reqY,
                 })
             }
-            cursorY += STACKED_VERTICAL_SPACING
+            reqY += STACKED_VERTICAL_SPACING
         })
     })
 
