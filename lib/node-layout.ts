@@ -37,9 +37,13 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
 // Width of one specification column in "stacked" arrange mode. Roughly the
 // spec card width (280px) plus a comfortable horizontal gutter so neighboring
 // columns don't visually collide with restriction nodes that sit to the right.
-const STACKED_COLUMN_WIDTH = 520
-// Vertical pitch between cards within a stacked column.
-const STACKED_VERTICAL_SPACING = 130
+const STACKED_COLUMN_WIDTH = 560
+// Vertical pitch between cards within a stacked column. Generous enough that
+// the orthogonal edges in the right-side gutter don't run into one another
+// and every facet card has clear breathing room.
+const STACKED_VERTICAL_SPACING = 190
+// Vertical gap inserted between the applicability and requirements sections.
+const STACKED_SECTION_GAP = 60
 // Horizontal offset of a restriction relative to its parent facet's column.
 const STACKED_RESTRICTION_OFFSET = 280
 
@@ -536,7 +540,7 @@ function relayoutNodesStacked(
 
         // Group gap before requirements, so the two sections read as distinct.
         if (requirementsFacets.length > 0) {
-            cursorY += STACKED_VERTICAL_SPACING * 0.5
+            cursorY += STACKED_SECTION_GAP
         }
 
         requirementsFacets.forEach(facet => {

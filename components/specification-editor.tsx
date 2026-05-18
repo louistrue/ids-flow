@@ -939,6 +939,7 @@ export function SpecificationEditor() {
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
                 onValidateNow={validateNow}
+                arrangeMode={arrangeMode}
               />
             </Panel>
             <CustomPanelResizeHandle />

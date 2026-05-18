@@ -4,6 +4,7 @@ import { useCallback, useMemo, useEffect, useState, useRef } from "react"
 import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
 import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
+import type { ArrangeMode } from "@/lib/node-layout"
 import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
 import { EntityNode } from "./nodes/entity-node"
@@ -44,6 +45,13 @@ interface GraphCanvasProps {
   isValidating?: boolean
   isValidationDisabled?: boolean
   onValidateNow?: () => void
+  /**
+   * Active arrange mode. Forwarded into spec node data so the spec card
+   * knows which side to attach its applicability/requirements ports to,
+   * and used here to switch edge rendering between bezier (grouped) and
+   * smoothstep (stacked) so the orthogonal routing matches the layout.
+   */
+  arrangeMode?: ArrangeMode
 }
 
 const nodeTypes = {
@@ -58,7 +66,7 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, validationState, isValidating = false, isValidationDisabled = false, onValidateNow }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, arrangeMode = "grouped" }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -117,9 +125,13 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
           entityContext: entityContext.entityName,
           isInRequirements: inRequirements,
           hasRestriction,
+          // Spec node consumes this to decide which side of the card its
+          // applicability/requirements ports attach to. Sending it on every
+          // node is harmless — non-spec nodes simply ignore the field.
+          arrangeMode,
         },
       }
-    }), [nodes, edges]
+    }), [nodes, edges, arrangeMode]
   )
 
   // Add focus state to nodes separately
@@ -142,8 +154,13 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       source: edge.source,
       target: edge.target,
       targetHandle: edge.targetHandle,
+      // Use orthogonal (smoothstep) routing in stacked mode so the edges
+      // travel up the right gutter as clean right-angle paths instead of
+      // S-curving through the cards. Grouped mode keeps the default
+      // bezier curve which suits its left→right facet→spec flow.
+      type: arrangeMode === "stacked" ? "smoothstep" : "default",
       style: { stroke: "oklch(0.55 0.18 265)", strokeWidth: 2 },
-    })), [edges]
+    })), [edges, arrangeMode]
   )
 
   // Use ReactFlow's built-in state management
