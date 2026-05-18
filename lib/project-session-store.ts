@@ -8,6 +8,7 @@
  */
 
 import type { GraphNode, GraphEdge } from "./graph-types"
+import type { ArrangeMode } from "./node-layout"
 
 const STORAGE_KEY = "idsedit-project-state"
 
@@ -15,6 +16,10 @@ interface ProjectState {
   nodes: GraphNode[]
   edges: GraphEdge[]
   ifcVersion: string
+  // Optional so older sessionStorage payloads (from versions before the
+  // arrange-mode toggle existed) still parse cleanly and fall back to the
+  // default "grouped" layout on load.
+  arrangeMode?: ArrangeMode
 }
 
 let cache: ProjectState | null | undefined = undefined
@@ -51,7 +56,17 @@ export function loadProjectState(): ProjectState | null {
       return null
     }
 
-    cache = parsed as ProjectState
+    const arrangeMode: ArrangeMode | undefined =
+      parsed.arrangeMode === "stacked" || parsed.arrangeMode === "grouped"
+        ? parsed.arrangeMode
+        : undefined
+
+    cache = {
+      nodes: parsed.nodes,
+      edges: parsed.edges,
+      ifcVersion: parsed.ifcVersion,
+      arrangeMode,
+    }
     return cache
   } catch {
     cache = null
@@ -65,12 +80,13 @@ export function loadProjectState(): ProjectState | null {
 export function saveProjectState(
   nodes: GraphNode[],
   edges: GraphEdge[],
-  ifcVersion: string
+  ifcVersion: string,
+  arrangeMode?: ArrangeMode,
 ): void {
   try {
     if (typeof window === "undefined") return
 
-    const state: ProjectState = { nodes, edges, ifcVersion }
+    const state: ProjectState = { nodes, edges, ifcVersion, arrangeMode }
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
     // Keep cache in sync
     cache = state

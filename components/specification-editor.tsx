@@ -10,7 +10,7 @@ import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { IdsExportDialog } from "./ids-export-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Layout, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
+import { Copy, Download, Upload, FileText, Layout, LayoutGrid, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
@@ -22,7 +22,7 @@ import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { loadProjectState, saveProjectState } from "@/lib/project-session-store"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
-import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
+import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode, type ArrangeMode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
 import { useUndoRedo } from "@/lib/use-undo-redo"
 import { AppFooter } from "./app-footer"
@@ -53,6 +53,15 @@ export function SpecificationEditor() {
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
     const saved = loadProjectState()
     return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
+  })
+  // Canvas arrange mode. "grouped" keeps the original two-column layout
+  // (facets left, spec right, specs stacked vertically). "stacked" arranges
+  // each specification as its own vertical column (spec on top, facets
+  // stacked beneath it, specs placed side-by-side). The mode is persisted in
+  // sessionStorage alongside the rest of the project state.
+  const [arrangeMode, setArrangeMode] = useState<ArrangeMode>(() => {
+    const saved = loadProjectState()
+    return saved?.arrangeMode ?? "grouped"
   })
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
@@ -93,8 +102,8 @@ export function SpecificationEditor() {
 
   // Persist project state to sessionStorage so it survives navigation (e.g. to /docs and back)
   useEffect(() => {
-    saveProjectState(nodes, edges, ifcVersion)
-  }, [nodes, edges, ifcVersion])
+    saveProjectState(nodes, edges, ifcVersion, arrangeMode)
+  }, [nodes, edges, ifcVersion, arrangeMode])
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     setNodes((nds) => {
@@ -129,9 +138,19 @@ export function SpecificationEditor() {
 
   const arrangeAll = useCallback(() => {
     takeSnapshot() // Capture BEFORE rearranging
-    const updatedNodes = relayoutNodes(nodes, edges)
+    const updatedNodes = relayoutNodes(nodes, edges, arrangeMode)
     setNodes(updatedNodes)
-  }, [nodes, edges, takeSnapshot])
+  }, [nodes, edges, takeSnapshot, arrangeMode])
+
+  // Flip between grouped/stacked layout and immediately re-arrange so the
+  // user sees the result of the toggle without a second click on "Arrange
+  // All". We snapshot first so the layout flip is itself undoable.
+  const toggleArrangeMode = useCallback(() => {
+    const nextMode: ArrangeMode = arrangeMode === "stacked" ? "grouped" : "stacked"
+    takeSnapshot()
+    setArrangeMode(nextMode)
+    setNodes(relayoutNodes(nodes, edges, nextMode))
+  }, [arrangeMode, nodes, edges, takeSnapshot])
 
   const applyTemplate = useCallback((template: SpecTemplate) => {
     const timestamp = Date.now()
@@ -706,10 +725,31 @@ export function SpecificationEditor() {
               size="sm"
               className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={arrangeAll}
-              title="Auto-arrange all nodes"
+              title={
+                arrangeMode === "stacked"
+                  ? "Auto-arrange — vertical stack per specification"
+                  : "Auto-arrange — grouped facets per specification"
+              }
             >
               <Layout className="h-3.5 w-3.5" />
               <span className="hidden xl:inline">Arrange All</span>
+            </Button>
+            <Button
+              variant={arrangeMode === "stacked" ? "default" : "outline"}
+              size="sm"
+              className="gap-1.5 h-8 px-2.5"
+              onClick={toggleArrangeMode}
+              title={
+                arrangeMode === "stacked"
+                  ? "Stacked layout active — click for grouped layout"
+                  : "Grouped layout active — click to stack cards vertically per specification"
+              }
+              aria-pressed={arrangeMode === "stacked"}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">
+                {arrangeMode === "stacked" ? "Stacked" : "Grouped"}
+              </span>
             </Button>
             <Button
               variant="outline"
@@ -815,6 +855,10 @@ export function SpecificationEditor() {
                 <DropdownMenuItem onClick={arrangeAll}>
                   <Layout className="h-4 w-4 mr-2" />
                   Arrange All
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleArrangeMode}>
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  {arrangeMode === "stacked" ? "Layout: Stacked" : "Layout: Grouped"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={cloneAsProfile}
