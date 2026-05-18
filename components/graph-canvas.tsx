@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react"
-import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, useUpdateNodeInternals, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
 import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
 import type { ArrangeMode } from "@/lib/node-layout"
@@ -75,6 +75,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   const [isDragOver, setIsDragOver] = useState(false)
   const reactFlowContainerRef = useRef<HTMLDivElement>(null)
   const reactFlowInstance = useReactFlow()
+  const updateNodeInternals = useUpdateNodeInternals()
 
   const onPaletteDragOver = useCallback((event: React.DragEvent) => {
     if (!event.dataTransfer.types.includes('application/reactflow-node-type')) return
@@ -166,6 +167,25 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   // Use ReactFlow's built-in state management
   const [reactFlowNodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  // When the arrange mode flips, the spec card moves its applicability /
+  // requirements handles to the other side and facet nodes flip their source
+  // handle position. ReactFlow caches each node's handle bounds (the geometry
+  // it uses to anchor edge endpoints) and will *not* recompute them just
+  // because we re-rendered the component — so without this call, every edge
+  // visually stays glued to the previous handle location for a beat and the
+  // result is the stub-on-the-wrong-side artefact in the screenshot. Asking
+  // for an update on every node id forces a re-measure on the next frame.
+  useEffect(() => {
+    const ids = nodes.map((n) => n.id)
+    if (ids.length === 0) return
+    // requestAnimationFrame so the DOM has settled with the new Handle props
+    // before ReactFlow measures.
+    const raf = requestAnimationFrame(() => {
+      ids.forEach((id) => updateNodeInternals(id))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [arrangeMode, nodes, updateNodeInternals])
 
   // Sync ReactFlow state with parent props only when base nodes change (not during selection/focus changes)
   useEffect(() => {
