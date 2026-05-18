@@ -34,14 +34,18 @@ export function SpecificationEditor() {
     return supported.includes(value as IFCVersion) ? (value as IFCVersion) : undefined
   }, [])
 
-  const [nodes, setNodes] = useState<GraphNode[]>(() => {
-    const saved = loadProjectState()
-    return saved ? saved.nodes : initialNodes
-  })
-  const [edges, setEdges] = useState<GraphEdge[]>(() => {
-    const saved = loadProjectState()
-    return saved ? saved.edges : initialEdges
-  })
+  // IMPORTANT: do *not* read sessionStorage in these initialisers. The
+  // editor is a `"use client"` component but Next.js still server-renders it
+  // on the initial page load; sessionStorage is only available in the
+  // browser, so anything we initialise from it here would differ between the
+  // server-rendered HTML and the first client render and trigger a
+  // hydration mismatch (the arrange-mode toggle button label / title / aria
+  // are the most visible casualties). Instead, mount with the same defaults
+  // the server uses and then rehydrate from sessionStorage in a single
+  // effect below, guarded by `hydrated` so the autosave effect doesn't
+  // overwrite the stored state with the empty defaults in the meantime.
+  const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
+  const [edges, setEdges] = useState<GraphEdge[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   // Pending selection request for newly created nodes. GraphCanvas picks this
   // up via prop, marks the IDs selected on React Flow's internal node state,
@@ -50,19 +54,17 @@ export function SpecificationEditor() {
   // conversion, IDS/JSON import) become the current selection without a
   // manual click.
   const [pendingSelectionIds, setPendingSelectionIds] = useState<string[] | null>(null)
-  const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
-    const saved = loadProjectState()
-    return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
-  })
+  const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   // Canvas arrange mode. "grouped" keeps the original two-column layout
   // (facets left, spec right, specs stacked vertically). "stacked" arranges
   // each specification as its own vertical column (spec on top, facets
   // stacked beneath it, specs placed side-by-side). The mode is persisted in
   // sessionStorage alongside the rest of the project state.
-  const [arrangeMode, setArrangeMode] = useState<ArrangeMode>(() => {
-    const saved = loadProjectState()
-    return saved?.arrangeMode ?? "grouped"
-  })
+  const [arrangeMode, setArrangeMode] = useState<ArrangeMode>("grouped")
+  // Flips to true after the first client-side mount once we've had a chance
+  // to read sessionStorage. Used to gate the autosave effect so the freshly
+  // mounted defaults can't clobber a saved project on the way in.
+  const [hydrated, setHydrated] = useState(false)
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
@@ -100,10 +102,35 @@ export function SpecificationEditor() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo])
 
-  // Persist project state to sessionStorage so it survives navigation (e.g. to /docs and back)
+  // Rehydrate from sessionStorage exactly once after first client mount.
+  // Doing this in an effect (rather than in the useState initialisers) keeps
+  // the server-rendered HTML and the first client render identical, which is
+  // what avoids the hydration mismatch on the arrange-mode toggle button and
+  // anything else whose label/aria depends on the persisted state. After
+  // applying the saved values we flip `hydrated` so the autosave effect can
+  // start syncing further changes back to sessionStorage.
   useEffect(() => {
+    const saved = loadProjectState()
+    if (saved) {
+      setNodes(saved.nodes)
+      setEdges(saved.edges)
+      const v = normalizeIfcVersion(saved.ifcVersion)
+      if (v) setIfcVersion(v)
+      if (saved.arrangeMode === "stacked" || saved.arrangeMode === "grouped") {
+        setArrangeMode(saved.arrangeMode)
+      }
+    }
+    setHydrated(true)
+  }, [normalizeIfcVersion])
+
+  // Persist project state to sessionStorage so it survives navigation (e.g.
+  // to /docs and back). Gated on `hydrated` so the initial render with empty
+  // defaults doesn't overwrite a saved project before we've had a chance to
+  // read it back in the effect above.
+  useEffect(() => {
+    if (!hydrated) return
     saveProjectState(nodes, edges, ifcVersion, arrangeMode)
-  }, [nodes, edges, ifcVersion, arrangeMode])
+  }, [hydrated, nodes, edges, ifcVersion, arrangeMode])
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     setNodes((nds) => {
