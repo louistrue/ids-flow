@@ -6,6 +6,10 @@ export interface ValidationIssue {
     message: string
     nodeId?: string
     nodeType?: string
+    // The specific data field this issue is about (e.g. 'dataType', 'baseName').
+    // Lets the inspector ring the exact control that needs fixing. Omitted for
+    // node-level issues that don't map to a single field.
+    field?: string
 }
 
 export interface ClientValidationResult {
@@ -58,6 +62,7 @@ export async function validateGraphClientSide(
                     message: `Invalid IFC data type "${data.dataType}" in property "${data.baseName || 'unnamed'}"`,
                     nodeId: node.id,
                     nodeType: 'property',
+                    field: 'dataType',
                 })
             }
         }
@@ -71,6 +76,7 @@ export async function validateGraphClientSide(
                     message: `Property "${data.baseName}" should have data type ${validation.expectedTypes.join(' or ')}, not "${data.dataType}"`,
                     nodeId: node.id,
                     nodeType: 'property',
+                    field: 'dataType',
                 })
             }
         }
@@ -82,6 +88,7 @@ export async function validateGraphClientSide(
                 message: `Property node is missing propertySet`,
                 nodeId: node.id,
                 nodeType: 'property',
+                field: 'propertySet',
             })
         }
 
@@ -91,6 +98,7 @@ export async function validateGraphClientSide(
                 message: `Property node is missing baseName`,
                 nodeId: node.id,
                 nodeType: 'property',
+                field: 'baseName',
             })
         }
     }
@@ -105,6 +113,7 @@ export async function validateGraphClientSide(
                 message: 'Entity node is missing name',
                 nodeId: node.id,
                 nodeType: 'entity',
+                field: 'name',
             })
         }
     }
