@@ -94,26 +94,30 @@ function FieldIssueWrap({ field, children }: { field: string; children: React.Re
     <div
       ref={ref}
       className={cn(
-        "rounded-md transition-shadow",
-        info && "p-2 -mx-2 ring-1",
-        info?.severity === "error" && "ring-red-500/50 bg-red-500/5",
-        info?.severity === "warning" && "ring-amber-500/50 bg-amber-500/5",
+        "rounded-lg transition-all",
+        // ring-inset keeps the highlight inside the box so it never bleeds past
+        // the panel edge and gets clipped. No negative margin for the same
+        // reason. Padding only appears in the error state (a deliberate focus
+        // cue), so unaffected fields stay flush with the rest of the form.
+        info && "p-2.5 ring-1 ring-inset",
+        info?.severity === "error" && "bg-red-500/[0.06] ring-red-500/30",
+        info?.severity === "warning" && "bg-amber-500/[0.06] ring-amber-500/30",
       )}
     >
       {children}
       {info && (
         <p
           className={cn(
-            "mt-1.5 flex items-start gap-1 text-[11px] leading-snug",
+            "mt-2 flex items-start gap-1.5 text-[11px] font-medium leading-snug",
             info.severity === "error"
               ? "text-red-600 dark:text-red-400"
               : "text-amber-600 dark:text-amber-400",
           )}
         >
           {info.severity === "error" ? (
-            <XCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
+            <XCircle className="mt-px h-3.5 w-3.5 flex-shrink-0" />
           ) : (
-            <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
+            <AlertCircle className="mt-px h-3.5 w-3.5 flex-shrink-0" />
           )}
           <span>{info.message}</span>
         </p>
@@ -912,6 +916,7 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
 
   return (
     <>
+      <FieldIssueWrap field="propertySet">
       <div className="space-y-2">
         <Label htmlFor="propertySet" className="text-sidebar-foreground">
           Property Set
@@ -972,6 +977,8 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           }}
         />
       </div>
+      </FieldIssueWrap>
+      <FieldIssueWrap field="baseName">
       <div className="space-y-2">
         <Label htmlFor="baseName" className="text-sidebar-foreground">
           Base Name
@@ -1019,6 +1026,7 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           }}
         />
       </div>
+      </FieldIssueWrap>
       <FieldIssueWrap field="dataType">
       <div className="space-y-2">
         <Label htmlFor="dataType" className="text-sidebar-foreground">
@@ -1823,26 +1831,38 @@ function ValidationIssues({
   selectedNodeId?: string
   onIssueSelect?: (nodeId: string, field?: string) => void
 }) {
-  // Split the global issue list so the selected node's own problems surface
-  // first; everything else is one click away via onIssueSelect.
-  const onThisNode = issues.filter((i) => i.nodeId && i.nodeId === selectedNodeId)
+  // The selected node's *field* issues are already shown inline at their
+  // controls (see FieldIssueWrap), so listing them here too would repeat the
+  // same message two or three times. Surface only this node's node-level issues
+  // (no specific field) plus a clickable group for problems on other nodes.
+  const onThisNode = issues.filter(
+    (i) => i.nodeId === selectedNodeId && !i.field,
+  )
   const elsewhere = issues.filter((i) => !i.nodeId || i.nodeId !== selectedNodeId)
 
   const renderRow = (issue: ValidationIssue, key: string, linkable: boolean) => {
-    const colorClass =
-      issue.severity === 'error'
-        ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-        : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border border-yellow-500/20'
+    const isError = issue.severity === 'error'
+    const tone = isError
+      ? 'bg-red-500/[0.06] ring-red-500/25'
+      : 'bg-amber-500/[0.06] ring-amber-500/25'
     const content = (
-      <div className="flex items-start gap-1.5">
-        {issue.severity === 'error' ? (
-          <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+      <div className="flex items-start gap-2">
+        {/* Severity rail — accent, not a flood of colour */}
+        <span
+          aria-hidden
+          className={cn(
+            'mt-0.5 w-0.5 self-stretch rounded-full',
+            isError ? 'bg-red-500/70' : 'bg-amber-500/70',
+          )}
+        />
+        {isError ? (
+          <XCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-red-500" />
         ) : (
-          <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
         )}
-        <span className="leading-tight flex-1">{issue.message}</span>
+        <span className="flex-1 leading-snug text-foreground/90">{issue.message}</span>
         {linkable && (
-          <Locate className="h-3 w-3 mt-0.5 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+          <Locate className="mt-px h-3.5 w-3.5 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
         )}
       </div>
     )
@@ -1854,36 +1874,39 @@ function ValidationIssues({
           onClick={() => onIssueSelect(issue.nodeId!, issue.field)}
           title="Go to node"
           aria-label={`Go to node: ${issue.message}`}
-          className={`group block w-full text-left text-xs p-2 rounded transition-[filter] hover:brightness-125 ${colorClass}`}
+          className={cn(
+            'group block w-full rounded-lg px-2.5 py-2 text-left text-xs ring-1 ring-inset transition-colors hover:bg-foreground/[0.04]',
+            tone,
+          )}
         >
           {content}
         </button>
       )
     }
     return (
-      <div key={key} className={`text-xs p-2 rounded ${colorClass}`}>
+      <div key={key} className={cn('rounded-lg px-2.5 py-2 text-xs ring-1 ring-inset', tone)}>
         {content}
       </div>
     )
   }
 
+  if (onThisNode.length === 0 && elsewhere.length === 0) return null
+
   return (
-    <div className="mt-3 space-y-2">
+    <div className="space-y-2.5">
       {onThisNode.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             On this node
           </p>
           {onThisNode.map((issue, i) => renderRow(issue, `this-${i}`, false))}
         </div>
       )}
       {elsewhere.length > 0 && (
-        <div className="space-y-1">
-          {onThisNode.length > 0 && (
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Elsewhere ({elsewhere.length})
-            </p>
-          )}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            {elsewhere.length} issue{elsewhere.length === 1 ? '' : 's'} elsewhere
+          </p>
           {elsewhere.map((issue, i) => renderRow(issue, `else-${i}`, Boolean(issue.nodeId)))}
         </div>
       )}

@@ -267,22 +267,23 @@
 }
 
 /* One-shot pulse when the inspector scrolls to a field after clicking an
-   audit error (see FieldIssueWrap in inspector-panel). */
+   audit error (see FieldIssueWrap in inspector-panel). Uses an *inset* ring so
+   the highlight stays inside the field box and never clips at the panel edge. */
 .field-flash {
-  animation: field-flash 1.1s ease-out 1;
+  animation: field-flash 1.15s ease-out 1;
 }
 
 @keyframes field-flash {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 55%, transparent);
+    box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--ring) 60%, transparent);
   }
 
-  30% {
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
+  55% {
+    box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--ring) 28%, transparent);
   }
 
   100% {
-    box-shadow: 0 0 0 0 transparent;
+    box-shadow: inset 0 0 0 2px transparent;
   }
 }
 
