@@ -63,8 +63,16 @@ const FieldIssueContext = createContext<{
   active: { field?: string; nonce: number } | null
 }>({ errors: {}, active: null })
 
-// Wrap a field block to ring it when the selected node has an issue on that
-// field, show the message inline, and scroll+flash it when an error is clicked.
+/**
+ * Wraps a single inspector field so it reacts to the selected node's validation
+ * issues: rings the control (red for errors, amber for warnings), shows the
+ * issue message inline, and — when the user clicks the matching audit error —
+ * scrolls the field into view and plays a one-shot flash. Reads everything from
+ * {@link FieldIssueContext}, so callers only pass the field key.
+ *
+ * @param field - The data field this block edits (e.g. `"dataType"`), matched
+ *   against the active node's issues and the jump-to-field request.
+ */
 function FieldIssueWrap({ field, children }: { field: string; children: React.ReactNode }) {
   const { errors, active } = useContext(FieldIssueContext)
   const info = errors[field]
@@ -1797,6 +1805,15 @@ function ValidationBadge({
   )
 }
 
+/**
+ * Renders the inspector's validation issue list, partitioned into the selected
+ * node's own problems ("On this node") and everything else ("Elsewhere"). Rows
+ * for other nodes are clickable and call {@link onIssueSelect} to jump to them.
+ *
+ * @param issues - All client-side validation issues for the current graph.
+ * @param selectedNodeId - The currently selected node, used to partition rows.
+ * @param onIssueSelect - Invoked with a row's `(nodeId, field)` to navigate to it.
+ */
 function ValidationIssues({
   issues,
   selectedNodeId,

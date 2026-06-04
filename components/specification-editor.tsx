@@ -663,10 +663,13 @@ export function SpecificationEditor() {
     setPendingSelectionIds([restrictionId])
   }, [nodes, takeSnapshot])
 
-  // Navigate to the node a validation error points at: select it (so the
-  // inspector opens on it), center+zoom the canvas onto it, and remember the
-  // offending field so the inspector can highlight/scroll to it. Wired to both
-  // the canvas overlay and the inspector's issue list.
+  /**
+   * Navigate to the node a validation error points at: select it (so the
+   * inspector opens on it), center+zoom the canvas onto it, and remember the
+   * offending field so the inspector can highlight/scroll to it. Wired to both
+   * the canvas overlay and the inspector's issue list. The nonce makes clicking
+   * the same error twice re-trigger the inspector's scroll/flash.
+   */
   const handleIssueSelect = useCallback((nodeId: string, field?: string) => {
     setPendingSelectionIds([nodeId])
     setPendingFocusNodeId(nodeId)

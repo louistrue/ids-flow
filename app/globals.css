@@ -269,10 +269,10 @@
 /* One-shot pulse when the inspector scrolls to a field after clicking an
    audit error (see FieldIssueWrap in inspector-panel). */
 .field-flash {
-  animation: fieldFlash 1.1s ease-out 1;
+  animation: field-flash 1.1s ease-out 1;
 }
 
-@keyframes fieldFlash {
+@keyframes field-flash {
   0% {
     box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 55%, transparent);
   }
