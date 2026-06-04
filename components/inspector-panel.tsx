@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef, useContext, createContext } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,7 +42,77 @@ import {
   type CustomPropertySet
 } from "@/lib/custom-schema-store"
 import type { ValidationState } from "@/lib/use-ids-validation"
-import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw, MousePointerClick, Info, Zap, PlusCircle, Link2, Eye, ExternalLink, BookOpen, Filter } from "lucide-react"
+import type { ValidationIssue } from "@/lib/ids-client-validation"
+import { cn } from "@/lib/utils"
+import { CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw, MousePointerClick, Info, Zap, PlusCircle, Link2, Eye, ExternalLink, BookOpen, Filter, Locate } from "lucide-react"
+
+// Active field-highlight request from a clicked validation error. `field` is the
+// data field to flash/scroll to; `nonce` lets a repeat click re-trigger it.
+type ActiveIssueField = { nodeId: string; field?: string; nonce: number } | null
+
+interface FieldIssueInfo {
+  severity: "error" | "warning"
+  message: string
+}
+
+// Context so individual field blocks can pick up their own validation issue
+// (red ring + inline message) and the scroll-to/flash request without every
+// *Fields component threading the props through. Scoped to the selected node.
+const FieldIssueContext = createContext<{
+  errors: Record<string, FieldIssueInfo>
+  active: { field?: string; nonce: number } | null
+}>({ errors: {}, active: null })
+
+// Wrap a field block to ring it when the selected node has an issue on that
+// field, show the message inline, and scroll+flash it when an error is clicked.
+function FieldIssueWrap({ field, children }: { field: string; children: React.ReactNode }) {
+  const { errors, active } = useContext(FieldIssueContext)
+  const info = errors[field]
+  const ref = useRef<HTMLDivElement>(null)
+  const isActive = active?.field === field
+  const nonce = active?.nonce
+
+  useEffect(() => {
+    if (!isActive || !ref.current) return
+    const el = ref.current
+    el.scrollIntoView({ behavior: "smooth", block: "center" })
+    el.classList.remove("field-flash")
+    // Force reflow so re-adding the class restarts the animation on repeat clicks.
+    void el.offsetWidth
+    el.classList.add("field-flash")
+  }, [isActive, nonce])
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-md transition-shadow",
+        info && "p-2 -mx-2 ring-1",
+        info?.severity === "error" && "ring-red-500/50 bg-red-500/5",
+        info?.severity === "warning" && "ring-amber-500/50 bg-amber-500/5",
+      )}
+    >
+      {children}
+      {info && (
+        <p
+          className={cn(
+            "mt-1.5 flex items-start gap-1 text-[11px] leading-snug",
+            info.severity === "error"
+              ? "text-red-600 dark:text-red-400"
+              : "text-amber-600 dark:text-amber-400",
+          )}
+        >
+          {info.severity === "error" ? (
+            <XCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
+          )}
+          <span>{info.message}</span>
+        </p>
+      )}
+    </div>
+  )
+}
 
 interface InspectorPanelProps {
   selectedNode: Node<any> | null
@@ -55,6 +125,10 @@ interface InspectorPanelProps {
   nodes: GraphNode[]
   edges: GraphEdge[]
   onConvertValueToRestriction?: (facetNodeId: string, fieldName: string, values: string[]) => void
+  /** Jump to + select the node a validation issue points at. */
+  onIssueSelect?: (nodeId: string, field?: string) => void
+  /** Field the user asked to jump to (drives the inspector scroll/flash). */
+  activeIssueField?: ActiveIssueField
 }
 
 // Module-level cache for inspector schema lookups. Each field component's
@@ -193,7 +267,9 @@ export function InspectorPanel({
   ifcVersion = "IFC4X3_ADD2",
   nodes,
   edges,
-  onConvertValueToRestriction
+  onConvertValueToRestriction,
+  onIssueSelect,
+  activeIssueField
 }: InspectorPanelProps) {
   if (!selectedNode) {
     return (
@@ -370,6 +446,21 @@ export function InspectorPanel({
     onUpdateNode(selectedNode.id, { [field]: value })
   }
 
+  // Validation issues that belong to the selected node, indexed by field, so
+  // each field block can ring itself and the jump-to-field flash can target it.
+  const clientIssues = validationState?.clientIssues ?? []
+  const selectedNodeIssues = clientIssues.filter((i) => i.nodeId === selectedNode.id)
+  const fieldErrors: Record<string, FieldIssueInfo> = {}
+  for (const issue of selectedNodeIssues) {
+    if (issue.field && !fieldErrors[issue.field]) {
+      fieldErrors[issue.field] = { severity: issue.severity, message: issue.message }
+    }
+  }
+  const fieldActive =
+    activeIssueField && activeIssueField.nodeId === selectedNode.id
+      ? { field: activeIssueField.field, nonce: activeIssueField.nonce }
+      : null
+
   return (
     <Card className="h-full rounded-none border-l border-border bg-sidebar flex flex-col overflow-hidden">
       <ScrollArea className="flex-1 min-h-0">
@@ -387,18 +478,24 @@ export function InspectorPanel({
             )}
           </div>
           {/* Validation Issues (if any) */}
-          {validationState && validationState.clientIssues && validationState.clientIssues.length > 0 && (
-            <ValidationIssues issues={validationState.clientIssues} />
+          {clientIssues.length > 0 && (
+            <ValidationIssues
+              issues={clientIssues}
+              selectedNodeId={selectedNode.id}
+              onIssueSelect={onIssueSelect}
+            />
           )}
           {/* Node Properties */}
-          {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
-          {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
-          {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
-          {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
-          {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
-          {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
-          {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          <FieldIssueContext.Provider value={{ errors: fieldErrors, active: fieldActive }}>
+            {selectedNode.type === "spec" && <SpecificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+            {selectedNode.type === "entity" && <EntityFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
+            {selectedNode.type === "property" && <PropertyFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+            {selectedNode.type === "attribute" && <AttributeFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+            {selectedNode.type === "classification" && <ClassificationFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+            {selectedNode.type === "material" && <MaterialFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} onConvertValueToRestriction={onConvertValueToRestriction} />}
+            {selectedNode.type === "partOf" && <PartOfFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} nodes={nodes} edges={edges} />}
+            {selectedNode.type === "restriction" && <RestrictionFields node={selectedNode} onChange={handleChange} ifcVersion={ifcVersion} />}
+          </FieldIssueContext.Provider>
         </div>
       </ScrollArea>
     </Card>
@@ -613,6 +710,7 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
 
   return (
     <>
+      <FieldIssueWrap field="name">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-sidebar-foreground">
           Entity Name
@@ -636,6 +734,7 @@ function EntityFields({ node, onChange, ifcVersion, nodes, edges }: { node: Node
           disabled={loading}
         />
       </div>
+      </FieldIssueWrap>
       {predefinedTypes.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="predefinedType" className="text-sidebar-foreground">
@@ -912,6 +1011,7 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           }}
         />
       </div>
+      <FieldIssueWrap field="dataType">
       <div className="space-y-2">
         <Label htmlFor="dataType" className="text-sidebar-foreground">
           Data Type
@@ -942,6 +1042,7 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           maxHeight={300}
         />
       </div>
+      </FieldIssueWrap>
       <div className="space-y-2">
         <Label htmlFor="value" className="text-sidebar-foreground">
           Value (Optional)
@@ -1696,27 +1797,79 @@ function ValidationBadge({
   )
 }
 
-function ValidationIssues({ issues }: { issues: Array<{ severity: 'error' | 'warning'; message: string }> }) {
-  return (
-    <div className="mt-3 space-y-1">
-      {issues.map((issue, index) => (
-        <div
-          key={index}
-          className={`text-xs p-2 rounded ${issue.severity === 'error'
-            ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-            : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border border-yellow-500/20'
-            }`}
+function ValidationIssues({
+  issues,
+  selectedNodeId,
+  onIssueSelect,
+}: {
+  issues: ValidationIssue[]
+  selectedNodeId?: string
+  onIssueSelect?: (nodeId: string, field?: string) => void
+}) {
+  // Split the global issue list so the selected node's own problems surface
+  // first; everything else is one click away via onIssueSelect.
+  const onThisNode = issues.filter((i) => i.nodeId && i.nodeId === selectedNodeId)
+  const elsewhere = issues.filter((i) => !i.nodeId || i.nodeId !== selectedNodeId)
+
+  const renderRow = (issue: ValidationIssue, key: string, linkable: boolean) => {
+    const colorClass =
+      issue.severity === 'error'
+        ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+        : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border border-yellow-500/20'
+    const content = (
+      <div className="flex items-start gap-1.5">
+        {issue.severity === 'error' ? (
+          <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+        ) : (
+          <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+        )}
+        <span className="leading-tight flex-1">{issue.message}</span>
+        {linkable && (
+          <Locate className="h-3 w-3 mt-0.5 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+        )}
+      </div>
+    )
+    if (linkable && onIssueSelect) {
+      return (
+        <button
+          key={key}
+          type="button"
+          onClick={() => onIssueSelect(issue.nodeId!, issue.field)}
+          title="Go to node"
+          aria-label={`Go to node: ${issue.message}`}
+          className={`group block w-full text-left text-xs p-2 rounded transition-[filter] hover:brightness-125 ${colorClass}`}
         >
-          <div className="flex items-start gap-1.5">
-            {issue.severity === 'error' ? (
-              <XCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-            )}
-            <span className="leading-tight flex-1">{issue.message}</span>
-          </div>
+          {content}
+        </button>
+      )
+    }
+    return (
+      <div key={key} className={`text-xs p-2 rounded ${colorClass}`}>
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-3 space-y-2">
+      {onThisNode.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            On this node
+          </p>
+          {onThisNode.map((issue, i) => renderRow(issue, `this-${i}`, false))}
         </div>
-      ))}
+      )}
+      {elsewhere.length > 0 && (
+        <div className="space-y-1">
+          {onThisNode.length > 0 && (
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Elsewhere ({elsewhere.length})
+            </p>
+          )}
+          {elsewhere.map((issue, i) => renderRow(issue, `else-${i}`, Boolean(issue.nodeId)))}
+        </div>
+      )}
     </div>
   )
 }

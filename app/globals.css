@@ -255,6 +255,37 @@
   }
 }
 
+/* Validation indicators on canvas nodes. Set by graph-canvas as a className on
+   the ReactFlow node wrapper so problem nodes are easy to spot without opening
+   the validation overlay. Red = has an error, amber = warning only. */
+.react-flow__node.rf-node-error [data-slot="card"] {
+  box-shadow: 0 0 0 2px color-mix(in oklch, oklch(0.62 0.22 25) 85%, transparent), 0 0 12px -2px oklch(0.62 0.22 25);
+}
+
+.react-flow__node.rf-node-warning [data-slot="card"] {
+  box-shadow: 0 0 0 2px color-mix(in oklch, oklch(0.78 0.15 75) 85%, transparent), 0 0 12px -2px oklch(0.78 0.15 75);
+}
+
+/* One-shot pulse when the inspector scrolls to a field after clicking an
+   audit error (see FieldIssueWrap in inspector-panel). */
+.field-flash {
+  animation: fieldFlash 1.1s ease-out 1;
+}
+
+@keyframes fieldFlash {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 55%, transparent);
+  }
+
+  30% {
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
 .react-flow__handle {
   width: 10px;
   height: 10px;

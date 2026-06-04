@@ -11,6 +11,7 @@ import {
   ChevronUp,
   RefreshCw,
   Sparkles,
+  Locate,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,8 @@ interface CanvasValidationOverlayProps {
   isValidating: boolean
   isDisabled: boolean
   onValidateNow?: () => void
+  /** Jump to + select the node a validation issue points at. */
+  onIssueSelect?: (nodeId: string, field?: string) => void
 }
 
 type OverlayStatus = "idle" | "loading" | "valid" | "warning" | "error"
@@ -30,6 +33,10 @@ interface DisplayIssue {
   severity: "error" | "warning"
   message: string
   detail?: string
+  // Carried through from the client-side ValidationIssue so each row can link
+  // back to its node. Absent for parser/structure errors that aren't mapped.
+  nodeId?: string
+  field?: string
 }
 
 function deriveStatus(
@@ -44,6 +51,8 @@ function deriveStatus(
   const issues: DisplayIssue[] = clientIssues.map((i) => ({
     severity: i.severity,
     message: i.message,
+    nodeId: i.nodeId,
+    field: i.field,
   }))
 
   // Surface server / parser failures as errors
@@ -126,6 +135,7 @@ export function CanvasValidationOverlay({
   isValidating,
   isDisabled,
   onValidateNow,
+  onIssueSelect,
 }: CanvasValidationOverlayProps) {
   const [expanded, setExpanded] = useState(false)
 
@@ -215,37 +225,61 @@ export function CanvasValidationOverlay({
         {expanded && issues.length > 0 ? (
           <div className="border-t border-border/60 max-h-[280px] overflow-y-auto">
             <ul className="py-1">
-              {issues.map((issue, idx) => (
-                <li
-                  key={idx}
-                  className={cn(
-                    "flex items-start gap-2 px-2.5 py-1.5 text-[11px] leading-snug",
-                    "border-b border-border/30 last:border-b-0"
-                  )}
-                >
-                  {issue.severity === "error" ? (
+              {issues.map((issue, idx) => {
+                const linkable = Boolean(issue.nodeId && onIssueSelect)
+                const Icon =
+                  issue.severity === "error" ? (
                     <XCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-red-500" />
                   ) : (
                     <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-amber-500" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div
-                      className={cn(
-                        issue.severity === "error"
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-amber-600 dark:text-amber-400"
-                      )}
-                    >
-                      {issue.message}
-                    </div>
-                    {issue.detail ? (
-                      <div className="mt-0.5 text-muted-foreground font-mono text-[10px] break-words">
-                        {issue.detail}
+                  )
+                const body = (
+                  <>
+                    {Icon}
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={cn(
+                          issue.severity === "error"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-amber-600 dark:text-amber-400"
+                        )}
+                      >
+                        {issue.message}
                       </div>
+                      {issue.detail ? (
+                        <div className="mt-0.5 text-muted-foreground font-mono text-[10px] break-words">
+                          {issue.detail}
+                        </div>
+                      ) : null}
+                    </div>
+                    {linkable ? (
+                      <Locate className="mt-0.5 h-3 w-3 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                     ) : null}
-                  </div>
-                </li>
-              ))}
+                  </>
+                )
+                return (
+                  <li
+                    key={idx}
+                    className="border-b border-border/30 last:border-b-0"
+                  >
+                    {linkable ? (
+                      <button
+                        type="button"
+                        onClick={() => onIssueSelect!(issue.nodeId!, issue.field)}
+                        title="Go to node"
+                        aria-label={`Go to node: ${issue.message}`}
+                        className="group flex w-full items-start gap-2 px-2.5 py-1.5 text-left text-[11px] leading-snug hover:bg-foreground/5 cursor-pointer"
+                      >
+                        {body}
+                      </button>
+                    ) : (
+                      <div className="flex items-start gap-2 px-2.5 py-1.5 text-[11px] leading-snug">
+                        {body}
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
             {onValidateNow ? (
               <div className="border-t border-border/40 p-1.5">

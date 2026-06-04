@@ -50,6 +50,17 @@ export function SpecificationEditor() {
   // conversion, IDS/JSON import) become the current selection without a
   // manual click.
   const [pendingSelectionIds, setPendingSelectionIds] = useState<string[] | null>(null)
+  // Pending viewport-focus request. When set, GraphCanvas animates the canvas
+  // to center+zoom the node, then clears it via onPendingFocusConsumed. Used by
+  // the "click a validation error → jump to its node" flow. Separate from
+  // pendingSelectionIds because focus must run inside the ReactFlowProvider
+  // (it needs useReactFlow), while selection is plain node state.
+  const [pendingFocusNodeId, setPendingFocusNodeId] = useState<string | null>(null)
+  // The field a validation error points at (e.g. 'dataType'), with a nonce so
+  // clicking the same error twice re-triggers the inspector's flash/scroll.
+  const [activeIssueField, setActiveIssueField] = useState<
+    { nodeId: string; field?: string; nonce: number } | null
+  >(null)
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
     const saved = loadProjectState()
     return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
@@ -652,6 +663,16 @@ export function SpecificationEditor() {
     setPendingSelectionIds([restrictionId])
   }, [nodes, takeSnapshot])
 
+  // Navigate to the node a validation error points at: select it (so the
+  // inspector opens on it), center+zoom the canvas onto it, and remember the
+  // offending field so the inspector can highlight/scroll to it. Wired to both
+  // the canvas overlay and the inspector's issue list.
+  const handleIssueSelect = useCallback((nodeId: string, field?: string) => {
+    setPendingSelectionIds([nodeId])
+    setPendingFocusNodeId(nodeId)
+    setActiveIssueField((prev) => ({ nodeId, field, nonce: (prev?.nonce ?? 0) + 1 }))
+  }, [])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -891,6 +912,9 @@ export function SpecificationEditor() {
                 onAddNode={addNode}
                 pendingSelectionIds={pendingSelectionIds}
                 onPendingSelectionConsumed={() => setPendingSelectionIds(null)}
+                pendingFocusNodeId={pendingFocusNodeId}
+                onPendingFocusConsumed={() => setPendingFocusNodeId(null)}
+                onIssueSelect={handleIssueSelect}
                 validationState={validationState}
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
@@ -910,6 +934,8 @@ export function SpecificationEditor() {
                 nodes={nodes}
                 edges={edges}
                 onConvertValueToRestriction={convertValueToRestriction}
+                onIssueSelect={handleIssueSelect}
+                activeIssueField={activeIssueField}
               />
             </Panel>
           </PanelGroup>
