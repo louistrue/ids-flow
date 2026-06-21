@@ -41,13 +41,13 @@ export function SchemaSwitcher({ version, onVersionChange }: SchemaSwitcherProps
               accepts these three values:
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
-              <li><span className="font-mono">IFC2X3</span> — legacy</li>
-              <li><span className="font-mono">IFC4</span> — widely supported</li>
-              <li><span className="font-mono">IFC4X3_ADD2</span> — latest IDS-recognized</li>
+              <li><span className="font-mono">IFC2X3</span>, legacy</li>
+              <li><span className="font-mono">IFC4</span>, widely supported</li>
+              <li><span className="font-mono">IFC4X3_ADD2</span>, latest IDS-recognized</li>
             </ul>
             <p className="text-muted-foreground">
               Newer IFC releases (e.g. IFC4.4) aren&apos;t in the IDS schema yet, so
-              they&apos;re intentionally not listed — picking one would fail XSD
+              they&apos;re intentionally not listed, since picking one would fail XSD
               validation downstream.
             </p>
             <p className="text-muted-foreground">

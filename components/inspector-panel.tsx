@@ -191,7 +191,7 @@ function ConvertToRestrictionHint({
   return (
     <div className="flex items-center justify-between gap-2 rounded-md border border-dashed border-accent/40 bg-accent/5 px-2 py-1.5">
       <span className="text-[11px] text-muted-foreground">
-        {parsed.length} values detected — convert to a Restriction node?
+        {parsed.length} values detected. Convert to a Restriction node?
       </span>
       <Button
         type="button"
@@ -1067,11 +1067,11 @@ function PropertyFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           id="value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder={getPlaceholderForDataType(data.dataType) || "Any value — leave empty to match any"}
+          placeholder={getPlaceholderForDataType(data.dataType) || "Any value, or leave empty to match any"}
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
-          Leave empty to match any value. For multiple allowed values, type <code className="font-mono">[a, b, c]</code> — convertible to a Restriction node below.
+          Leave empty to match any value. For multiple allowed values, type <code className="font-mono">[a, b, c]</code>, convertible to a Restriction node below.
         </p>
         {onConvertValueToRestriction && (
           <ConvertToRestrictionHint
@@ -1239,7 +1239,7 @@ function AttributeFields({ node, onChange, ifcVersion, nodes, edges, onConvertVa
           id="attribute-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="Any value — or e.g. Fire Door / [Fire Door, Exit Door]"
+          placeholder="Any value, or e.g. Fire Door / [Fire Door, Exit Door]"
           className="bg-input border-border text-foreground"
         />
         <p className="text-[11px] text-muted-foreground">
@@ -1292,11 +1292,11 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           id="classification-system"
           value={data.system || ""}
           onChange={(e) => onChange("system", e.target.value)}
-          placeholder="Any system — or e.g. Uniclass 2015, OmniClass, ETIM"
+          placeholder="Any system, or e.g. Uniclass 2015, OmniClass, ETIM"
           className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
-          Leave empty to match any classification (any system). Type any string — the IDS schema doesn't constrain the system name.
+          Leave empty to match any classification (any system). Type any string, the IDS schema doesn&apos;t constrain the system name.
         </p>
       </div>
       <div className="space-y-2">
@@ -1307,7 +1307,7 @@ function ClassificationFields({ node, onChange, ifcVersion, nodes, edges, onConv
           id="classification-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="Any code — or e.g. Pr_20_70_05_05 / [Pr_20_70_05_05, Pr_20_70_05_06]"
+          placeholder="Any code, or e.g. Pr_20_70_05_05 / [Pr_20_70_05_05, Pr_20_70_05_06]"
           className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">
@@ -1372,7 +1372,7 @@ function MaterialFields({ node, onChange, ifcVersion, nodes, edges, onConvertVal
           id="material-value"
           value={data.value || ""}
           onChange={(e) => onChange("value", e.target.value)}
-          placeholder="Any material — or e.g. concrete, oak, rebar steel"
+          placeholder="Any material, or e.g. concrete, oak, rebar steel"
           className="bg-input border-border text-foreground font-mono"
         />
         <p className="text-[11px] text-muted-foreground">

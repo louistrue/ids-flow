@@ -16,6 +16,7 @@ import { RestrictionNode } from "./nodes/restriction-node"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import { CanvasValidationOverlay } from "./canvas-validation-overlay"
 import type { ValidationState } from "@/lib/use-ids-validation"
+import type { IFCVersion } from "@/lib/ifc-schema"
 
 interface GraphCanvasProps {
   nodes: GraphNode[]
@@ -52,6 +53,7 @@ interface GraphCanvasProps {
   isValidating?: boolean
   isValidationDisabled?: boolean
   onValidateNow?: () => void
+  ifcVersion?: IFCVersion
 }
 
 const nodeTypes = {
@@ -66,7 +68,7 @@ const nodeTypes = {
 }
 
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -572,6 +574,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             validationState={validationState}
             isValidating={isValidating}
             isDisabled={isValidationDisabled}
+            ifcVersion={ifcVersion}
             onValidateNow={onValidateNow}
             onIssueSelect={onIssueSelect}
           />
