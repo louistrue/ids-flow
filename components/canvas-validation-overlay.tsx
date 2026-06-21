@@ -12,16 +12,20 @@ import {
   RefreshCw,
   Sparkles,
   Locate,
+  Download,
+  Info,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { ValidationState } from "@/lib/use-ids-validation"
-import type { ValidationIssue } from "@/lib/ids-client-validation"
+import type { ValidationIssue, ValidationCategory } from "@/lib/ids-client-validation"
+import type { IFCVersion } from "@/lib/ifc-schema"
 
 interface CanvasValidationOverlayProps {
   validationState: ValidationState
   isValidating: boolean
   isDisabled: boolean
+  ifcVersion?: IFCVersion
   onValidateNow?: () => void
   /** Jump to + select the node a validation issue points at. */
   onIssueSelect?: (nodeId: string, field?: string) => void
@@ -32,11 +36,40 @@ type OverlayStatus = "idle" | "loading" | "valid" | "warning" | "error"
 interface DisplayIssue {
   severity: "error" | "warning"
   message: string
+  category: ValidationCategory
   detail?: string
   // Carried through from the client-side ValidationIssue so each row can link
   // back to its node. Absent for parser/structure errors that aren't mapped.
   nodeId?: string
   field?: string
+}
+
+// The report is split the same way the official buildingSMART IDS Audit Tool
+// splits it: IDS-schema conformance vs IFC-schema conformance, plus our own
+// non-binding hints. See #50.
+const CATEGORY_ORDER: ValidationCategory[] = ["ids-schema", "ifc-audit", "recommendation"]
+const CATEGORY_LABELS: Record<ValidationCategory, string> = {
+  "ids-schema": "IDS schema validation",
+  "ifc-audit": "IFC schema audit",
+  recommendation: "Recommendations",
+}
+const CATEGORY_BLURB: Record<ValidationCategory, string> = {
+  "ids-schema": "Does the file conform to the IDS schema itself?",
+  "ifc-audit": "Are the referenced IFC types and datatypes valid for this schema?",
+  recommendation: "Non-binding hints. Not required by the IDS or IFC schema.",
+}
+
+function ifcVersionLabel(v?: IFCVersion): string {
+  switch (v) {
+    case "IFC4X3_ADD2":
+      return "IFC4X3 ADD2"
+    case "IFC4":
+      return "IFC4"
+    case "IFC2X3":
+      return "IFC2X3"
+    default:
+      return v || "—"
+  }
 }
 
 function deriveStatus(
@@ -51,6 +84,7 @@ function deriveStatus(
   const issues: DisplayIssue[] = clientIssues.map((i) => ({
     severity: i.severity,
     message: i.message,
+    category: i.category,
     nodeId: i.nodeId,
     field: i.field,
   }))
@@ -60,11 +94,12 @@ function deriveStatus(
   // .error is just those same issues joined into a string, so unshifting it
   // would duplicate every row (one aggregate copy + one per-issue copy). Only
   // show it for non-itemized failures (an exception or parse error with no
-  // per-node issues to click).
+  // per-node issues to click). Parser/structure failures are IDS-schema issues.
   const hasClientErrors = clientIssues.some((i) => i.severity === "error")
   if (validationState.status === "error" && !hasClientErrors) {
     issues.unshift({
       severity: "error",
+      category: "ids-schema",
       message: validationState.error || "Validation failed",
     })
   } else if (
@@ -73,6 +108,7 @@ function deriveStatus(
   ) {
     issues.unshift({
       severity: "error",
+      category: "ids-schema",
       message: validationState.result.message,
       detail: validationState.result.details,
     })
@@ -87,6 +123,29 @@ function deriveStatus(
   if (hasErrors) return { status: "error", issues }
   if (hasWarnings) return { status: "warning", issues }
   return { status: "valid", issues }
+}
+
+function toCsv(issues: DisplayIssue[]): string {
+  const esc = (v: string) => `"${(v ?? "").replace(/"/g, '""')}"`
+  const header = ["Severity", "Category", "Message", "Node", "Field"]
+  const rows = issues.map((i) =>
+    [i.severity, CATEGORY_LABELS[i.category], i.message, i.nodeId || "", i.field || ""]
+      .map((c) => esc(String(c)))
+      .join(",")
+  )
+  return [header.map(esc).join(","), ...rows].join("\r\n")
+}
+
+function downloadCsv(issues: DisplayIssue[]) {
+  const blob = new Blob([toCsv(issues)], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = "ids-validation-report.csv"
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 
 const STATUS_META: Record<
@@ -140,6 +199,7 @@ export function CanvasValidationOverlay({
   validationState,
   isValidating,
   isDisabled,
+  ifcVersion,
   onValidateNow,
   onIssueSelect,
 }: CanvasValidationOverlayProps) {
@@ -156,6 +216,11 @@ export function CanvasValidationOverlay({
   const lastValidatedLabel = validationState.lastValidated
     ? formatRelativeTime(validationState.lastValidated)
     : null
+
+  // The panel is expandable whenever a validation has run, so the engine /
+  // schema-version transparency info (and the CSV export) are always reachable,
+  // even when the file is valid. See #49.
+  const hasRun = status !== "idle" && status !== "loading"
 
   const summary = (() => {
     if (status === "loading") return "Validating…"
@@ -178,20 +243,20 @@ export function CanvasValidationOverlay({
     <Panel position="top-right" className="!m-3 !p-0">
       <div
         className={cn(
-          "min-w-[180px] max-w-[340px] rounded-lg border shadow-lg backdrop-blur",
+          "min-w-[180px] max-w-[360px] rounded-lg border shadow-lg backdrop-blur",
           "transition-colors duration-200",
           meta.pillClass
         )}
       >
         <button
           type="button"
-          onClick={() => issues.length > 0 && setExpanded((v) => !v)}
-          disabled={issues.length === 0}
+          onClick={() => hasRun && setExpanded((v) => !v)}
+          disabled={!hasRun}
           className={cn(
             "flex w-full items-center gap-2 px-2.5 py-1.5 rounded-lg",
             "text-left",
-            issues.length > 0 && "hover:bg-foreground/5 cursor-pointer",
-            issues.length === 0 && "cursor-default"
+            hasRun && "hover:bg-foreground/5 cursor-pointer",
+            !hasRun && "cursor-default"
           )}
           aria-expanded={expanded}
           aria-label={`IDS validation: ${summary}`}
@@ -219,7 +284,7 @@ export function CanvasValidationOverlay({
               ) : null}
             </div>
           </div>
-          {issues.length > 0 ? (
+          {hasRun ? (
             expanded ? (
               <ChevronUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             ) : (
@@ -228,71 +293,111 @@ export function CanvasValidationOverlay({
           ) : null}
         </button>
 
-        {expanded && issues.length > 0 ? (
+        {expanded && hasRun ? (
           // Neutral surface for the list so red icons/accents read clearly
           // instead of fighting the red-tinted header (red-on-red).
           <div className="rounded-b-lg border-t border-border/60 bg-popover/95">
-            <ul className="max-h-[280px] space-y-0.5 overflow-y-auto p-1.5">
-              {issues.map((issue, idx) => {
-                const linkable = Boolean(issue.nodeId && onIssueSelect)
-                const isError = issue.severity === "error"
-                const body = (
-                  <>
-                    {/* Severity rail — a calm accent rather than a flood of red */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "mt-0.5 w-0.5 self-stretch rounded-full",
-                        isError ? "bg-red-500/70" : "bg-amber-500/70"
-                      )}
-                    />
-                    {isError ? (
-                      <XCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-red-500" />
-                    ) : (
-                      <AlertCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="text-foreground/90">{issue.message}</div>
-                      {issue.detail ? (
-                        <div className="mt-0.5 break-words font-mono text-[10px] text-muted-foreground">
-                          {issue.detail}
+            <div className="max-h-[300px] overflow-y-auto p-1.5">
+              {issues.length === 0 ? (
+                <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] text-muted-foreground">
+                  <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-green-500" />
+                  No issues found.
+                </div>
+              ) : (
+                CATEGORY_ORDER.map((category) => {
+                  const sectionIssues = issues.filter((i) => i.category === category)
+                  if (sectionIssues.length === 0) return null
+                  return (
+                    <div key={category} className="mb-1.5 last:mb-0">
+                      <div className="px-2 pt-1 pb-0.5">
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-foreground/70">
+                          {CATEGORY_LABELS[category]}
                         </div>
-                      ) : null}
-                    </div>
-                    {linkable ? (
-                      <Locate className="mt-px h-3.5 w-3.5 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    ) : null}
-                  </>
-                )
-                return (
-                  <li key={idx}>
-                    {linkable ? (
-                      <button
-                        type="button"
-                        onClick={() => onIssueSelect!(issue.nodeId!, issue.field)}
-                        title="Go to node"
-                        aria-label={`Go to node: ${issue.message}`}
-                        className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-[11px] leading-snug transition-colors hover:bg-foreground/[0.06]"
-                      >
-                        {body}
-                      </button>
-                    ) : (
-                      <div className="flex items-start gap-2 rounded-md px-2 py-1.5 text-[11px] leading-snug">
-                        {body}
+                        <div className="text-[10px] leading-tight text-muted-foreground">
+                          {CATEGORY_BLURB[category]}
+                        </div>
                       </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-            {onValidateNow ? (
-              <div className="border-t border-border/40 p-1.5">
+                      <ul className="space-y-0.5">
+                        {sectionIssues.map((issue, idx) => {
+                          const linkable = Boolean(issue.nodeId && onIssueSelect)
+                          const isError = issue.severity === "error"
+                          const body = (
+                            <>
+                              {/* Severity rail — a calm accent rather than a flood of red */}
+                              <span
+                                aria-hidden
+                                className={cn(
+                                  "mt-0.5 w-0.5 self-stretch rounded-full",
+                                  isError ? "bg-red-500/70" : "bg-amber-500/70"
+                                )}
+                              />
+                              {isError ? (
+                                <XCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-red-500" />
+                              ) : (
+                                <AlertCircle className="mt-px h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <div className="text-foreground/90">{issue.message}</div>
+                                {issue.detail ? (
+                                  <div className="mt-0.5 break-words font-mono text-[10px] text-muted-foreground">
+                                    {issue.detail}
+                                  </div>
+                                ) : null}
+                              </div>
+                              {linkable ? (
+                                <Locate className="mt-px h-3.5 w-3.5 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                              ) : null}
+                            </>
+                          )
+                          return (
+                            <li key={idx}>
+                              {linkable ? (
+                                <button
+                                  type="button"
+                                  onClick={() => onIssueSelect!(issue.nodeId!, issue.field)}
+                                  title="Go to node"
+                                  aria-label={`Go to node: ${issue.message}`}
+                                  className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-[11px] leading-snug transition-colors hover:bg-foreground/[0.06]"
+                                >
+                                  {body}
+                                </button>
+                              ) : (
+                                <div className="flex items-start gap-2 rounded-md px-2 py-1.5 text-[11px] leading-snug">
+                                  {body}
+                                </div>
+                              )}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Transparency: what actually ran. See #49. */}
+            <div className="border-t border-border/40 px-2.5 py-1.5">
+              <div className="flex items-start gap-1.5 text-[10px] leading-tight text-muted-foreground">
+                <Info className="mt-px h-3 w-3 flex-shrink-0" />
+                <span>
+                  Checked by IDSedit&apos;s built-in validation (IDS structure parsed with{" "}
+                  <span className="font-mono">@ifc-lite/ids</span>). The official buildingSMART
+                  IDS Audit Tool is .NET and does not run in the browser, so it is not used here.
+                  <br />
+                  IDS schema 1.0 · IFC {ifcVersionLabel(ifcVersion)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 border-t border-border/40 p-1.5">
+              {onValidateNow ? (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onValidateNow}
                   disabled={isValidating || isDisabled}
-                  className="h-6 w-full justify-center gap-1.5 text-[11px]"
+                  className="h-6 flex-1 justify-center gap-1.5 text-[11px]"
                 >
                   {isValidating ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -301,8 +406,19 @@ export function CanvasValidationOverlay({
                   )}
                   Re-validate
                 </Button>
-              </div>
-            ) : null}
+              ) : null}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => downloadCsv(issues)}
+                disabled={issues.length === 0}
+                className="h-6 flex-1 justify-center gap-1.5 text-[11px]"
+                title="Export the validation report as CSV"
+              >
+                <Download className="h-3 w-3" />
+                Export CSV
+              </Button>
+            </div>
           </div>
         ) : null}
       </div>

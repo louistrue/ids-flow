@@ -922,6 +922,7 @@ export function SpecificationEditor() {
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
                 onValidateNow={validateNow}
+                ifcVersion={ifcVersion}
               />
             </Panel>
             <CustomPanelResizeHandle />
