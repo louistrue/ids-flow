@@ -1,243 +1,8 @@
 [
   {
-    "name": "IFCLABEL",
-    "baseType": "xs:string",
-    "description": "Short text string (max 255 characters)"
-  },
-  {
-    "name": "IFCTEXT",
-    "baseType": "xs:string",
-    "description": "Long text string"
-  },
-  {
-    "name": "IFCBOOLEAN",
-    "baseType": "xs:boolean",
-    "description": "True or False value"
-  },
-  {
-    "name": "IFCINTEGER",
-    "baseType": "xs:integer",
-    "description": "Whole number"
-  },
-  {
-    "name": "IFCREAL",
+    "name": "IFCABSORBEDDOSEMEASURE",
     "baseType": "xs:double",
-    "description": "Decimal number"
-  },
-  {
-    "name": "IFCIDENTIFIER",
-    "baseType": "xs:string",
-    "description": "Unique identifier string"
-  },
-  {
-    "name": "IFCLOGICAL",
-    "baseType": "xs:string",
-    "description": "True, False, or Unknown"
-  },
-  {
-    "name": "IFCDATETIME",
-    "baseType": "xs:dateTime",
-    "description": "Date and time value"
-  },
-  {
-    "name": "IFCDATE",
-    "baseType": "xs:date",
-    "description": "Date value"
-  },
-  {
-    "name": "IFCTIME",
-    "baseType": "xs:time",
-    "description": "Time value"
-  },
-  {
-    "name": "IFCDURATION",
-    "baseType": "xs:duration",
-    "description": "Time duration"
-  },
-  {
-    "name": "IFCLENGTHMEASURE",
-    "baseType": "xs:double",
-    "description": "Length measurement"
-  },
-  {
-    "name": "IFCAREAMEASURE",
-    "baseType": "xs:double",
-    "description": "Area measurement"
-  },
-  {
-    "name": "IFCVOLUMEMEASURE",
-    "baseType": "xs:double",
-    "description": "Volume measurement"
-  },
-  {
-    "name": "IFCPLANEANGLEMEASURE",
-    "baseType": "xs:double",
-    "description": "Plane angle measurement"
-  },
-  {
-    "name": "IFCSOLIDANGLEMEASURE",
-    "baseType": "xs:double",
-    "description": "Solid angle measurement"
-  },
-  {
-    "name": "IFCMASSMEASURE",
-    "baseType": "xs:double",
-    "description": "Mass measurement"
-  },
-  {
-    "name": "IFCPOWERMEASURE",
-    "baseType": "xs:double",
-    "description": "Power measurement"
-  },
-  {
-    "name": "IFCPRESSUREMEASURE",
-    "baseType": "xs:double",
-    "description": "Pressure measurement"
-  },
-  {
-    "name": "IFCTHERMALTRANSMITTANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Thermal transmittance measurement"
-  },
-  {
-    "name": "IFCENERGYCONVERSIONRATE",
-    "baseType": "xs:double",
-    "description": "Energy conversion rate"
-  },
-  {
-    "name": "IFCTEMPERATUREGRADIENTMEASURE",
-    "baseType": "xs:double",
-    "description": "Temperature gradient measurement"
-  },
-  {
-    "name": "IFCHEATINGVALUEMEASURE",
-    "baseType": "xs:double",
-    "description": "Heating value measurement"
-  },
-  {
-    "name": "IFCTHERMOCONDUCTIVITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Thermal conductivity measurement"
-  },
-  {
-    "name": "IFCVOLUMETRICFLOWRATEMEASURE",
-    "baseType": "xs:double",
-    "description": "Volumetric flow rate measurement"
-  },
-  {
-    "name": "IFCMOISTUREDIFFUSIVITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Moisture diffusivity measurement"
-  },
-  {
-    "name": "IFCVAPORPERMEABILITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Vapor permeability measurement"
-  },
-  {
-    "name": "IFCISOTHERMALMOISTURECAPACITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Isothermal moisture capacity measurement"
-  },
-  {
-    "name": "IFCSPECIFICHEATCAPACITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Specific heat capacity measurement"
-  },
-  {
-    "name": "IFCMONETARYMEASURE",
-    "baseType": "xs:double",
-    "description": "Monetary measurement"
-  },
-  {
-    "name": "IFCCOUNTMEASURE",
-    "baseType": "xs:integer",
-    "description": "Count measurement"
-  },
-  {
-    "name": "IFCTIMEMEASURE",
-    "baseType": "xs:double",
-    "description": "Time measurement"
-  },
-  {
-    "name": "IFCTHERMODYNAMICTEMPERATUREMEASURE",
-    "baseType": "xs:double",
-    "description": "Thermodynamic temperature measurement"
-  },
-  {
-    "name": "IFCPHMEASURE",
-    "baseType": "xs:double",
-    "description": "pH measurement"
-  },
-  {
-    "name": "IFCFREQUENCYMEASURE",
-    "baseType": "xs:double",
-    "description": "Frequency measurement"
-  },
-  {
-    "name": "IFCILLUMINANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Illuminance measurement"
-  },
-  {
-    "name": "IFCLUMINOUSFLUXMEASURE",
-    "baseType": "xs:double",
-    "description": "Luminous flux measurement"
-  },
-  {
-    "name": "IFCLUMINOUSINTENSITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Luminous intensity measurement"
-  },
-  {
-    "name": "IFCELECTRICVOLTAGEMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric voltage measurement"
-  },
-  {
-    "name": "IFCELECTRICCURRENTMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric current measurement"
-  },
-  {
-    "name": "IFCELECTRICCHARGEMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric charge measurement"
-  },
-  {
-    "name": "IFCELECTRICRESISTANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric resistance measurement"
-  },
-  {
-    "name": "IFCELECTRICCONDUCTANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric conductance measurement"
-  },
-  {
-    "name": "IFCELECTRICCAPACITANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Electric capacitance measurement"
-  },
-  {
-    "name": "IFCINDUCTANCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Inductance measurement"
-  },
-  {
-    "name": "IFCFORCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Force measurement"
-  },
-  {
-    "name": "IFCMOMENTOFINERTIAMEASURE",
-    "baseType": "xs:double",
-    "description": "Moment of inertia measurement"
-  },
-  {
-    "name": "IFCTORQUEMEASURE",
-    "baseType": "xs:double",
-    "description": "Torque measurement"
+    "description": "Measure value (decimal)"
   },
   {
     "name": "IFCACCELERATIONMEASURE",
@@ -245,9 +10,59 @@
     "description": "Acceleration measurement"
   },
   {
-    "name": "IFCLINEARVELOCITYMEASURE",
+    "name": "IFCACTIONSOURCETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCACTIONTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCACTUATORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCADDRESSTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCAIRTERMINALBOXTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCAIRTERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCAIRTOAIRHEATRECOVERYTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCALARMTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCAMOUNTOFSUBSTANCEMEASURE",
     "baseType": "xs:double",
-    "description": "Linear velocity measurement"
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCANALYSISMODELTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCANALYSISTHEORYTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
   },
   {
     "name": "IFCANGULARVELOCITYMEASURE",
@@ -255,44 +70,559 @@
     "description": "Angular velocity measurement"
   },
   {
+    "name": "IFCAREAMEASURE",
+    "baseType": "xs:double",
+    "description": "Area measurement"
+  },
+  {
+    "name": "IFCARITHMETICOPERATORENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCASSEMBLYPLACEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCBEAMTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCBENCHMARKENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCBOILERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCBOOLEAN",
+    "baseType": "xs:boolean",
+    "description": "True or False value"
+  },
+  {
+    "name": "IFCBOXALIGNMENT",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCBUILDINGELEMENTPROXYTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCABLECARRIERFITTINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCABLECARRIERSEGMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCABLESEGMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCHANGEACTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCHILLERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOILTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOLUMNTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOMPRESSORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCONDENSERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCONNECTIONTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCONSTRAINTENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCONTEXTDEPENDENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCCONTROLLERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOOLEDBEAMTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOOLINGTOWERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOSTSCHEDULETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOUNTMEASURE",
+    "baseType": "xs:integer",
+    "description": "Count measurement"
+  },
+  {
+    "name": "IFCCOVERINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCURRENCYENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCURTAINWALLTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCURVATUREMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCDAMPERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDATAORIGINENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDAYINMONTHNUMBER",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCDAYLIGHTSAVINGHOUR",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCDERIVEDUNITENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDESCRIPTIVEMEASURE",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCDIMENSIONCOUNT",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCDIRECTIONSENSEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDISTRIBUTIONCHAMBERELEMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOCUMENTCONFIDENTIALITYENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOCUMENTSTATUSENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOORPANELOPERATIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOORPANELPOSITIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOORSTYLECONSTRUCTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOORSTYLEOPERATIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOSEEQUIVALENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCDUCTFITTINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDUCTSEGMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDUCTSILENCERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDYNAMICVISCOSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCELECTRICAPPLIANCETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICCAPACITANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric capacitance measurement"
+  },
+  {
+    "name": "IFCELECTRICCHARGEMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric charge measurement"
+  },
+  {
+    "name": "IFCELECTRICCONDUCTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric conductance measurement"
+  },
+  {
+    "name": "IFCELECTRICCURRENTENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICCURRENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric current measurement"
+  },
+  {
+    "name": "IFCELECTRICDISTRIBUTIONPOINTFUNCTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICFLOWSTORAGEDEVICETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICGENERATORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICHEATERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICMOTORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICRESISTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric resistance measurement"
+  },
+  {
+    "name": "IFCELECTRICTIMECONTROLTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELECTRICVOLTAGEMEASURE",
+    "baseType": "xs:double",
+    "description": "Electric voltage measurement"
+  },
+  {
+    "name": "IFCELEMENTASSEMBLYTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCELEMENTCOMPOSITIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCENERGYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCENERGYSEQUENCEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCENVIRONMENTALIMPACTCATEGORYENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCEVAPORATIVECOOLERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCEVAPORATORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFANTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFILTERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFIRESUPPRESSIONTERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFLOWDIRECTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFLOWINSTRUMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFLOWMETERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFONTSTYLE",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCFONTVARIANT",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCFONTWEIGHT",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCFOOTINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCFORCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Force measurement"
+  },
+  {
+    "name": "IFCFREQUENCYMEASURE",
+    "baseType": "xs:double",
+    "description": "Frequency measurement"
+  },
+  {
+    "name": "IFCGASTERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCGEOMETRICPROJECTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCGLOBALLYUNIQUEID",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCGLOBALORLOCALENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCHEATEXCHANGERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCHEATFLUXDENSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCHEATINGVALUEMEASURE",
+    "baseType": "xs:double",
+    "description": "Heating value measurement"
+  },
+  {
+    "name": "IFCHOURINDAY",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCHUMIDIFIERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCIDENTIFIER",
+    "baseType": "xs:string",
+    "description": "Unique identifier string"
+  },
+  {
+    "name": "IFCILLUMINANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Illuminance measurement"
+  },
+  {
+    "name": "IFCINDUCTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Inductance measurement"
+  },
+  {
+    "name": "IFCINTEGER",
+    "baseType": "xs:integer",
+    "description": "Whole number"
+  },
+  {
+    "name": "IFCINTEGERCOUNTRATEMEASURE",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCINTERNALOREXTERNALENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCINVENTORYTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCIONCONCENTRATIONMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCISOTHERMALMOISTURECAPACITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Isothermal moisture capacity measurement"
+  },
+  {
+    "name": "IFCJUNCTIONBOXTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCKINEMATICVISCOSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCLABEL",
+    "baseType": "xs:string",
+    "description": "Short text string (max 255 characters)"
+  },
+  {
+    "name": "IFCLAMPTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLAYERSETDIRECTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLENGTHMEASURE",
+    "baseType": "xs:double",
+    "description": "Length measurement"
+  },
+  {
+    "name": "IFCLIGHTDISTRIBUTIONCURVEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLIGHTEMISSIONSOURCEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLIGHTFIXTURETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
     "name": "IFCLINEARFORCEMEASURE",
     "baseType": "xs:double",
     "description": "Linear force measurement"
-  },
-  {
-    "name": "IFCPLANARFORCEMEASURE",
-    "baseType": "xs:double",
-    "description": "Planar force measurement"
-  },
-  {
-    "name": "IFCLINEARSTIFFNESSMEASURE",
-    "baseType": "xs:double",
-    "description": "Linear stiffness measurement"
-  },
-  {
-    "name": "IFCROTATIONALSTIFFNESSMEASURE",
-    "baseType": "xs:double",
-    "description": "Rotational stiffness measurement"
-  },
-  {
-    "name": "IFCWARPINGMOMENTALSTIFFNESSMEASURE",
-    "baseType": "xs:double",
-    "description": "Warping momental stiffness measurement"
-  },
-  {
-    "name": "IFCMODULUSOFELASTICITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Modulus of elasticity measurement"
-  },
-  {
-    "name": "IFCSHEARMODULUSMEASURE",
-    "baseType": "xs:double",
-    "description": "Shear modulus measurement"
-  },
-  {
-    "name": "IFCLINEARDENSITYMEASURE",
-    "baseType": "xs:double",
-    "description": "Linear density measurement"
   },
   {
     "name": "IFCLINEARMOMENTMEASURE",
@@ -300,14 +630,384 @@
     "description": "Linear moment measurement"
   },
   {
-    "name": "IFCPLANARMOMENTMEASURE",
+    "name": "IFCLINEARSTIFFNESSMEASURE",
     "baseType": "xs:double",
-    "description": "Planar moment measurement"
+    "description": "Linear stiffness measurement"
   },
   {
-    "name": "IFCSECTIONMODULUSMEASURE",
+    "name": "IFCLINEARVELOCITYMEASURE",
     "baseType": "xs:double",
-    "description": "Section modulus measurement"
+    "description": "Linear velocity measurement"
+  },
+  {
+    "name": "IFCLOADGROUPTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLOGICAL",
+    "baseType": "xs:string",
+    "description": "True, False, or Unknown"
+  },
+  {
+    "name": "IFCLOGICALOPERATORENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCLUMINOUSFLUXMEASURE",
+    "baseType": "xs:double",
+    "description": "Luminous flux measurement"
+  },
+  {
+    "name": "IFCLUMINOUSINTENSITYDISTRIBUTIONMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCLUMINOUSINTENSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Luminous intensity measurement"
+  },
+  {
+    "name": "IFCMAGNETICFLUXDENSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMAGNETICFLUXMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMASSDENSITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMASSFLOWRATEMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMASSMEASURE",
+    "baseType": "xs:double",
+    "description": "Mass measurement"
+  },
+  {
+    "name": "IFCMASSPERLENGTHMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMEMBERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCMINUTEINHOUR",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCMODULUSOFELASTICITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Modulus of elasticity measurement"
+  },
+  {
+    "name": "IFCMODULUSOFLINEARSUBGRADEREACTIONMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMODULUSOFROTATIONALSUBGRADEREACTIONMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMODULUSOFSUBGRADEREACTIONMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMOISTUREDIFFUSIVITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Moisture diffusivity measurement"
+  },
+  {
+    "name": "IFCMOLECULARWEIGHTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCMOMENTOFINERTIAMEASURE",
+    "baseType": "xs:double",
+    "description": "Moment of inertia measurement"
+  },
+  {
+    "name": "IFCMONETARYMEASURE",
+    "baseType": "xs:double",
+    "description": "Monetary measurement"
+  },
+  {
+    "name": "IFCMONTHINYEARNUMBER",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCMOTORCONNECTIONTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCNORMALISEDRATIOMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCNULLSTYLE",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCNUMERICMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCOBJECTIVEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCOBJECTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCOCCUPANTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCOUTLETTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPARAMETERVALUE",
+    "baseType": "xs:double",
+    "description": "Decimal value"
+  },
+  {
+    "name": "IFCPERMEABLECOVERINGOPERATIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPHMEASURE",
+    "baseType": "xs:double",
+    "description": "pH measurement"
+  },
+  {
+    "name": "IFCPHYSICALORVIRTUALENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPILECONSTRUCTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPILETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPIPEFITTINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPIPESEGMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPLANARFORCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Planar force measurement"
+  },
+  {
+    "name": "IFCPLANEANGLEMEASURE",
+    "baseType": "xs:double",
+    "description": "Plane angle measurement"
+  },
+  {
+    "name": "IFCPLATETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPOSITIVELENGTHMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCPOSITIVEPLANEANGLEMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCPOSITIVERATIOMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCPOWERMEASURE",
+    "baseType": "xs:double",
+    "description": "Power measurement"
+  },
+  {
+    "name": "IFCPRESENTABLETEXT",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCPRESSUREMEASURE",
+    "baseType": "xs:double",
+    "description": "Pressure measurement"
+  },
+  {
+    "name": "IFCPROCEDURETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROFILETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROJECTEDORTRUELENGTHENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROJECTORDERRECORDTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROJECTORDERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROPERTYSOURCEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPROTECTIVEDEVICETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPUMPTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRADIOACTIVITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCRAILINGTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRAMPFLIGHTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRAMPTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRATIOMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCREAL",
+    "baseType": "xs:double",
+    "description": "Decimal number"
+  },
+  {
+    "name": "IFCREFLECTANCEMETHODENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCREINFORCINGBARROLEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCREINFORCINGBARSURFACEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRESOURCECONSUMPTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCRIBPLATEDIRECTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCROLEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCROOFTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCROTATIONALFREQUENCYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCROTATIONALMASSMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCROTATIONALSTIFFNESSMEASURE",
+    "baseType": "xs:double",
+    "description": "Rotational stiffness measurement"
+  },
+  {
+    "name": "IFCSANITARYTERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSECONDINMINUTE",
+    "baseType": "xs:double",
+    "description": "Decimal value"
   },
   {
     "name": "IFCSECTIONALAREAINTEGRALMEASURE",
@@ -315,8 +1015,333 @@
     "description": "Sectional area integral measurement"
   },
   {
-    "name": "IFCWARPING",
+    "name": "IFCSECTIONMODULUSMEASURE",
     "baseType": "xs:double",
-    "description": "Warping measurement"
+    "description": "Section modulus measurement"
+  },
+  {
+    "name": "IFCSECTIONTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSENSORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSEQUENCEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSERVICELIFEFACTORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSERVICELIFETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSHEARMODULUSMEASURE",
+    "baseType": "xs:double",
+    "description": "Shear modulus measurement"
+  },
+  {
+    "name": "IFCSLABTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSOLIDANGLEMEASURE",
+    "baseType": "xs:double",
+    "description": "Solid angle measurement"
+  },
+  {
+    "name": "IFCSOUNDPOWERMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCSOUNDPRESSUREMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCSOUNDSCALEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSPACEHEATERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSPACETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSPECIFICHEATCAPACITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Specific heat capacity measurement"
+  },
+  {
+    "name": "IFCSPECULAREXPONENT",
+    "baseType": "xs:double",
+    "description": "Decimal value"
+  },
+  {
+    "name": "IFCSPECULARROUGHNESS",
+    "baseType": "xs:double",
+    "description": "Decimal value"
+  },
+  {
+    "name": "IFCSTACKTERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSTAIRFLIGHTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSTAIRTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSTATEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSTRUCTURALCURVETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSTRUCTURALSURFACETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSURFACETEXTUREENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCSWITCHINGDEVICETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTANKTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTEMPERATUREGRADIENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Temperature gradient measurement"
+  },
+  {
+    "name": "IFCTENDONTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTEXT",
+    "baseType": "xs:string",
+    "description": "Long text string"
+  },
+  {
+    "name": "IFCTEXTALIGNMENT",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCTEXTDECORATION",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCTEXTFONTNAME",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCTEXTTRANSFORMATION",
+    "baseType": "xs:string",
+    "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCTHERMALADMITTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCTHERMALCONDUCTIVITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCTHERMALEXPANSIONCOEFFICIENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCTHERMALLOADSOURCEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTHERMALLOADTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTHERMALRESISTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCTHERMALTRANSMITTANCEMEASURE",
+    "baseType": "xs:double",
+    "description": "Thermal transmittance measurement"
+  },
+  {
+    "name": "IFCTHERMODYNAMICTEMPERATUREMEASURE",
+    "baseType": "xs:double",
+    "description": "Thermodynamic temperature measurement"
+  },
+  {
+    "name": "IFCTIMEMEASURE",
+    "baseType": "xs:double",
+    "description": "Time measurement"
+  },
+  {
+    "name": "IFCTIMESERIESDATATYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTIMESERIESSCHEDULETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTIMESTAMP",
+    "baseType": "xs:integer",
+    "description": "Integer value"
+  },
+  {
+    "name": "IFCTORQUEMEASURE",
+    "baseType": "xs:double",
+    "description": "Torque measurement"
+  },
+  {
+    "name": "IFCTRANSFORMERTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTRANSPORTELEMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCTUBEBUNDLETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCUNITARYEQUIPMENTTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCUNITENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCVALVETYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCVAPORPERMEABILITYMEASURE",
+    "baseType": "xs:double",
+    "description": "Vapor permeability measurement"
+  },
+  {
+    "name": "IFCVIBRATIONISOLATORTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCVOLUMEMEASURE",
+    "baseType": "xs:double",
+    "description": "Volume measurement"
+  },
+  {
+    "name": "IFCVOLUMETRICFLOWRATEMEASURE",
+    "baseType": "xs:double",
+    "description": "Volumetric flow rate measurement"
+  },
+  {
+    "name": "IFCWALLTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWARPINGCONSTANTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCWARPINGMOMENTMEASURE",
+    "baseType": "xs:double",
+    "description": "Measure value (decimal)"
+  },
+  {
+    "name": "IFCWASTETERMINALTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWINDOWPANELOPERATIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWINDOWPANELPOSITIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWINDOWSTYLECONSTRUCTIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWINDOWSTYLEOPERATIONENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCWORKCONTROLTYPEENUM",
+    "baseType": "xs:string",
+    "description": "Enumeration value"
+  },
+  {
+    "name": "IFCYEARNUMBER",
+    "baseType": "xs:integer",
+    "description": "Integer value"
   }
 ]

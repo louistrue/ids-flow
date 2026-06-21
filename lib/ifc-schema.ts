@@ -194,14 +194,38 @@ export function validateProperty(propertySetName: string, propertyName: string):
   return true
 }
 
-// Data type validation cache - populated from generated schema
+// Data type validation cache - populated from generated schema.
+// The list of valid IDS datatypes differs per IFC schema version (e.g.
+// IFCNONNEGATIVELENGTHMEASURE and the date/time types are IFC4+ only), so the
+// cache is rebuilt whenever the requested version changes.
 const validDataTypeCache = new Set<string>()
-let dataTypeCacheBuilt = false
+// Datatype name (UPPERCASE) -> xs: restriction base type (e.g. "xs:double").
+// Used to group datatypes into coarse value categories for compatibility hints.
+const dataTypeBaseTypeCache = new Map<string, string>()
+let simpleTypesCacheVersion: IFCVersion | null = null
+
+async function ensureSimpleTypeCaches(version: IFCVersion): Promise<void> {
+  if (simpleTypesCacheVersion === version && validDataTypeCache.size > 0) return
+  try {
+    const simpleTypes = await loadSimpleTypes(version)
+    if (simpleTypes.length === 0) return // keep any existing cache / legacy fallback
+    validDataTypeCache.clear()
+    dataTypeBaseTypeCache.clear()
+    for (const t of simpleTypes) {
+      const upper = t.name.toUpperCase()
+      validDataTypeCache.add(upper)
+      dataTypeBaseTypeCache.set(upper, (t.baseType || '').trim())
+    }
+    simpleTypesCacheVersion = version
+  } catch (error) {
+    console.warn('Failed to build data type cache:', error)
+  }
+}
 
 export function validateDataType(dataType: string): boolean {
   const upperType = dataType.toUpperCase()
   // Use cache from generated schema if available
-  if (dataTypeCacheBuilt) {
+  if (validDataTypeCache.size > 0) {
     return validDataTypeCache.has(upperType)
   }
   // Fallback to legacy list before cache is built
@@ -209,21 +233,64 @@ export function validateDataType(dataType: string): boolean {
 }
 
 export async function validateDataTypeAsync(dataType: string, version: IFCVersion): Promise<boolean> {
-  await buildDataTypeCache(version)
+  await ensureSimpleTypeCaches(version)
   return validDataTypeCache.has(dataType.toUpperCase())
 }
 
-async function buildDataTypeCache(version: IFCVersion) {
-  if (dataTypeCacheBuilt) return
-  try {
-    const simpleTypes = await loadSimpleTypes(version)
-    for (const t of simpleTypes) {
-      validDataTypeCache.add(t.name.toUpperCase())
-    }
-    dataTypeCacheBuilt = true
-  } catch (error) {
-    console.warn('Failed to build data type cache:', error)
+// Coarse value categories. Two datatypes in the SAME category are considered
+// interchangeable enough that swapping one for the other (e.g. a measure
+// subtype like IFCPOSITIVELENGTHMEASURE for its base IFCLENGTHMEASURE) is never
+// flagged. Per the IDS spec, ANY valid datatype is acceptable for a property —
+// the standard IFC pset template type is only a recommendation — so we only hint
+// when the chosen datatype is a fundamentally different *kind* of value.
+export type DataTypeCategory =
+  | 'numeric'
+  | 'string'
+  | 'boolean'
+  | 'datetime'
+  | 'binary'
+  | 'unknown'
+
+function baseTypeToCategory(base: string): DataTypeCategory {
+  switch (base) {
+    case 'xs:double':
+    case 'xs:integer':
+    case 'xs:decimal':
+      return 'numeric'
+    case 'xs:boolean':
+      return 'boolean'
+    case 'xs:date':
+    case 'xs:dateTime':
+    case 'xs:time':
+    case 'xs:duration':
+      return 'datetime'
+    case 'xs:string':
+    case 'xs:anyURI':
+      return 'string'
+    case '':
+      return 'binary'
+    default:
+      return 'unknown'
   }
+}
+
+export function getDataTypeCategory(dataType: string): DataTypeCategory {
+  const base = dataTypeBaseTypeCache.get(dataType.toUpperCase())
+  if (base === undefined) return 'unknown'
+  return baseTypeToCategory(base)
+}
+
+/**
+ * Whether two IDS datatypes represent the same kind of value. Same exact type,
+ * or same coarse category (e.g. both numeric measures) → compatible. If either
+ * type is unknown to the loaded schema, we err on the side of NOT warning.
+ */
+export function areDataTypesCompatible(a: string, b: string): boolean {
+  if (a.toUpperCase() === b.toUpperCase()) return true
+  const ca = getDataTypeCategory(a)
+  const cb = getDataTypeCategory(b)
+  if (ca === 'unknown' || cb === 'unknown') return true
+  return ca === cb
 }
 
 export function getEntitiesForVersion(version: IFCVersion): string[] {
@@ -274,13 +341,8 @@ export function getPropertiesForPropertySet(propertySetName: string): string[] {
 // Async functions for comprehensive schema access
 export async function getAllSimpleTypes(version: IFCVersion): Promise<IFCDataType[]> {
   const simpleTypes = await loadSimpleTypes(version)
-  // Populate data type validation cache from loaded schema
-  if (!dataTypeCacheBuilt) {
-    for (const t of simpleTypes) {
-      validDataTypeCache.add(t.name.toUpperCase())
-    }
-    dataTypeCacheBuilt = true
-  }
+  // Populate the (version-aware) data type validation + category caches.
+  await ensureSimpleTypeCaches(version)
   return convertSimpleTypes(simpleTypes)
 }
 
@@ -490,6 +552,21 @@ export async function getExpectedDataTypesForPropertyAsync(propertyName: string,
   return getExpectedDataTypesForProperty(propertyName)
 }
 
+/**
+ * Compares a property's chosen datatype against the datatype(s) used for that
+ * property name in the standard IFC property-set templates.
+ *
+ * IMPORTANT (issues #48 / #52): per the IDS specification, a property `dataType`
+ * is OPTIONAL and, when present, only needs to be a valid datatype for the
+ * schema version — it does NOT have to match the IFC pset template's exact type.
+ * So this is a *recommendation* helper, not an IDS rule:
+ *   - exact match, or same value category (e.g. IFCPOSITIVELENGTHMEASURE vs its
+ *     base IFCLENGTHMEASURE) → `valid: true`, no hint.
+ *   - a fundamentally different kind of value (e.g. a text type where the pset
+ *     uses a measure) → `valid: false` + `expectedTypes`, surfaced by callers as
+ *     a non-blocking recommendation.
+ * Custom / unknown properties carry no template opinion and are always valid.
+ */
 export function isPropertyDataTypeValid(propertyName: string, dataType: string): { valid: boolean; expectedTypes?: string[] } {
   const expectedTypes = getExpectedDataTypesForProperty(propertyName)
 
@@ -498,11 +575,17 @@ export function isPropertyDataTypeValid(propertyName: string, dataType: string):
     return { valid: true }
   }
 
-  // Check if the data type matches one of the expected types
-  const isValid = expectedTypes.includes(dataType.toUpperCase())
+  const userUpper = dataType.toUpperCase()
 
-  return {
-    valid: isValid,
-    expectedTypes: isValid ? undefined : expectedTypes
+  // Exact match against any template datatype.
+  if (expectedTypes.some((t) => t.toUpperCase() === userUpper)) {
+    return { valid: true }
   }
+
+  // Subtype / same-category compatibility (measure subtypes, IFCLABEL↔IFCTEXT, …).
+  if (expectedTypes.some((t) => areDataTypesCompatible(userUpper, t))) {
+    return { valid: true }
+  }
+
+  return { valid: false, expectedTypes }
 }

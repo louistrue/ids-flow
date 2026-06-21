@@ -43,10 +43,15 @@ export async function validateGraphClientSide(
         return { isValid: false, issues }
     }
 
-    // Build the property data-type cache so that isPropertyDataTypeValid()
-    // can detect semantic mismatches (e.g. LoadBearing ≠ IFCDATE).
-    // This is a no-op if the cache is already populated for this version.
-    await ensurePropertyDataTypeCache(ifcVersion)
+    // Build the property data-type cache (for template comparisons) AND the
+    // simple-type caches (the per-version list of valid IDS datatypes + their
+    // value categories) so that both the syntactic check (validateDataType) and
+    // the semantic check (isPropertyDataTypeValid) have version-correct data.
+    // These are no-ops if already populated for this version.
+    await Promise.all([
+        ensurePropertyDataTypeCache(ifcVersion),
+        getAllSimpleTypes(ifcVersion),
+    ])
 
     // Validate each property node
     const propertyNodes = nodes.filter(node => node.type === 'property')
@@ -67,13 +72,18 @@ export async function validateGraphClientSide(
             }
         }
 
-        // Validate data type semantically (is it the right type for this property?)
+        // Compare the data type against the standard IFC pset template for this
+        // property. This is a RECOMMENDATION, not an error: the IDS spec only
+        // requires a valid datatype, not the template's exact one (issues
+        // #48/#52). Subtype/same-category choices (e.g. IFCPOSITIVELENGTHMEASURE
+        // for a template IFCLENGTHMEASURE) are treated as valid and never
+        // surfaced; only a fundamentally different kind of value is hinted.
         if (data.dataType && data.baseName) {
             const validation = isPropertyDataTypeValid(data.baseName, data.dataType)
             if (!validation.valid && validation.expectedTypes) {
                 issues.push({
-                    severity: 'error',
-                    message: `Property "${data.baseName}" should have data type ${validation.expectedTypes.join(' or ')}, not "${data.dataType}"`,
+                    severity: 'warning',
+                    message: `Property "${data.baseName}" is usually defined as ${validation.expectedTypes.join(' or ')} in standard IFC property sets. You used "${data.dataType}" — a valid IDS datatype, but a different kind of value. Double-check this is intended.`,
                     nodeId: node.id,
                     nodeType: 'property',
                     field: 'dataType',
