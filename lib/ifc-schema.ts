@@ -240,8 +240,8 @@ export async function validateDataTypeAsync(dataType: string, version: IFCVersio
 // Coarse value categories. Two datatypes in the SAME category are considered
 // interchangeable enough that swapping one for the other (e.g. a measure
 // subtype like IFCPOSITIVELENGTHMEASURE for its base IFCLENGTHMEASURE) is never
-// flagged. Per the IDS spec, ANY valid datatype is acceptable for a property —
-// the standard IFC pset template type is only a recommendation — so we only hint
+// flagged. Per the IDS spec, ANY valid datatype is acceptable for a property:
+// the standard IFC pset template type is only a recommendation, so we only hint
 // when the chosen datatype is a fundamentally different *kind* of value.
 export type DataTypeCategory =
   | 'numeric'
@@ -558,7 +558,7 @@ export async function getExpectedDataTypesForPropertyAsync(propertyName: string,
  *
  * IMPORTANT (issues #48 / #52): per the IDS specification, a property `dataType`
  * is OPTIONAL and, when present, only needs to be a valid datatype for the
- * schema version — it does NOT have to match the IFC pset template's exact type.
+ * schema version. It does NOT have to match the IFC pset template's exact type.
  * So this is a *recommendation* helper, not an IDS rule:
  *   - exact match, or same value category (e.g. IFCPOSITIVELENGTHMEASURE vs its
  *     base IFCLENGTHMEASURE) → `valid: true`, no hint.

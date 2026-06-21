@@ -21,7 +21,7 @@ export default async function UsingTheEditorPage() {
             Editor interactions
           </h1>
           <p className="text-base md:text-lg text-slate-600 dark:text-slate-400">
-            Add, connect, select, duplicate — every interaction the canvas supports
+            Add, connect, select, duplicate. Every interaction the canvas supports
           </p>
         </div>
         <MarkdownContent content={content} />
