@@ -4,11 +4,11 @@ import { validateDataType, isPropertyDataTypeValid, getAllSimpleTypes, ensurePro
 // Which kind of check produced an issue, so the report can keep them separate
 // (see #50). The official buildingSMART IDS Audit Tool makes the same split
 // between IDS-XSD conformance and IFC-schema conformance.
-//   'ids-schema'     — does the file conform to the IDS schema itself
-//                      (required facets/fields, structure)?
-//   'ifc-audit'      — are the referenced IFC types/datatypes valid for the
-//                      selected IFC schema version?
-//   'recommendation' — non-binding tool hints (not required by either standard).
+//   'ids-schema':     does the file conform to the IDS schema itself
+//                     (required facets/fields, structure)?
+//   'ifc-audit':      are the referenced IFC types/datatypes valid for the
+//                     selected IFC schema version?
+//   'recommendation': non-binding tool hints (not required by either standard).
 export type ValidationCategory = 'ids-schema' | 'ifc-audit' | 'recommendation'
 
 export interface ValidationIssue {
@@ -35,7 +35,7 @@ export interface ClientValidationResult {
  * The ifcVersion parameter is required for property data-type semantic
  * validation (e.g. LoadBearing must be IFCBOOLEAN, not IFCDATE).
  * The function ensures the property-to-datatype cache is populated before
- * checking, so it is fully self-contained — no external initialisation needed.
+ * checking, so it is fully self-contained, with no external initialisation needed.
  */
 export async function validateGraphClientSide(
     nodes: GraphNode[],
@@ -97,7 +97,7 @@ export async function validateGraphClientSide(
                 issues.push({
                     severity: 'warning',
                     category: 'recommendation',
-                    message: `Property "${data.baseName}" is usually defined as ${validation.expectedTypes.join(' or ')} in standard IFC property sets. You used "${data.dataType}" — a valid IDS datatype, but a different kind of value. Double-check this is intended.`,
+                    message: `Property "${data.baseName}" is usually defined as ${validation.expectedTypes.join(' or ')} in standard IFC property sets. You used "${data.dataType}", which is a valid IDS datatype but a different kind of value, so double check that is what you want.`,
                     nodeId: node.id,
                     nodeType: 'property',
                     field: 'dataType',
@@ -145,7 +145,7 @@ export async function validateGraphClientSide(
         }
     }
 
-    // Note: an empty classification system is intentional — it means
+    // Note: an empty classification system is intentional, it means
     // "match any classification (any system)" and is emitted as an XSD-valid
     // pattern restriction `.+` by the XML converter. No warning needed.
 

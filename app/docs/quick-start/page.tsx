@@ -20,17 +20,17 @@ covers every shortcut and selection trick.
 const closing = `
 ## Where to next
 
-- [**Editor interactions**](/docs/using-the-editor) — every shortcut, multi-select, duplicate, copy/paste.
-- [**Match any value**](/docs/match-any-value) — leave the value field empty for existence-only checks.
-- [**Restrictions**](/docs/restrictions) — enumerations, regex patterns, numeric bounds, length limits.
-- [**Facet Reference**](/docs/facets/entity) — what each facet matches and how it serialises.
+- [**Editor interactions**](/docs/using-the-editor): every shortcut, multi-select, duplicate, copy/paste.
+- [**Match any value**](/docs/match-any-value): leave the value field empty for existence-only checks.
+- [**Restrictions**](/docs/restrictions): enumerations, regex patterns, numeric bounds, length limits.
+- [**Facet Reference**](/docs/facets/entity): what each facet matches and how it serialises.
 
 ## A handful of practical notes
 
 - IFC entity names are **upper case** in IDS XML: \`IFCWALL\`, not \`IfcWall\`. The editor enforces this.
-- Property data type is **optional** in IDS, but recommended — the editor will suggest the right one based on the property name.
+- Property data type is **optional** in IDS, but recommended. The editor will suggest the right one based on the property name.
 - The validation pill top-right of the canvas tells you the moment something is wrong; you don't need to export to find out.
-- The default canvas already contains a working \`Walls-FireRating\` spec — feel free to edit it as a starting point rather than build from scratch.
+- The default canvas already contains a working \`Walls-FireRating\` spec, so feel free to edit it as a starting point rather than build from scratch.
 `;
 
 export default async function QuickStartPage() {
@@ -60,7 +60,7 @@ export default async function QuickStartPage() {
 
         <ExampleBox
           title="Walkthrough: walls must have a Fire Rating"
-          description="One specification end-to-end — from blank canvas to exported XML."
+          description="One specification end to end, from blank canvas to exported XML."
         >
           <TabbedContent
             tabs={[
@@ -86,7 +86,7 @@ export default async function QuickStartPage() {
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</div>
                       <div>
                         <strong>Add a Property, connect to Requirements</strong>
-                        <p className="text-slate-600 dark:text-slate-400">Click <em>Property</em>. Set <em>Property Set</em> to <code className="font-mono text-xs">Pset_WallCommon</code> and <em>Base Name</em> to <code className="font-mono text-xs">FireRating</code>. Leave the value empty — that's a wildcard meaning "must exist, any value passes". Wire it into <em>Requirements</em>.</p>
+                        <p className="text-slate-600 dark:text-slate-400">Click <em>Property</em>. Set <em>Property Set</em> to <code className="font-mono text-xs">Pset_WallCommon</code> and <em>Base Name</em> to <code className="font-mono text-xs">FireRating</code>. Leave the value empty, that&apos;s a wildcard meaning "must exist, any value passes". Wire it into <em>Requirements</em>.</p>
                       </div>
                     </div>
                     <div className="flex gap-3">

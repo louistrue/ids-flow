@@ -17,6 +17,12 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import type { ValidationState } from "@/lib/use-ids-validation"
 import type { ValidationIssue, ValidationCategory } from "@/lib/ids-client-validation"
 import type { IFCVersion } from "@/lib/ifc-schema"
@@ -53,11 +59,6 @@ const CATEGORY_LABELS: Record<ValidationCategory, string> = {
   "ifc-audit": "IFC schema audit",
   recommendation: "Recommendations",
 }
-const CATEGORY_BLURB: Record<ValidationCategory, string> = {
-  "ids-schema": "Does the file conform to the IDS schema itself?",
-  "ifc-audit": "Are the referenced IFC types and datatypes valid for this schema?",
-  recommendation: "Non-binding hints. Not required by the IDS or IFC schema.",
-}
 
 function ifcVersionLabel(v?: IFCVersion): string {
   switch (v) {
@@ -68,7 +69,7 @@ function ifcVersionLabel(v?: IFCVersion): string {
     case "IFC2X3":
       return "IFC2X3"
     default:
-      return v || "—"
+      return "unknown"
   }
 }
 
@@ -89,12 +90,10 @@ function deriveStatus(
     field: i.field,
   }))
 
-  // Surface server / parser failures as errors — but only when they aren't
+  // Surface server / parser failures as errors, but only when they aren't
   // already itemized as client issues. On client-side failure, validationState
   // .error is just those same issues joined into a string, so unshifting it
-  // would duplicate every row (one aggregate copy + one per-issue copy). Only
-  // show it for non-itemized failures (an exception or parse error with no
-  // per-node issues to click). Parser/structure failures are IDS-schema issues.
+  // would duplicate every row. Parser / structure failures are IDS-schema issues.
   const hasClientErrors = clientIssues.some((i) => i.severity === "error")
   if (validationState.status === "error" && !hasClientErrors) {
     issues.unshift({
@@ -102,10 +101,7 @@ function deriveStatus(
       category: "ids-schema",
       message: validationState.error || "Validation failed",
     })
-  } else if (
-    validationState.result &&
-    validationState.result.status !== 0
-  ) {
+  } else if (validationState.result && validationState.result.status !== 0) {
     issues.unshift({
       severity: "error",
       category: "ids-schema",
@@ -166,7 +162,7 @@ const STATUS_META: Record<
     Icon: Sparkles,
   },
   loading: {
-    label: "Validating…",
+    label: "Validating",
     dotClass: "bg-blue-500",
     ringClass: "ring-blue-500/30",
     pillClass: "border-blue-500/40 bg-blue-500/10",
@@ -195,6 +191,13 @@ const STATUS_META: Record<
   },
 }
 
+// Count chip tint by the worst severity in a section.
+function chipClass(hasError: boolean, hasWarning: boolean): string {
+  if (hasError) return "bg-red-500/12 text-red-600 dark:text-red-400"
+  if (hasWarning) return "bg-amber-500/12 text-amber-600 dark:text-amber-400"
+  return "bg-foreground/8 text-muted-foreground"
+}
+
 export function CanvasValidationOverlay({
   validationState,
   isValidating,
@@ -217,23 +220,20 @@ export function CanvasValidationOverlay({
     ? formatRelativeTime(validationState.lastValidated)
     : null
 
-  // The panel is expandable whenever a validation has run, so the engine /
-  // schema-version transparency info (and the CSV export) are always reachable,
-  // even when the file is valid. See #49.
+  // The panel is expandable whenever a validation has run, so the engine info
+  // and CSV export stay reachable even when the file is valid. See #49.
   const hasRun = status !== "idle" && status !== "loading"
 
   const summary = (() => {
-    if (status === "loading") return "Validating…"
-    if (status === "idle" && !validationState.lastValidated)
-      return "Waiting for content"
+    if (status === "loading") return "Validating"
+    if (status === "idle" && !validationState.lastValidated) return "Waiting for content"
     if (status === "valid") return "IDS is valid"
     if (status === "warning")
       return `${warningCount} warning${warningCount === 1 ? "" : "s"}`
     if (status === "error") {
       const parts: string[] = []
       if (errorCount) parts.push(`${errorCount} error${errorCount === 1 ? "" : "s"}`)
-      if (warningCount)
-        parts.push(`${warningCount} warning${warningCount === 1 ? "" : "s"}`)
+      if (warningCount) parts.push(`${warningCount} warning${warningCount === 1 ? "" : "s"}`)
       return parts.join(" · ")
     }
     return meta.label
@@ -243,7 +243,7 @@ export function CanvasValidationOverlay({
     <Panel position="top-right" className="!m-3 !p-0">
       <div
         className={cn(
-          "min-w-[180px] max-w-[360px] rounded-lg border shadow-lg backdrop-blur",
+          "min-w-[200px] max-w-[360px] overflow-hidden rounded-xl border shadow-lg backdrop-blur",
           "transition-colors duration-200",
           meta.pillClass
         )}
@@ -253,9 +253,8 @@ export function CanvasValidationOverlay({
           onClick={() => hasRun && setExpanded((v) => !v)}
           disabled={!hasRun}
           className={cn(
-            "flex w-full items-center gap-2 px-2.5 py-1.5 rounded-lg",
-            "text-left",
-            hasRun && "hover:bg-foreground/5 cursor-pointer",
+            "flex w-full items-center gap-2.5 px-3 py-2 text-left",
+            hasRun && "cursor-pointer hover:bg-foreground/5",
             !hasRun && "cursor-default"
           )}
           aria-expanded={expanded}
@@ -264,7 +263,7 @@ export function CanvasValidationOverlay({
         >
           <span
             className={cn(
-              "relative inline-flex h-2.5 w-2.5 rounded-full ring-4",
+              "relative inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full ring-4",
               meta.dotClass,
               meta.ringClass
             )}
@@ -273,49 +272,53 @@ export function CanvasValidationOverlay({
               <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-blue-500/70" />
             )}
           </span>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-foreground leading-tight truncate">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-xs font-semibold leading-tight text-foreground">
               {meta.label}
             </div>
-            <div className="text-[10px] text-muted-foreground leading-tight truncate">
+            <div className="truncate text-[10px] leading-tight text-muted-foreground">
               {summary}
-              {lastValidatedLabel && status !== "loading" ? (
-                <> · {lastValidatedLabel}</>
-              ) : null}
+              {lastValidatedLabel && status !== "loading" ? <> · {lastValidatedLabel}</> : null}
             </div>
           </div>
           {hasRun ? (
             expanded ? (
-              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <ChevronUp className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
             ) : (
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <ChevronDown className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
             )
           ) : null}
         </button>
 
         {expanded && hasRun ? (
-          // Neutral surface for the list so red icons/accents read clearly
-          // instead of fighting the red-tinted header (red-on-red).
-          <div className="rounded-b-lg border-t border-border/60 bg-popover/95">
-            <div className="max-h-[300px] overflow-y-auto p-1.5">
+          // Neutral surface so severity accents read clearly against the tinted header.
+          <div className="border-t border-border/60 bg-popover/95">
+            <div className="max-h-[300px] overflow-y-auto px-1.5 py-1.5">
               {issues.length === 0 ? (
-                <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-2 px-2 py-2 text-[11px] text-muted-foreground">
                   <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-green-500" />
-                  No issues found.
+                  Nothing to fix. Everything checks out.
                 </div>
               ) : (
                 CATEGORY_ORDER.map((category) => {
                   const sectionIssues = issues.filter((i) => i.category === category)
                   if (sectionIssues.length === 0) return null
+                  const secHasError = sectionIssues.some((i) => i.severity === "error")
+                  const secHasWarning = sectionIssues.some((i) => i.severity === "warning")
                   return (
-                    <div key={category} className="mb-1.5 last:mb-0">
-                      <div className="px-2 pt-1 pb-0.5">
-                        <div className="text-[10px] font-semibold uppercase tracking-wide text-foreground/70">
+                    <div key={category} className="mb-2 last:mb-0.5">
+                      <div className="flex items-center gap-2 px-2 pb-1 pt-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-foreground/55">
                           {CATEGORY_LABELS[category]}
-                        </div>
-                        <div className="text-[10px] leading-tight text-muted-foreground">
-                          {CATEGORY_BLURB[category]}
-                        </div>
+                        </span>
+                        <span
+                          className={cn(
+                            "ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums",
+                            chipClass(secHasError, secHasWarning)
+                          )}
+                        >
+                          {sectionIssues.length}
+                        </span>
                       </div>
                       <ul className="space-y-0.5">
                         {sectionIssues.map((issue, idx) => {
@@ -323,7 +326,6 @@ export function CanvasValidationOverlay({
                           const isError = issue.severity === "error"
                           const body = (
                             <>
-                              {/* Severity rail — a calm accent rather than a flood of red */}
                               <span
                                 aria-hidden
                                 className={cn(
@@ -376,28 +378,14 @@ export function CanvasValidationOverlay({
               )}
             </div>
 
-            {/* Transparency: what actually ran. See #49. */}
-            <div className="border-t border-border/40 px-2.5 py-1.5">
-              <div className="flex items-start gap-1.5 text-[10px] leading-tight text-muted-foreground">
-                <Info className="mt-px h-3 w-3 flex-shrink-0" />
-                <span>
-                  Checked by IDSedit&apos;s built-in validation (IDS structure parsed with{" "}
-                  <span className="font-mono">@ifc-lite/ids</span>). The official buildingSMART
-                  IDS Audit Tool is .NET and does not run in the browser, so it is not used here.
-                  <br />
-                  IDS schema 1.0 · IFC {ifcVersionLabel(ifcVersion)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 border-t border-border/40 p-1.5">
+            <div className="flex items-center gap-1 border-t border-border/40 p-1.5">
               {onValidateNow ? (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onValidateNow}
                   disabled={isValidating || isDisabled}
-                  className="h-6 flex-1 justify-center gap-1.5 text-[11px]"
+                  className="h-7 flex-1 justify-center gap-1.5 text-[11px]"
                 >
                   {isValidating ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -412,12 +400,53 @@ export function CanvasValidationOverlay({
                 size="sm"
                 onClick={() => downloadCsv(issues)}
                 disabled={issues.length === 0}
-                className="h-6 flex-1 justify-center gap-1.5 text-[11px]"
-                title="Export the validation report as CSV"
+                className="h-7 flex-1 justify-center gap-1.5 text-[11px]"
+                title="Export the report as CSV"
               >
                 <Download className="h-3 w-3" />
                 Export CSV
               </Button>
+
+              {/* Transparency: what actually ran. Hover for details. See #49. */}
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="How this file is checked"
+                      className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" align="end" className="max-w-[260px] p-0">
+                    <div className="space-y-1.5 p-2.5 text-[11px] leading-snug">
+                      <p className="font-semibold text-foreground">How this file is checked</p>
+                      <ul className="space-y-1 text-muted-foreground">
+                        <li>
+                          <span className="font-medium text-foreground/80">IDS schema:</span>{" "}
+                          structure parsed with <span className="font-mono">@ifc-lite/ids</span>.
+                        </li>
+                        <li>
+                          <span className="font-medium text-foreground/80">IFC schema audit:</span>{" "}
+                          IDSedit&apos;s own checks against the IFC schema.
+                        </li>
+                        <li>
+                          <span className="font-medium text-foreground/80">Recommendations:</span>{" "}
+                          hints only, not required by the standard.
+                        </li>
+                      </ul>
+                      <p className="text-muted-foreground">
+                        The official buildingSMART IDS Audit Tool is .NET, so it does not run in
+                        the browser and is not used here.
+                      </p>
+                      <p className="border-t border-border/60 pt-1.5 font-mono text-[10px] text-muted-foreground">
+                        IDS schema 1.0 · IFC {ifcVersionLabel(ifcVersion)}
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         ) : null}
