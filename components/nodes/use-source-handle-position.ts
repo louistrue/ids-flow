@@ -9,9 +9,9 @@ import { Position } from "@xyflow/react"
  * In stacked arrange mode, applicability facets are repositioned to the
  * right of the spec card and connect leftwards into the spec's right-side
  * applicability port — so their source handle needs to be on the *left*
- * for the edge to render as a clean straight line between the two cards.
+ * for the edge to curve cleanly between the two cards.
  * Requirements facets continue to live below the spec and source from the
- * right, taking a U-shaped smoothstep path through the right gutter.
+ * right, taking a curved path up the right gutter.
  */
 export function getFacetSourcePosition(data: {
     arrangeMode?: "grouped" | "stacked"

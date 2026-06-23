@@ -203,10 +203,10 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       targetHandle: edge.targetHandle,
       // Grouped mode: route through the LaneEdge so multiple facets converging
       // on the same port get distinct vertical trunks instead of overlapping
-      // bezier curves. Stacked mode keeps smoothstep — its applicability
-      // (horizontal step) and requirements (U through right gutter) shapes
-      // already separate cleanly without lane offsets.
-      type: arrangeMode === "stacked" ? "smoothstep" : "lane",
+      // bezier curves. Stacked mode uses the default bezier edge so connectors
+      // stay curvy — the right-side ports already give applicability an
+      // S-curve and requirements a C-curve through the right gutter.
+      type: arrangeMode === "stacked" ? "default" : "lane",
       data: { lane: laneByEdgeId[edge.id] ?? 0 },
       style: { stroke: "oklch(0.55 0.18 265)", strokeWidth: 2 },
     })), [edges, arrangeMode, laneByEdgeId]
