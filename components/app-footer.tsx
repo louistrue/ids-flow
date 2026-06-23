@@ -68,10 +68,10 @@ export function AppFooter() {
             href="https://www.linkedin.com/in/louistrue"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Visit Louis Trümper's LinkedIn profile"
+            aria-label="Visit Louis Trümpler's LinkedIn profile"
             className="hidden lg:inline transition-colors hover:text-primary hover:underline"
           >
-            Louis Trümper
+            Louis Trümpler
           </Link>
         </div>
 

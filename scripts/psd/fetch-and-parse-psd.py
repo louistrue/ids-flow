@@ -23,9 +23,11 @@ GITHUB_RAW_BASE = "https://raw.githubusercontent.com/buildingSMART/IFC4.3.x-deve
 GITHUB_API_URL = "https://api.github.com/repos/buildingSMART/IFC4.3.x-development/contents/reference_schemas/psd"
 OUTPUT_DIR = Path(__file__).parent.parent.parent / "lib" / "generated" / "ifc-schema"
 
-# Valid IFC simple types (from our generated schema)
-# Data types in PSD files must be mapped to these
-VALID_SIMPLE_TYPES = {
+# Fallback list of valid IFC simple types, used only if the generated schema
+# allowlist can't be read. The authoritative source is the generated
+# simple-types-*.json (derived from the official buildingSMART IDS DataTypes
+# table); see _load_authoritative_simple_types() below.
+_FALLBACK_SIMPLE_TYPES = {
     "IFCLABEL", "IFCTEXT", "IFCBOOLEAN", "IFCINTEGER", "IFCREAL",
     "IFCIDENTIFIER", "IFCLOGICAL", "IFCDATETIME", "IFCDATE", "IFCTIME",
     "IFCDURATION", "IFCLENGTHMEASURE", "IFCAREAMEASURE", "IFCVOLUMEMEASURE",
@@ -53,7 +55,39 @@ VALID_SIMPLE_TYPES = {
     "IFCSECTIONALAREAINTEGRALMEASURE", "IFCWARPING",
 }
 
-# Map non-standard type names to valid ones
+
+def _load_authoritative_simple_types() -> set:
+    """Load the valid IDS datatype list from the generated schema.
+
+    This is the same per-version allowlist the app validates against, derived
+    from the official buildingSMART IDS DataTypes table. Loading it here (rather
+    than the old hardcoded subset) means valid measure subtypes such as
+    IFCPOSITIVELENGTHMEASURE are recognised and therefore preserved verbatim by
+    normalize_type(), instead of being collapsed to a broader base type. See
+    issues #48 / #52.
+    """
+    generated = Path(__file__).resolve().parents[2] / "lib" / "generated" / "ifc-schema"
+    names: set = set()
+    for suffix in ("ifc2x3", "ifc4", "ifc4x3_add2"):
+        path = generated / f"simple-types-{suffix}.json"
+        try:
+            with open(path) as fh:
+                for entry in json.load(fh):
+                    if entry.get("name"):
+                        names.add(entry["name"].upper())
+        except (OSError, ValueError):
+            continue
+    return names
+
+
+# Authoritative set of valid IDS datatypes. normalize_type() returns any of
+# these verbatim (preserving subtypes); the mapping below is only consulted for
+# names that are NOT valid IDS datatypes (legacy aliases / typos).
+VALID_SIMPLE_TYPES = _load_authoritative_simple_types() or _FALLBACK_SIMPLE_TYPES
+
+# Map non-standard type names to valid ones. NOTE: normalize_type() checks
+# VALID_SIMPLE_TYPES *first*, so entries here for names that ARE valid IDS
+# datatypes (e.g. IFCPOSITIVELENGTHMEASURE) are inert and kept only for history.
 TYPE_NORMALIZATION = {
     "IFCPOSITIVERATIOMEASURE": "IFCREAL",
     "IFCNORMALISEDRATIOMEASURE": "IFCREAL",

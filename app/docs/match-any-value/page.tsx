@@ -21,7 +21,7 @@ export default async function MatchAnyValuePage() {
             Match any value
           </h1>
           <p className="text-base md:text-lg text-slate-600 dark:text-slate-400">
-            Existence-only checks — leave the value field empty to match anything
+            Existence-only checks. Leave the value field empty to match anything
           </p>
         </div>
         <MarkdownContent content={content} />

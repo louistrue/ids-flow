@@ -1,11 +1,26 @@
 import type { GraphNode, GraphEdge } from './graph-types'
 import { validateDataType, isPropertyDataTypeValid, getAllSimpleTypes, ensurePropertyDataTypeCache, type IFCVersion } from './ifc-schema'
 
+// Which kind of check produced an issue, so the report can keep them separate
+// (see #50). The official buildingSMART IDS Audit Tool makes the same split
+// between IDS-XSD conformance and IFC-schema conformance.
+//   'ids-schema':     does the file conform to the IDS schema itself
+//                     (required facets/fields, structure)?
+//   'ifc-audit':      are the referenced IFC types/datatypes valid for the
+//                     selected IFC schema version?
+//   'recommendation': non-binding tool hints (not required by either standard).
+export type ValidationCategory = 'ids-schema' | 'ifc-audit' | 'recommendation'
+
 export interface ValidationIssue {
     severity: 'error' | 'warning'
     message: string
+    category: ValidationCategory
     nodeId?: string
     nodeType?: string
+    // The specific data field this issue is about (e.g. 'dataType', 'baseName').
+    // Lets the inspector ring the exact control that needs fixing. Omitted for
+    // node-level issues that don't map to a single field.
+    field?: string
 }
 
 export interface ClientValidationResult {
@@ -20,7 +35,7 @@ export interface ClientValidationResult {
  * The ifcVersion parameter is required for property data-type semantic
  * validation (e.g. LoadBearing must be IFCBOOLEAN, not IFCDATE).
  * The function ensures the property-to-datatype cache is populated before
- * checking, so it is fully self-contained — no external initialisation needed.
+ * checking, so it is fully self-contained, with no external initialisation needed.
  */
 export async function validateGraphClientSide(
     nodes: GraphNode[],
@@ -34,15 +49,21 @@ export async function validateGraphClientSide(
     if (specNodes.length === 0) {
         issues.push({
             severity: 'error',
+            category: 'ids-schema',
             message: 'At least one specification node is required',
         })
         return { isValid: false, issues }
     }
 
-    // Build the property data-type cache so that isPropertyDataTypeValid()
-    // can detect semantic mismatches (e.g. LoadBearing ≠ IFCDATE).
-    // This is a no-op if the cache is already populated for this version.
-    await ensurePropertyDataTypeCache(ifcVersion)
+    // Build the property data-type cache (for template comparisons) AND the
+    // simple-type caches (the per-version list of valid IDS datatypes + their
+    // value categories) so that both the syntactic check (validateDataType) and
+    // the semantic check (isPropertyDataTypeValid) have version-correct data.
+    // These are no-ops if already populated for this version.
+    await Promise.all([
+        ensurePropertyDataTypeCache(ifcVersion),
+        getAllSimpleTypes(ifcVersion),
+    ])
 
     // Validate each property node
     const propertyNodes = nodes.filter(node => node.type === 'property')
@@ -55,42 +76,55 @@ export async function validateGraphClientSide(
             if (!isValidDataType) {
                 issues.push({
                     severity: 'error',
+                    category: 'ifc-audit',
                     message: `Invalid IFC data type "${data.dataType}" in property "${data.baseName || 'unnamed'}"`,
                     nodeId: node.id,
                     nodeType: 'property',
+                    field: 'dataType',
                 })
             }
         }
 
-        // Validate data type semantically (is it the right type for this property?)
+        // Compare the data type against the standard IFC pset template for this
+        // property. This is a RECOMMENDATION, not an error: the IDS spec only
+        // requires a valid datatype, not the template's exact one (issues
+        // #48/#52). Subtype/same-category choices (e.g. IFCPOSITIVELENGTHMEASURE
+        // for a template IFCLENGTHMEASURE) are treated as valid and never
+        // surfaced; only a fundamentally different kind of value is hinted.
         if (data.dataType && data.baseName) {
             const validation = isPropertyDataTypeValid(data.baseName, data.dataType)
             if (!validation.valid && validation.expectedTypes) {
                 issues.push({
-                    severity: 'error',
-                    message: `Property "${data.baseName}" should have data type ${validation.expectedTypes.join(' or ')}, not "${data.dataType}"`,
+                    severity: 'warning',
+                    category: 'recommendation',
+                    message: `Property "${data.baseName}" is usually defined as ${validation.expectedTypes.join(' or ')} in standard IFC property sets. You used "${data.dataType}", which is a valid IDS datatype but a different kind of value, so double check that is what you want.`,
                     nodeId: node.id,
                     nodeType: 'property',
+                    field: 'dataType',
                 })
             }
         }
 
-        // Check for required fields
+        // Check for required fields (a property facet requires both per the IDS schema)
         if (!data.propertySet) {
             issues.push({
                 severity: 'warning',
+                category: 'ids-schema',
                 message: `Property node is missing propertySet`,
                 nodeId: node.id,
                 nodeType: 'property',
+                field: 'propertySet',
             })
         }
 
         if (!data.baseName) {
             issues.push({
                 severity: 'warning',
+                category: 'ids-schema',
                 message: `Property node is missing baseName`,
                 nodeId: node.id,
                 nodeType: 'property',
+                field: 'baseName',
             })
         }
     }
@@ -102,14 +136,16 @@ export async function validateGraphClientSide(
         if (!data.name) {
             issues.push({
                 severity: 'error',
+                category: 'ids-schema',
                 message: 'Entity node is missing name',
                 nodeId: node.id,
                 nodeType: 'entity',
+                field: 'name',
             })
         }
     }
 
-    // Note: an empty classification system is intentional — it means
+    // Note: an empty classification system is intentional, it means
     // "match any classification (any system)" and is emitted as an XSD-valid
     // pattern restriction `.+` by the XML converter. No warning needed.
 
@@ -130,6 +166,7 @@ export async function validateGraphClientSide(
             if (!hasEntity) {
                 issues.push({
                     severity: 'warning',
+                    category: 'recommendation',
                     message: `Specification "${(specNode.data as any).name || 'unnamed'}" applicability should include at least one entity`,
                     nodeId: specNode.id,
                     nodeType: 'spec',

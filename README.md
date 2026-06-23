@@ -5,7 +5,7 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
 ## Features
 
 - **Visual Graph Editor**: Drag-and-drop interface for creating IDS specifications
-- **Real-time Validation**: Automatic IDS validation in the browser via [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids) — no backend required
+- **Real-time Validation**: Automatic, fully in-browser validation, no backend required. IDS XML structure is parsed with [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids); the IFC schema audit (entities, property sets, datatypes) and recommendations are IDSedit's own checks. The official buildingSMART IDS Audit Tool is .NET and is not run here.
 - **Multiple Node Types**: Support for all IDS facet types (Entity, Property, Attribute, Classification, Material, PartOf, Restriction)
 - **Template System**: Pre-built specification templates
 - **Export/Import**: Save and load canvas configurations
@@ -33,10 +33,23 @@ A visual editor for creating Information Delivery Specifications (IDS) files wit
 
 ## IDS Validation
 
-Validation runs entirely in the browser using [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids):
+Validation runs entirely in the browser. There is no backend and the official
+buildingSMART IDS Audit Tool (which is .NET) is not used. The report is split
+into the same two layers that tool distinguishes, plus tool hints:
+
+- **IDS schema validation**: does the file conform to the IDS schema itself? IDS
+  XML structure is parsed with [`@ifc-lite/ids`](https://www.npmjs.com/package/@ifc-lite/ids).
+- **IFC schema audit**: are the referenced IFC entities, property sets and
+  datatypes valid for the selected IFC schema version? These are IDSedit's own
+  checks against the generated IFC schema.
+- **Recommendations**: non-binding hints (for example, a datatype that differs
+  from the standard property-set template). Not required by the IDS or IFC schema.
+
+Details:
 
 - **Automatic Validation**: Validates 2 seconds after you stop editing
 - **Manual Validation**: Click "Re-validate" on the canvas overlay or in the Inspector Panel
+- **Export**: Download the full report (severity, category, message, node) as CSV
 - **Status Indicators**:
   - 🟢 Valid IDS — no issues
   - 🟠 Warnings — non-blocking issues

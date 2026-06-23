@@ -18,6 +18,7 @@ import { LaneEdge } from "./edges/lane-edge"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import { CanvasValidationOverlay } from "./canvas-validation-overlay"
 import type { ValidationState } from "@/lib/use-ids-validation"
+import type { IFCVersion } from "@/lib/ifc-schema"
 
 interface GraphCanvasProps {
   nodes: GraphNode[]
@@ -42,6 +43,14 @@ interface GraphCanvasProps {
    */
   pendingSelectionIds?: string[] | null
   onPendingSelectionConsumed?: () => void
+  /**
+   * Node the canvas should center+zoom onto (set when the user clicks a
+   * validation error). Cleared via onPendingFocusConsumed once applied.
+   */
+  pendingFocusNodeId?: string | null
+  onPendingFocusConsumed?: () => void
+  /** Jump to + select the node a validation error points at. */
+  onIssueSelect?: (nodeId: string, field?: string) => void
   validationState?: ValidationState
   isValidating?: boolean
   isValidationDisabled?: boolean
@@ -53,6 +62,7 @@ interface GraphCanvasProps {
    * smoothstep (stacked) so the orthogonal routing matches the layout.
    */
   arrangeMode?: ArrangeMode
+  ifcVersion?: IFCVersion
 }
 
 const nodeTypes = {
@@ -70,8 +80,7 @@ const edgeTypes = {
   lane: LaneEdge,
 }
 
-
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, arrangeMode = "grouped" }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion, arrangeMode = "grouped" }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -289,6 +298,53 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
       }))
     })
   }, [initialEdges, setEdges])
+
+  // Mark nodes that have validation issues so they stand out on the canvas
+  // (red ring for errors, amber for warning-only). Done as a className on the
+  // ReactFlow node wrapper via CSS — avoids threading an error flag through all
+  // eight node components. Runs on validation changes only; the baseNodes sync
+  // effect preserves className across position/data updates.
+  useEffect(() => {
+    const issues = validationState?.clientIssues ?? []
+    const errorIds = new Set<string>()
+    const warnIds = new Set<string>()
+    for (const issue of issues) {
+      if (!issue.nodeId) continue
+      if (issue.severity === 'error') errorIds.add(issue.nodeId)
+      else warnIds.add(issue.nodeId)
+    }
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => {
+        const cls = errorIds.has(node.id)
+          ? 'rf-node-error'
+          : warnIds.has(node.id)
+            ? 'rf-node-warning'
+            : undefined
+        if ((node.className ?? undefined) === cls) return node
+        return { ...node, className: cls }
+      })
+    )
+  }, [validationState?.clientIssues, setNodes])
+
+  // Center+zoom the canvas onto the node a validation error points at.
+  useEffect(() => {
+    if (!pendingFocusNodeId) return
+    const present = reactFlowNodes.some((n) => n.id === pendingFocusNodeId)
+    if (!present) {
+      // Stale id (e.g. node deleted before re-validation). Consume the request
+      // so it doesn't stick and a later click on the same id can re-fire.
+      onPendingFocusConsumed?.()
+      return
+    }
+    reactFlowInstance.fitView({
+      nodes: [{ id: pendingFocusNodeId }],
+      duration: 500,
+      maxZoom: 1.3,
+      minZoom: 0.5,
+      padding: 0.5,
+    })
+    onPendingFocusConsumed?.()
+  }, [pendingFocusNodeId, reactFlowNodes, reactFlowInstance, onPendingFocusConsumed])
 
   const onConnectHandler: OnConnect = useCallback((connection: Connection) => {
     if (connection.source && connection.target) {
@@ -578,8 +634,11 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             zoomable
             inversePan
             nodeColor={(node) => {
-              const baseColor = FACET_COLORS[node.type as keyof typeof FACET_COLORS]?.minimap || 'oklch(0.55 0.18 265)'
-              return node.selected ? 'oklch(0.90 0.15 292)' : baseColor
+              if (node.selected) return 'oklch(0.90 0.15 292)'
+              // Surface validation errors on the minimap too, so off-screen
+              // problem nodes are visible at a glance.
+              if (node.className?.includes('rf-node-error')) return 'oklch(0.62 0.22 25)'
+              return FACET_COLORS[node.type as keyof typeof FACET_COLORS]?.minimap || 'oklch(0.55 0.18 265)'
             }}
             nodeClassName={(node) => node.selected ? 'minimap-selected-node' : ''}
           />
@@ -591,7 +650,9 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             validationState={validationState}
             isValidating={isValidating}
             isDisabled={isValidationDisabled}
+            ifcVersion={ifcVersion}
             onValidateNow={onValidateNow}
+            onIssueSelect={onIssueSelect}
           />
         )}
       </ReactFlow>

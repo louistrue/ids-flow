@@ -54,6 +54,9 @@ export function SpecificationEditor() {
   // conversion, IDS/JSON import) become the current selection without a
   // manual click.
   const [pendingSelectionIds, setPendingSelectionIds] = useState<string[] | null>(null)
+  // Mount with the default IFC version and rehydrate from sessionStorage in
+  // the post-mount effect below (see the `hydrated` note) so the server and
+  // first client render stay identical and don't trigger a hydration mismatch.
   const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
   // Canvas arrange mode. "grouped" keeps the original two-column layout
   // (facets left, spec right, specs stacked vertically). "stacked" arranges
@@ -65,6 +68,17 @@ export function SpecificationEditor() {
   // to read sessionStorage. Used to gate the autosave effect so the freshly
   // mounted defaults can't clobber a saved project on the way in.
   const [hydrated, setHydrated] = useState(false)
+  // Pending viewport-focus request. When set, GraphCanvas animates the canvas
+  // to center+zoom the node, then clears it via onPendingFocusConsumed. Used by
+  // the "click a validation error → jump to its node" flow. Separate from
+  // pendingSelectionIds because focus must run inside the ReactFlowProvider
+  // (it needs useReactFlow), while selection is plain node state.
+  const [pendingFocusNodeId, setPendingFocusNodeId] = useState<string | null>(null)
+  // The field a validation error points at (e.g. 'dataType'), with a nonce so
+  // clicking the same error twice re-triggers the inspector's flash/scroll.
+  const [activeIssueField, setActiveIssueField] = useState<
+    { nodeId: string; field?: string; nonce: number } | null
+  >(null)
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
@@ -698,6 +712,19 @@ export function SpecificationEditor() {
     setPendingSelectionIds([restrictionId])
   }, [nodes, takeSnapshot])
 
+  /**
+   * Navigate to the node a validation error points at: select it (so the
+   * inspector opens on it), center+zoom the canvas onto it, and remember the
+   * offending field so the inspector can highlight/scroll to it. Wired to both
+   * the canvas overlay and the inspector's issue list. The nonce makes clicking
+   * the same error twice re-trigger the inspector's scroll/flash.
+   */
+  const handleIssueSelect = useCallback((nodeId: string, field?: string) => {
+    setPendingSelectionIds([nodeId])
+    setPendingFocusNodeId(nodeId)
+    setActiveIssueField((prev) => ({ nodeId, field, nonce: (prev?.nonce ?? 0) + 1 }))
+  }, [])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -962,11 +989,15 @@ export function SpecificationEditor() {
                 onAddNode={addNode}
                 pendingSelectionIds={pendingSelectionIds}
                 onPendingSelectionConsumed={() => setPendingSelectionIds(null)}
+                pendingFocusNodeId={pendingFocusNodeId}
+                onPendingFocusConsumed={() => setPendingFocusNodeId(null)}
+                onIssueSelect={handleIssueSelect}
                 validationState={validationState}
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
                 onValidateNow={validateNow}
                 arrangeMode={arrangeMode}
+                ifcVersion={ifcVersion}
               />
             </Panel>
             <CustomPanelResizeHandle />
@@ -982,6 +1013,8 @@ export function SpecificationEditor() {
                 nodes={nodes}
                 edges={edges}
                 onConvertValueToRestriction={convertValueToRestriction}
+                onIssueSelect={handleIssueSelect}
+                activeIssueField={activeIssueField}
               />
             </Panel>
           </PanelGroup>
