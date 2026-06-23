@@ -1,5 +1,19 @@
 import type { GraphNode, GraphEdge } from "./graph-types"
 
+/**
+ * Layout mode for arranging the canvas.
+ *
+ * - "grouped"  (default) — facets stacked in a single left-side column, the
+ *   spec node sits to the right of them, and multiple specs are stacked
+ *   vertically. This is the original layout produced by `relayoutNodes`.
+ * - "stacked"  — each specification gets its own vertical column: spec on
+ *   top, applicability facets stacked directly below it, a gap, then the
+ *   requirements facets stacked below that. Multiple specs are placed
+ *   side-by-side horizontally. Toggled via the "Arrange Mode" control in
+ *   the editor header.
+ */
+export type ArrangeMode = "grouped" | "stacked"
+
 export interface LayoutConfig {
     specPosition: { x: number; y: number }
     baseX: number // Left side X position for facet nodes
@@ -19,6 +33,28 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
     horizontalGap: 600,
     nodeHeight: 100,
 }
+
+// Spec card width — kept in sync with `w-[280px]` on SpecificationNode.
+const SPEC_CARD_WIDTH = 280
+// Horizontal offset between the spec card and its applicability stack on
+// the right. Picks up after the spec card with a small gutter so the
+// connecting edge has clear breathing room and the cards never abut.
+const STACKED_APPLICABILITY_X_OFFSET = SPEC_CARD_WIDTH + 80
+// Vertical offset of the requirements stack below the spec card. Big
+// enough to clear the full spec card (header + description + port rows)
+// and keep the first requirement visually separated from the spec.
+const STACKED_REQUIREMENTS_Y_OFFSET = 260
+// Width of one specification column in "stacked" arrange mode. Has to fit
+// the spec card, the applicability stack to its right, and a restriction
+// column on the far right, all with comfortable horizontal gutters before
+// the next spec column begins.
+const STACKED_COLUMN_WIDTH = 920
+// Vertical pitch between cards within a stacked column. Generous enough
+// that the orthogonal edges in the right-side gutter don't run into one
+// another and every facet card has clear breathing room.
+const STACKED_VERTICAL_SPACING = 170
+// Horizontal offset of a restriction relative to its parent facet.
+const STACKED_RESTRICTION_OFFSET = 280
 
 // Node type priority for ordering within groups
 const NODE_TYPE_PRIORITY: Record<string, number> = {
@@ -299,8 +335,13 @@ export function findTemplateOffset(
 
 export function relayoutNodes(
     nodes: GraphNode[],
-    edges: GraphEdge[]
+    edges: GraphEdge[],
+    mode: ArrangeMode = "grouped"
 ): GraphNode[] {
+    if (mode === "stacked") {
+        return relayoutNodesStacked(nodes, edges)
+    }
+
     const specNodes = nodes.filter(node => node.type === 'spec')
     if (specNodes.length === 0) return nodes
 
@@ -399,6 +440,148 @@ export function relayoutNodes(
                 position: specOffset,
             }
         }
+    })
+
+    return updatedNodes
+}
+
+/**
+ * Vertical-stack layout: every specification becomes its own column.
+ *
+ * Within a column we stack:
+ *   1. the spec node at the top,
+ *   2. its applicability facets directly below (in priority order),
+ *   3. a gap,
+ *   4. its requirements facets below the gap.
+ *
+ * Restrictions are placed in the same column as their parent facet, offset
+ * to the right so the facet → restriction → spec chain stays readable.
+ *
+ * Multiple specifications are laid out side-by-side, left-to-right, in the
+ * order they appear in `nodes` so the user's mental ordering is preserved.
+ *
+ * Any nodes that are not connected to a spec (orphans) are appended in an
+ * extra column on the right so they don't visually overlap arranged content.
+ */
+function relayoutNodesStacked(
+    nodes: GraphNode[],
+    edges: GraphEdge[]
+): GraphNode[] {
+    const specNodes = nodes.filter(node => node.type === 'spec')
+    if (specNodes.length === 0) return nodes
+
+    const updatedNodes = [...nodes]
+    const positioned = new Set<string>()
+
+    const baseX = DEFAULT_LAYOUT_CONFIG.specPosition.x
+    const baseY = DEFAULT_LAYOUT_CONFIG.baseY
+
+    const updatePosition = (id: string, position: { x: number; y: number }) => {
+        const idx = updatedNodes.findIndex(n => n.id === id)
+        if (idx === -1) return
+        updatedNodes[idx] = { ...updatedNodes[idx], position }
+        positioned.add(id)
+    }
+
+    const sortByPriority = (a: GraphNode, b: GraphNode) => {
+        const priorityA = NODE_TYPE_PRIORITY[a.type] || 999
+        const priorityB = NODE_TYPE_PRIORITY[b.type] || 999
+        return priorityA - priorityB
+    }
+
+    specNodes.forEach((specNode, specIndex) => {
+        const columnX = baseX + specIndex * STACKED_COLUMN_WIDTH
+
+        // Place the spec node at the top of its column.
+        updatePosition(specNode.id, { x: columnX, y: baseY })
+
+        // Collect facets connected to this spec, separated by handle. A facet
+        // may be wired either directly to the spec or via a restriction node;
+        // both cases need to be detected so the column ends up complete.
+        const applicabilityFacets: GraphNode[] = []
+        const requirementsFacets: GraphNode[] = []
+        // Map of facet id -> restriction node sitting on the wire to the spec.
+        const restrictionForFacet = new Map<string, GraphNode>()
+
+        nodes.forEach(node => {
+            if (node.type === 'spec' || node.type === 'restriction') return
+
+            // Direct connection: facet -> spec
+            const directEdge = edges.find(e =>
+                e.source === node.id && e.target === specNode.id,
+            )
+            if (directEdge) {
+                if (directEdge.targetHandle === 'applicability') applicabilityFacets.push(node)
+                else if (directEdge.targetHandle === 'requirements') requirementsFacets.push(node)
+                return
+            }
+
+            // Indirect connection: facet -> restriction -> spec
+            const toRestriction = edges.find(e => e.source === node.id)
+            if (!toRestriction) return
+            const maybeRestriction = nodes.find(n => n.id === toRestriction.target)
+            if (!maybeRestriction || maybeRestriction.type !== 'restriction') return
+            const restrictionEdge = edges.find(e =>
+                e.source === maybeRestriction.id && e.target === specNode.id,
+            )
+            if (!restrictionEdge) return
+            if (restrictionEdge.targetHandle === 'applicability') applicabilityFacets.push(node)
+            else if (restrictionEdge.targetHandle === 'requirements') requirementsFacets.push(node)
+            restrictionForFacet.set(node.id, maybeRestriction)
+        })
+
+        applicabilityFacets.sort(sortByPriority)
+        requirementsFacets.sort(sortByPriority)
+
+        // Applicability facets stack to the RIGHT of the spec card. Their
+        // source handle attaches on the LEFT (see getFacetSourcePosition),
+        // so a clean horizontal edge runs from the spec's right-side
+        // applicability port straight into each facet's left handle.
+        const applicabilityX = columnX + STACKED_APPLICABILITY_X_OFFSET
+        let appY = baseY
+        applicabilityFacets.forEach(facet => {
+            updatePosition(facet.id, { x: applicabilityX, y: appY })
+            const restriction = restrictionForFacet.get(facet.id)
+            if (restriction) {
+                // Park applicability restrictions further to the right of
+                // their facet. The chain is facet -> restriction -> spec;
+                // routing isn't perfectly straight here but stays readable
+                // because both segments stay inside this spec's column.
+                updatePosition(restriction.id, {
+                    x: applicabilityX + STACKED_RESTRICTION_OFFSET,
+                    y: appY,
+                })
+            }
+            appY += STACKED_VERTICAL_SPACING
+        })
+
+        // Requirements facets stack directly BELOW the spec card. Their
+        // source handle stays on the RIGHT, so each edge takes a clean
+        // smoothstep U-shape from the spec's right-side requirements port
+        // down the right gutter to the facet's right handle.
+        let reqY = baseY + STACKED_REQUIREMENTS_Y_OFFSET
+        requirementsFacets.forEach(facet => {
+            updatePosition(facet.id, { x: columnX, y: reqY })
+            const restriction = restrictionForFacet.get(facet.id)
+            if (restriction) {
+                updatePosition(restriction.id, {
+                    x: columnX + STACKED_RESTRICTION_OFFSET,
+                    y: reqY,
+                })
+            }
+            reqY += STACKED_VERTICAL_SPACING
+        })
+    })
+
+    // Park anything that wasn't touched (orphan nodes, dangling restrictions)
+    // in an additional column to the right of the last spec, so the canvas
+    // doesn't end up with overlapping clusters of stale content.
+    const orphanX = baseX + specNodes.length * STACKED_COLUMN_WIDTH
+    let orphanY = baseY
+    updatedNodes.forEach((node, idx) => {
+        if (positioned.has(node.id)) return
+        updatedNodes[idx] = { ...node, position: { x: orphanX, y: orphanY } }
+        orphanY += STACKED_VERTICAL_SPACING
     })
 
     return updatedNodes

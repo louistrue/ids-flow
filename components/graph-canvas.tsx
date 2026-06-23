@@ -1,9 +1,10 @@
 "use client"
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react"
-import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useNodesState, useEdgesState, useReactFlow, useUpdateNodeInternals, type Node, type Edge, type Connection, type OnConnect, type OnNodesChange, type OnEdgesChange, NodeChange, EdgeChange } from "@xyflow/react"
 import { Map as MapIcon } from "lucide-react"
 import type { GraphNode, GraphEdge } from "@/lib/graph-types"
+import type { ArrangeMode } from "@/lib/node-layout"
 import { getEntityContext, isInRequirementsSection } from "@/lib/graph-utils"
 import { SpecificationNode } from "./nodes/specification-node"
 import { EntityNode } from "./nodes/entity-node"
@@ -13,6 +14,7 @@ import { ClassificationNode } from "./nodes/classification-node"
 import { MaterialNode } from "./nodes/material-node"
 import { PartOfNode } from "./nodes/partof-node"
 import { RestrictionNode } from "./nodes/restriction-node"
+import { LaneEdge } from "./edges/lane-edge"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import { CanvasValidationOverlay } from "./canvas-validation-overlay"
 import type { ValidationState } from "@/lib/use-ids-validation"
@@ -53,6 +55,13 @@ interface GraphCanvasProps {
   isValidating?: boolean
   isValidationDisabled?: boolean
   onValidateNow?: () => void
+  /**
+   * Active arrange mode. Forwarded into spec node data so the spec card
+   * knows which side to attach its applicability/requirements ports to,
+   * and used here to switch edge rendering between bezier (grouped) and
+   * smoothstep (stacked) so the orthogonal routing matches the layout.
+   */
+  arrangeMode?: ArrangeMode
   ifcVersion?: IFCVersion
 }
 
@@ -67,8 +76,11 @@ const nodeTypes = {
   restriction: RestrictionNode,
 }
 
+const edgeTypes = {
+  lane: LaneEdge,
+}
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion, arrangeMode = "grouped" }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -77,6 +89,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
   const [isDragOver, setIsDragOver] = useState(false)
   const reactFlowContainerRef = useRef<HTMLDivElement>(null)
   const reactFlowInstance = useReactFlow()
+  const updateNodeInternals = useUpdateNodeInternals()
 
   const onPaletteDragOver = useCallback((event: React.DragEvent) => {
     if (!event.dataTransfer.types.includes('application/reactflow-node-type')) return
@@ -127,9 +140,13 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
           entityContext: entityContext.entityName,
           isInRequirements: inRequirements,
           hasRestriction,
+          // Spec node consumes this to decide which side of the card its
+          // applicability/requirements ports attach to. Sending it on every
+          // node is harmless — non-spec nodes simply ignore the field.
+          arrangeMode,
         },
       }
-    }), [nodes, edges]
+    }), [nodes, edges, arrangeMode]
   )
 
   // Add focus state to nodes separately
@@ -146,19 +163,77 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     })), [baseNodes, focusedSpecTargets, focusedFacetColor, focusedSourceNodeId]
   )
 
+  // Assign each edge a lane index within its (target spec, target port) group,
+  // ranked by the source facet's vertical position. Sorting by Y means the
+  // top-most facet always gets lane 0 (the trunk closest to the spec card),
+  // so when several facets converge on the same Applicability / Requirements
+  // port the edges fan out into stacked vertical lanes that don't cross each
+  // other. Recomputing on every nodes/edges change means dropping a facet at
+  // a new Y position auto-resorts the lanes — which is exactly the
+  // "keep them in visible lanes when dropped" behaviour we want in grouped
+  // mode.
+  const laneByEdgeId = useMemo(() => {
+    const groups = new Map<string, GraphEdge[]>()
+    for (const edge of edges) {
+      const key = `${edge.target}|${edge.targetHandle ?? ""}`
+      const bucket = groups.get(key)
+      if (bucket) bucket.push(edge)
+      else groups.set(key, [edge])
+    }
+    const positionsById = new Map(nodes.map((n) => [n.id, n.position]))
+    const lanes: Record<string, number> = {}
+    for (const bucket of groups.values()) {
+      const sorted = [...bucket].sort((a, b) => {
+        const aY = positionsById.get(a.source)?.y ?? 0
+        const bY = positionsById.get(b.source)?.y ?? 0
+        return aY - bY
+      })
+      sorted.forEach((edge, idx) => {
+        lanes[edge.id] = idx
+      })
+    }
+    return lanes
+  }, [edges, nodes])
+
   const initialEdges: Edge[] = useMemo(() =>
     edges.map(edge => ({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       targetHandle: edge.targetHandle,
+      // Grouped mode: route through the LaneEdge so multiple facets converging
+      // on the same port get distinct vertical trunks instead of overlapping
+      // bezier curves. Stacked mode keeps smoothstep — its applicability
+      // (horizontal step) and requirements (U through right gutter) shapes
+      // already separate cleanly without lane offsets.
+      type: arrangeMode === "stacked" ? "smoothstep" : "lane",
+      data: { lane: laneByEdgeId[edge.id] ?? 0 },
       style: { stroke: "oklch(0.55 0.18 265)", strokeWidth: 2 },
-    })), [edges]
+    })), [edges, arrangeMode, laneByEdgeId]
   )
 
   // Use ReactFlow's built-in state management
   const [reactFlowNodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  // When the arrange mode flips, the spec card moves its applicability /
+  // requirements handles to the other side and facet nodes flip their source
+  // handle position. ReactFlow caches each node's handle bounds (the geometry
+  // it uses to anchor edge endpoints) and will *not* recompute them just
+  // because we re-rendered the component — so without this call, every edge
+  // visually stays glued to the previous handle location for a beat and the
+  // result is the stub-on-the-wrong-side artefact in the screenshot. Asking
+  // for an update on every node id forces a re-measure on the next frame.
+  useEffect(() => {
+    const ids = nodes.map((n) => n.id)
+    if (ids.length === 0) return
+    // requestAnimationFrame so the DOM has settled with the new Handle props
+    // before ReactFlow measures.
+    const raf = requestAnimationFrame(() => {
+      ids.forEach((id) => updateNodeInternals(id))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [arrangeMode, nodes, updateNodeInternals])
 
   // Sync ReactFlow state with parent props only when base nodes change (not during selection/focus changes)
   useEffect(() => {
@@ -528,6 +603,7 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         onNodeDragStart={handleNodeDragStart}
         onNodeDragStop={handleNodeDragStop}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         defaultEdgeOptions={{ type: 'default' }}
         connectionLineType={undefined}
         fitView

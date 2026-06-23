@@ -10,7 +10,7 @@ import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { IdsExportDialog } from "./ids-export-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Layout, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
+import { Copy, Download, Upload, FileText, Layout, LayoutGrid, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
@@ -22,7 +22,7 @@ import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { loadProjectState, saveProjectState } from "@/lib/project-session-store"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
-import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode } from "@/lib/node-layout"
+import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode, type ArrangeMode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
 import { useUndoRedo } from "@/lib/use-undo-redo"
 import { AppFooter } from "./app-footer"
@@ -34,14 +34,18 @@ export function SpecificationEditor() {
     return supported.includes(value as IFCVersion) ? (value as IFCVersion) : undefined
   }, [])
 
-  const [nodes, setNodes] = useState<GraphNode[]>(() => {
-    const saved = loadProjectState()
-    return saved ? saved.nodes : initialNodes
-  })
-  const [edges, setEdges] = useState<GraphEdge[]>(() => {
-    const saved = loadProjectState()
-    return saved ? saved.edges : initialEdges
-  })
+  // IMPORTANT: do *not* read sessionStorage in these initialisers. The
+  // editor is a `"use client"` component but Next.js still server-renders it
+  // on the initial page load; sessionStorage is only available in the
+  // browser, so anything we initialise from it here would differ between the
+  // server-rendered HTML and the first client render and trigger a
+  // hydration mismatch (the arrange-mode toggle button label / title / aria
+  // are the most visible casualties). Instead, mount with the same defaults
+  // the server uses and then rehydrate from sessionStorage in a single
+  // effect below, guarded by `hydrated` so the autosave effect doesn't
+  // overwrite the stored state with the empty defaults in the meantime.
+  const [nodes, setNodes] = useState<GraphNode[]>(initialNodes)
+  const [edges, setEdges] = useState<GraphEdge[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   // Pending selection request for newly created nodes. GraphCanvas picks this
   // up via prop, marks the IDs selected on React Flow's internal node state,
@@ -50,6 +54,20 @@ export function SpecificationEditor() {
   // conversion, IDS/JSON import) become the current selection without a
   // manual click.
   const [pendingSelectionIds, setPendingSelectionIds] = useState<string[] | null>(null)
+  // Mount with the default IFC version and rehydrate from sessionStorage in
+  // the post-mount effect below (see the `hydrated` note) so the server and
+  // first client render stay identical and don't trigger a hydration mismatch.
+  const [ifcVersion, setIfcVersion] = useState<IFCVersion>("IFC4X3_ADD2")
+  // Canvas arrange mode. "grouped" keeps the original two-column layout
+  // (facets left, spec right, specs stacked vertically). "stacked" arranges
+  // each specification as its own vertical column (spec on top, facets
+  // stacked beneath it, specs placed side-by-side). The mode is persisted in
+  // sessionStorage alongside the rest of the project state.
+  const [arrangeMode, setArrangeMode] = useState<ArrangeMode>("grouped")
+  // Flips to true after the first client-side mount once we've had a chance
+  // to read sessionStorage. Used to gate the autosave effect so the freshly
+  // mounted defaults can't clobber a saved project on the way in.
+  const [hydrated, setHydrated] = useState(false)
   // Pending viewport-focus request. When set, GraphCanvas animates the canvas
   // to center+zoom the node, then clears it via onPendingFocusConsumed. Used by
   // the "click a validation error → jump to its node" flow. Separate from
@@ -61,10 +79,6 @@ export function SpecificationEditor() {
   const [activeIssueField, setActiveIssueField] = useState<
     { nodeId: string; field?: string; nonce: number } | null
   >(null)
-  const [ifcVersion, setIfcVersion] = useState<IFCVersion>(() => {
-    const saved = loadProjectState()
-    return (saved?.ifcVersion as IFCVersion) || "IFC4X3_ADD2"
-  })
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
@@ -102,10 +116,35 @@ export function SpecificationEditor() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo])
 
-  // Persist project state to sessionStorage so it survives navigation (e.g. to /docs and back)
+  // Rehydrate from sessionStorage exactly once after first client mount.
+  // Doing this in an effect (rather than in the useState initialisers) keeps
+  // the server-rendered HTML and the first client render identical, which is
+  // what avoids the hydration mismatch on the arrange-mode toggle button and
+  // anything else whose label/aria depends on the persisted state. After
+  // applying the saved values we flip `hydrated` so the autosave effect can
+  // start syncing further changes back to sessionStorage.
   useEffect(() => {
-    saveProjectState(nodes, edges, ifcVersion)
-  }, [nodes, edges, ifcVersion])
+    const saved = loadProjectState()
+    if (saved) {
+      setNodes(saved.nodes)
+      setEdges(saved.edges)
+      const v = normalizeIfcVersion(saved.ifcVersion)
+      if (v) setIfcVersion(v)
+      if (saved.arrangeMode === "stacked" || saved.arrangeMode === "grouped") {
+        setArrangeMode(saved.arrangeMode)
+      }
+    }
+    setHydrated(true)
+  }, [normalizeIfcVersion])
+
+  // Persist project state to sessionStorage so it survives navigation (e.g.
+  // to /docs and back). Gated on `hydrated` so the initial render with empty
+  // defaults doesn't overwrite a saved project before we've had a chance to
+  // read it back in the effect above.
+  useEffect(() => {
+    if (!hydrated) return
+    saveProjectState(nodes, edges, ifcVersion, arrangeMode)
+  }, [hydrated, nodes, edges, ifcVersion, arrangeMode])
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     setNodes((nds) => {
@@ -140,9 +179,19 @@ export function SpecificationEditor() {
 
   const arrangeAll = useCallback(() => {
     takeSnapshot() // Capture BEFORE rearranging
-    const updatedNodes = relayoutNodes(nodes, edges)
+    const updatedNodes = relayoutNodes(nodes, edges, arrangeMode)
     setNodes(updatedNodes)
-  }, [nodes, edges, takeSnapshot])
+  }, [nodes, edges, takeSnapshot, arrangeMode])
+
+  // Flip between grouped/stacked layout and immediately re-arrange so the
+  // user sees the result of the toggle without a second click on "Arrange
+  // All". We snapshot first so the layout flip is itself undoable.
+  const toggleArrangeMode = useCallback(() => {
+    const nextMode: ArrangeMode = arrangeMode === "stacked" ? "grouped" : "stacked"
+    takeSnapshot()
+    setArrangeMode(nextMode)
+    setNodes(relayoutNodes(nodes, edges, nextMode))
+  }, [arrangeMode, nodes, edges, takeSnapshot])
 
   const applyTemplate = useCallback((template: SpecTemplate) => {
     const timestamp = Date.now()
@@ -730,10 +779,31 @@ export function SpecificationEditor() {
               size="sm"
               className="gap-1.5 h-8 px-2.5 bg-card"
               onClick={arrangeAll}
-              title="Auto-arrange all nodes"
+              title={
+                arrangeMode === "stacked"
+                  ? "Auto-arrange — vertical stack per specification"
+                  : "Auto-arrange — grouped facets per specification"
+              }
             >
               <Layout className="h-3.5 w-3.5" />
               <span className="hidden xl:inline">Arrange All</span>
+            </Button>
+            <Button
+              variant={arrangeMode === "stacked" ? "default" : "outline"}
+              size="sm"
+              className="gap-1.5 h-8 px-2.5"
+              onClick={toggleArrangeMode}
+              title={
+                arrangeMode === "stacked"
+                  ? "Stacked layout active — click for grouped layout"
+                  : "Grouped layout active — click to stack cards vertically per specification"
+              }
+              aria-pressed={arrangeMode === "stacked"}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">
+                {arrangeMode === "stacked" ? "Stacked" : "Grouped"}
+              </span>
             </Button>
             <Button
               variant="outline"
@@ -840,6 +910,10 @@ export function SpecificationEditor() {
                   <Layout className="h-4 w-4 mr-2" />
                   Arrange All
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleArrangeMode}>
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  {arrangeMode === "stacked" ? "Layout: Stacked" : "Layout: Grouped"}
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={cloneAsProfile}
                   disabled={!selectedNode || selectedNode.type !== "spec"}
@@ -922,6 +996,7 @@ export function SpecificationEditor() {
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}
                 onValidateNow={validateNow}
+                arrangeMode={arrangeMode}
                 ifcVersion={ifcVersion}
               />
             </Panel>
