@@ -14,7 +14,6 @@ import { ClassificationNode } from "./nodes/classification-node"
 import { MaterialNode } from "./nodes/material-node"
 import { PartOfNode } from "./nodes/partof-node"
 import { RestrictionNode } from "./nodes/restriction-node"
-import { LaneEdge } from "./edges/lane-edge"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import { CanvasValidationOverlay } from "./canvas-validation-overlay"
 import type { ValidationState } from "@/lib/use-ids-validation"
@@ -74,10 +73,6 @@ const nodeTypes = {
   material: MaterialNode,
   partOf: PartOfNode,
   restriction: RestrictionNode,
-}
-
-const edgeTypes = {
-  lane: LaneEdge,
 }
 
 export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion, arrangeMode = "grouped" }: GraphCanvasProps) {
@@ -163,53 +158,19 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
     })), [baseNodes, focusedSpecTargets, focusedFacetColor, focusedSourceNodeId]
   )
 
-  // Assign each edge a lane index within its (target spec, target port) group,
-  // ranked by the source facet's vertical position. Sorting by Y means the
-  // top-most facet always gets lane 0 (the trunk closest to the spec card),
-  // so when several facets converge on the same Applicability / Requirements
-  // port the edges fan out into stacked vertical lanes that don't cross each
-  // other. Recomputing on every nodes/edges change means dropping a facet at
-  // a new Y position auto-resorts the lanes — which is exactly the
-  // "keep them in visible lanes when dropped" behaviour we want in grouped
-  // mode.
-  const laneByEdgeId = useMemo(() => {
-    const groups = new Map<string, GraphEdge[]>()
-    for (const edge of edges) {
-      const key = `${edge.target}|${edge.targetHandle ?? ""}`
-      const bucket = groups.get(key)
-      if (bucket) bucket.push(edge)
-      else groups.set(key, [edge])
-    }
-    const positionsById = new Map(nodes.map((n) => [n.id, n.position]))
-    const lanes: Record<string, number> = {}
-    for (const bucket of groups.values()) {
-      const sorted = [...bucket].sort((a, b) => {
-        const aY = positionsById.get(a.source)?.y ?? 0
-        const bY = positionsById.get(b.source)?.y ?? 0
-        return aY - bY
-      })
-      sorted.forEach((edge, idx) => {
-        lanes[edge.id] = idx
-      })
-    }
-    return lanes
-  }, [edges, nodes])
-
   const initialEdges: Edge[] = useMemo(() =>
     edges.map(edge => ({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       targetHandle: edge.targetHandle,
-      // Grouped mode: route through the LaneEdge so multiple facets converging
-      // on the same port get distinct vertical trunks instead of overlapping
-      // bezier curves. Stacked mode uses the default bezier edge so connectors
-      // stay curvy — the right-side ports already give applicability an
-      // S-curve and requirements a C-curve through the right gutter.
-      type: arrangeMode === "stacked" ? "default" : "lane",
-      data: { lane: laneByEdgeId[edge.id] ?? 0 },
+      // Grouped mode uses the default bezier edge so connectors stay curvy
+      // across the two-column layout. Stacked mode uses smoothstep so edges
+      // route as clean orthogonal paths up the right gutter, matching the
+      // vertical spec-over-facets geometry.
+      type: arrangeMode === "stacked" ? "smoothstep" : "default",
       style: { stroke: "oklch(0.55 0.18 265)", strokeWidth: 2 },
-    })), [edges, arrangeMode, laneByEdgeId]
+    })), [edges, arrangeMode]
   )
 
   // Use ReactFlow's built-in state management
@@ -603,7 +564,6 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
         onNodeDragStart={handleNodeDragStart}
         onNodeDragStop={handleNodeDragStop}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
         defaultEdgeOptions={{ type: 'default' }}
         connectionLineType={undefined}
         fitView

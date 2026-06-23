@@ -30,8 +30,8 @@ export function SpecificationNode({ data, selected }: NodeProps) {
   const applicabilityBadge = getApplicabilityBadge(nodeData.applicabilityCardinality)
   // In stacked mode the spec sits above a vertical column of facets, so the
   // applicability/requirements ports need to attach on the right side of the
-  // card. Edges then curve up the right gutter instead of cutting across the
-  // card body.
+  // card. Edges then route as clean orthogonal U-shapes up the right gutter
+  // instead of S-curving across the card body.
   const portSide: 'left' | 'right' = nodeData.arrangeMode === 'stacked' ? 'right' : 'left'
 
   return (
