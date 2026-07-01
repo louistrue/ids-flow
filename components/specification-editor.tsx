@@ -725,6 +725,16 @@ export function SpecificationEditor() {
     setActiveIssueField((prev) => ({ nodeId, field, nonce: (prev?.nonce ?? 0) + 1 }))
   }, [])
 
+  /**
+   * Select + fly the canvas to a node picked from the in-canvas search (#59).
+   * Reuses the same pending-selection/focus mechanism as the validation-error
+   * jump, minus the field flash (there's no offending field to highlight).
+   */
+  const handleLocateNode = useCallback((nodeId: string) => {
+    setPendingSelectionIds([nodeId])
+    setPendingFocusNodeId(nodeId)
+  }, [])
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Header row */}
@@ -992,6 +1002,7 @@ export function SpecificationEditor() {
                 pendingFocusNodeId={pendingFocusNodeId}
                 onPendingFocusConsumed={() => setPendingFocusNodeId(null)}
                 onIssueSelect={handleIssueSelect}
+                onLocateNode={handleLocateNode}
                 validationState={validationState}
                 isValidating={isValidating}
                 isValidationDisabled={isValidationDisabled}

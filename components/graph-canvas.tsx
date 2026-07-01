@@ -16,6 +16,7 @@ import { PartOfNode } from "./nodes/partof-node"
 import { RestrictionNode } from "./nodes/restriction-node"
 import { FACET_COLORS } from "@/lib/facet-colors"
 import { CanvasValidationOverlay } from "./canvas-validation-overlay"
+import { CanvasSearch } from "./canvas-search"
 import type { ValidationState } from "@/lib/use-ids-validation"
 import type { IFCVersion } from "@/lib/ifc-schema"
 
@@ -50,6 +51,8 @@ interface GraphCanvasProps {
   onPendingFocusConsumed?: () => void
   /** Jump to + select the node a validation error points at. */
   onIssueSelect?: (nodeId: string, field?: string) => void
+  /** Select + fly to a node chosen from the in-canvas search. */
+  onLocateNode?: (nodeId: string) => void
   validationState?: ValidationState
   isValidating?: boolean
   isValidationDisabled?: boolean
@@ -75,7 +78,7 @@ const nodeTypes = {
   restriction: RestrictionNode,
 }
 
-export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion, arrangeMode = "grouped" }: GraphCanvasProps) {
+export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMove, onNodeDragStart, onConnect, onNodesDelete, onEdgesDelete, onDuplicateNodes, onAddNode, pendingSelectionIds, onPendingSelectionConsumed, pendingFocusNodeId, onPendingFocusConsumed, onIssueSelect, onLocateNode, validationState, isValidating = false, isValidationDisabled = false, onValidateNow, ifcVersion, arrangeMode = "grouped" }: GraphCanvasProps) {
   const [showMinimap, setShowMinimap] = useState(true)
   const [focusedSpecTargets, setFocusedSpecTargets] = useState<Record<string, 'applicability' | 'requirements'>>({})
   const [focusedFacetColor, setFocusedFacetColor] = useState<string | null>(null)
@@ -602,6 +605,10 @@ export function GraphCanvas({ nodes, edges, selectedNode, onNodeSelect, onNodeMo
             }}
             nodeClassName={(node) => node.selected ? 'minimap-selected-node' : ''}
           />
+        )}
+        {/* In-canvas search: locate specifications/facets in large IDS files (#59) */}
+        {onLocateNode && nodes.length > 0 && (
+          <CanvasSearch nodes={nodes} onLocate={onLocateNode} />
         )}
         {/* Inject focus hint into the spec node via data, so labels highlight */}
         <style>{`/* no-op style tag needed to avoid empty JSX warnings */`}</style>
