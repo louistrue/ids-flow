@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { ReactFlowProvider } from "@xyflow/react"
 import { Panel, PanelGroup } from "react-resizable-panels"
 import { CustomPanelResizeHandle } from "@/components/ui/panel-resize-handle"
@@ -87,6 +87,11 @@ export function SpecificationEditor() {
   // human-readable report (#60) and re-export can show the real title / author
   // / date instead of falling back to the first spec's name.
   const [idsMetadata, setIdsMetadata] = useState<IdsMetadata | null>(null)
+  // Whether an OS file is being dragged over the editor (#57). Tracked with a
+  // depth counter because dragenter/dragleave also fire when crossing between
+  // child elements, which would otherwise flicker the drop overlay.
+  const [isFileDragOver, setIsFileDragOver] = useState(false)
+  const dragDepthRef = useRef(0)
 
   // IDS Validation hook
   const {
@@ -515,10 +520,8 @@ export function SpecificationEditor() {
     }
   }, [nodes, edges, idsMetadata])
 
-  const handleJsonFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
+  // Core canvas-JSON import, shared by the file picker and drag-and-drop (#57).
+  const importCanvasFile = useCallback((file: File) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
@@ -558,15 +561,18 @@ export function SpecificationEditor() {
     }
 
     reader.readAsText(file)
-
-    // Reset the input so the same file can be imported again
-    event.target.value = ''
   }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode, takeSnapshot])
 
-  const handleIdsFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleJsonFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
+    importCanvasFile(file)
+    // Reset the input so the same file can be imported again
+    event.target.value = ''
+  }, [importCanvasFile])
 
+  // Core IDS import, shared by the file picker and drag-and-drop (#57).
+  const importIdsFile = useCallback((file: File) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
@@ -597,8 +603,14 @@ export function SpecificationEditor() {
     }
 
     reader.readAsText(file)
-    event.target.value = ''
   }, [normalizeIfcVersion, setEdges, setIfcVersion, setNodes, setSelectedNode, takeSnapshot])
+
+  const handleIdsFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    importIdsFile(file)
+    event.target.value = ''
+  }, [importIdsFile])
 
   const handleNodeMove = useCallback((updates: Array<{ id: string; position: { x: number; y: number } }>) => {
     const positionMap = new Map(updates.map(({ id, position }) => [id, position]))
@@ -772,8 +784,60 @@ export function SpecificationEditor() {
     setPendingFocusNodeId(nodeId)
   }, [])
 
+  // ---- Drag & drop an IDS (or canvas) file onto the editor (#57) ----
+  // Route a dropped file to the right importer by extension.
+  const importDroppedFile = useCallback((file: File) => {
+    const name = file.name.toLowerCase()
+    if (name.endsWith('.ids') || name.endsWith('.xml')) {
+      importIdsFile(file)
+    } else if (name.endsWith('.json')) {
+      importCanvasFile(file)
+    } else {
+      alert('Unsupported file. Drop an IDS (.ids / .xml) or canvas (.json) file.')
+    }
+  }, [importIdsFile, importCanvasFile])
+
+  // Only react to OS file drags — not React Flow's own palette-node drags,
+  // which carry an 'application/reactflow-node-type' payload instead of 'Files'.
+  const isFileDrag = (e: React.DragEvent) =>
+    Array.from(e.dataTransfer?.types ?? []).includes('Files')
+
+  const handleFileDragEnter = useCallback((e: React.DragEvent) => {
+    if (!isFileDrag(e)) return
+    e.preventDefault()
+    dragDepthRef.current += 1
+    setIsFileDragOver(true)
+  }, [])
+
+  const handleFileDragOver = useCallback((e: React.DragEvent) => {
+    if (!isFileDrag(e)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  const handleFileDragLeave = useCallback((e: React.DragEvent) => {
+    if (!isFileDrag(e)) return
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1)
+    if (dragDepthRef.current === 0) setIsFileDragOver(false)
+  }, [])
+
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    if (!isFileDrag(e)) return
+    e.preventDefault()
+    dragDepthRef.current = 0
+    setIsFileDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) importDroppedFile(file)
+  }, [importDroppedFile])
+
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
+    <div
+      className="relative flex flex-col h-full w-full overflow-hidden"
+      onDragEnter={handleFileDragEnter}
+      onDragOver={handleFileDragOver}
+      onDragLeave={handleFileDragLeave}
+      onDrop={handleFileDrop}
+    >
       {/* Header row */}
       <header className="flex-none border-b border-border bg-background">
         <div className="flex items-center h-14 px-3 gap-3">
@@ -1085,6 +1149,21 @@ export function SpecificationEditor() {
         onOpenChange={setExportDialogOpen}
         onExport={handleExportWithMetadata}
       />
+
+      {/* Drop-to-open overlay while an OS file is dragged over the editor (#57) */}
+      {isFileDragOver && (
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-background/80">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-primary/60 bg-card/95 px-10 py-8 shadow-xl">
+            <Upload className="h-8 w-8 text-primary" />
+            <div className="text-center">
+              <div className="text-sm font-semibold text-foreground">Drop to open</div>
+              <div className="text-xs text-muted-foreground">
+                IDS (.ids / .xml) or canvas (.json)
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
