@@ -205,6 +205,12 @@
     "description": "Enumeration value"
   },
   {
+    "name": "IFCCOMPLEXNUMBER",
+    "baseType": "",
+    "description": "Complex number (reference value)",
+    "category": "reference"
+  },
+  {
     "name": "IFCCOMPLEXPROPERTYTEMPLATETYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -545,6 +551,12 @@
     "description": "Enumeration value"
   },
   {
+    "name": "IFCEXTERNALREFERENCE",
+    "baseType": "",
+    "description": "Reference to an external source (classification, document or library)",
+    "category": "reference"
+  },
+  {
     "name": "IFCEXTERNALSPATIALELEMENTTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -850,6 +862,12 @@
     "description": "Measure value (decimal)"
   },
   {
+    "name": "IFCMATERIALDEFINITION",
+    "baseType": "",
+    "description": "Reference to a material definition",
+    "category": "reference"
+  },
+  {
     "name": "IFCMECHANICALFASTENERTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -978,6 +996,12 @@
     "name": "IFCPERMITTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPERSON",
+    "baseType": "",
+    "description": "Reference to a person",
+    "category": "reference"
   },
   {
     "name": "IFCPHMEASURE",
@@ -1470,6 +1494,12 @@
     "description": "Time measurement"
   },
   {
+    "name": "IFCTIMESERIES",
+    "baseType": "",
+    "description": "Reference to a time series",
+    "category": "reference"
+  },
+  {
     "name": "IFCTIMESERIESDATATYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -1518,6 +1548,12 @@
     "name": "IFCURIREFERENCE",
     "baseType": "xs:string",
     "description": "Text or identifier value"
+  },
+  {
+    "name": "IFCVALUE",
+    "baseType": "",
+    "description": "Any IFC value (measure, simple or derived value)",
+    "category": "reference"
   },
   {
     "name": "IFCVALVETYPEENUM",

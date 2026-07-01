@@ -255,6 +255,12 @@
     "description": "Enumeration value"
   },
   {
+    "name": "IFCCOMPLEXNUMBER",
+    "baseType": "",
+    "description": "Complex number (reference value)",
+    "category": "reference"
+  },
+  {
     "name": "IFCCOMPLEXPROPERTYTEMPLATETYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -328,6 +334,12 @@
     "name": "IFCCOSTSCHEDULETYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
+  },
+  {
+    "name": "IFCCOSTVALUE",
+    "baseType": "",
+    "description": "Cost value reference",
+    "category": "reference"
   },
   {
     "name": "IFCCOUNTMEASURE",
@@ -443,6 +455,12 @@
     "name": "IFCDOCUMENTCONFIDENTIALITYENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
+  },
+  {
+    "name": "IFCDOCUMENTREFERENCE",
+    "baseType": "",
+    "description": "Reference to an external document",
+    "category": "reference"
   },
   {
     "name": "IFCDOCUMENTSTATUSENUM",
@@ -613,6 +631,12 @@
     "name": "IFCEVENTTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
+  },
+  {
+    "name": "IFCEXTERNALREFERENCE",
+    "baseType": "",
+    "description": "Reference to an external source (classification, document or library)",
+    "category": "reference"
   },
   {
     "name": "IFCEXTERNALSPATIALELEMENTTYPEENUM",
@@ -960,6 +984,12 @@
     "description": "Measure value (decimal)"
   },
   {
+    "name": "IFCMATERIALDEFINITION",
+    "baseType": "",
+    "description": "Reference to a material definition",
+    "category": "reference"
+  },
+  {
     "name": "IFCMECHANICALFASTENERTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
@@ -1098,6 +1128,12 @@
     "name": "IFCPERMITTYPEENUM",
     "baseType": "xs:string",
     "description": "Enumeration value"
+  },
+  {
+    "name": "IFCPERSON",
+    "baseType": "",
+    "description": "Reference to a person",
+    "category": "reference"
   },
   {
     "name": "IFCPHMEASURE",
@@ -1633,6 +1669,12 @@
     "name": "IFCTIMEMEASURE",
     "baseType": "xs:double",
     "description": "Time measurement"
+  },
+  {
+    "name": "IFCTIMESERIES",
+    "baseType": "",
+    "description": "Reference to a time series",
+    "category": "reference"
   },
   {
     "name": "IFCTIMESERIESDATATYPEENUM",

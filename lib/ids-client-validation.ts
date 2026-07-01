@@ -92,7 +92,7 @@ export async function validateGraphClientSide(
         // for a template IFCLENGTHMEASURE) are treated as valid and never
         // surfaced; only a fundamentally different kind of value is hinted.
         if (data.dataType && data.baseName) {
-            const validation = isPropertyDataTypeValid(data.baseName, data.dataType)
+            const validation = isPropertyDataTypeValid(data.baseName, data.dataType, data.propertySet)
             if (!validation.valid && validation.expectedTypes) {
                 issues.push({
                     severity: 'warning',

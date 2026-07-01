@@ -44,6 +44,11 @@ interface IFCSimpleType {
   name: string
   baseType: string
   description?: string
+  // Set to 'reference' for entity/reference value types (IfcDocumentReference,
+  // IfcExternalReference, …) that standard IFC pset templates use but which have
+  // no simple-value restriction base. See scripts/generate-ids-datatypes.mjs and
+  // issue #58.
+  category?: string
 }
 
 interface IFCPropertySetDefinition {
@@ -202,6 +207,11 @@ const validDataTypeCache = new Set<string>()
 // Datatype name (UPPERCASE) -> xs: restriction base type (e.g. "xs:double").
 // Used to group datatypes into coarse value categories for compatibility hints.
 const dataTypeBaseTypeCache = new Map<string, string>()
+// Datatype names (UPPERCASE) flagged category:'reference' in the schema — the
+// entity/reference value types (IfcDocumentReference, …) that carry no simple
+// restriction base. Kept out of the numeric/string/… categories so they never
+// produce a "different kind of value" recommendation (issue #58).
+const referenceDataTypeCache = new Set<string>()
 let simpleTypesCacheVersion: IFCVersion | null = null
 
 async function ensureSimpleTypeCaches(version: IFCVersion): Promise<void> {
@@ -211,10 +221,12 @@ async function ensureSimpleTypeCaches(version: IFCVersion): Promise<void> {
     if (simpleTypes.length === 0) return // keep any existing cache / legacy fallback
     validDataTypeCache.clear()
     dataTypeBaseTypeCache.clear()
+    referenceDataTypeCache.clear()
     for (const t of simpleTypes) {
       const upper = t.name.toUpperCase()
       validDataTypeCache.add(upper)
       dataTypeBaseTypeCache.set(upper, (t.baseType || '').trim())
+      if (t.category === 'reference') referenceDataTypeCache.add(upper)
     }
     simpleTypesCacheVersion = version
   } catch (error) {
@@ -249,6 +261,9 @@ export type DataTypeCategory =
   | 'boolean'
   | 'datetime'
   | 'binary'
+  // Entity/reference value types (IfcDocumentReference, IfcExternalReference, …).
+  // Treated like 'unknown' for compatibility so they never drive a hint.
+  | 'reference'
   | 'unknown'
 
 function baseTypeToCategory(base: string): DataTypeCategory {
@@ -275,7 +290,11 @@ function baseTypeToCategory(base: string): DataTypeCategory {
 }
 
 export function getDataTypeCategory(dataType: string): DataTypeCategory {
-  const base = dataTypeBaseTypeCache.get(dataType.toUpperCase())
+  const upper = dataType.toUpperCase()
+  // Reference value types have an empty restriction base (which would otherwise
+  // fall into 'binary'); classify them explicitly so they stand apart. (#58)
+  if (referenceDataTypeCache.has(upper)) return 'reference'
+  const base = dataTypeBaseTypeCache.get(upper)
   if (base === undefined) return 'unknown'
   return baseTypeToCategory(base)
 }
@@ -289,7 +308,11 @@ export function areDataTypesCompatible(a: string, b: string): boolean {
   if (a.toUpperCase() === b.toUpperCase()) return true
   const ca = getDataTypeCategory(a)
   const cb = getDataTypeCategory(b)
+  // Unknown or reference value types are opaque — never flag them as a
+  // "different kind of value" (idsedit's pset template data can collapse a
+  // reference type to IFCLABEL, so a mismatch here would be a false hint). (#58)
   if (ca === 'unknown' || cb === 'unknown') return true
+  if (ca === 'reference' || cb === 'reference') return true
   return ca === cb
 }
 
@@ -459,8 +482,20 @@ export async function getSchemaStats(): Promise<{ version: string; entityCount: 
 
 // Build a cache of property name to data types from loaded property sets
 const propertyDataTypeCache = new Map<string, Set<string>>()
+// Property-set-scoped expected datatypes, keyed by `PSET PROP` (uppercase).
+// Lets the recommendation check ask "what type does THIS pset give THIS
+// property" instead of unioning a name across every pset — which previously
+// mis-hinted custom-pset properties that happen to share a standard name (e.g.
+// NOBN_SurveyControlStation.Elevation vs the standard length-typed Elevation).
+const propertySetScopedDataTypeCache = new Map<string, Set<string>>()
+// Uppercased names of every standard IFC property set we know about. Used to
+// tell a recognized pset from a project-specific/custom one.
+const knownPropertySetNames = new Set<string>()
 let cacheBuilt = false
 let cacheVersion: IFCVersion | null = null
+
+const scopedKey = (psetName: string, propName: string) =>
+  `${psetName.toUpperCase()} ${propName.toUpperCase()}`
 
 async function buildPropertyDataTypeCache(version: IFCVersion) {
   // Rebuild if version changed
@@ -470,17 +505,26 @@ async function buildPropertyDataTypeCache(version: IFCVersion) {
     // Clear previous cache if version changed
     if (cacheVersion !== version) {
       propertyDataTypeCache.clear()
+      propertySetScopedDataTypeCache.clear()
+      knownPropertySetNames.clear()
       cacheBuilt = false
     }
 
     const allPropertySets = await getAllPropertySets(version)
 
     for (const pset of allPropertySets) {
+      knownPropertySetNames.add(pset.name.toUpperCase())
       for (const prop of pset.properties) {
         if (!propertyDataTypeCache.has(prop.name)) {
           propertyDataTypeCache.set(prop.name, new Set())
         }
         propertyDataTypeCache.get(prop.name)!.add(prop.dataType)
+
+        const key = scopedKey(pset.name, prop.name)
+        if (!propertySetScopedDataTypeCache.has(key)) {
+          propertySetScopedDataTypeCache.set(key, new Set())
+        }
+        propertySetScopedDataTypeCache.get(key)!.add(prop.dataType)
       }
     }
 
@@ -553,6 +597,45 @@ export async function getExpectedDataTypesForPropertyAsync(propertyName: string,
 }
 
 /**
+ * Whether `propertySetName` is a recognized standard IFC property set (as
+ * opposed to a project-specific / custom one). Only meaningful once the cache
+ * is built; returns false beforehand so callers stay lenient.
+ */
+export function isKnownPropertySet(propertySetName: string): boolean {
+  // A property node may carry its pset as a restriction object rather than a
+  // plain string; anything non-string can't be a recognized standard pset.
+  if (!propertySetName || typeof propertySetName !== 'string') return false
+  return knownPropertySetNames.has(propertySetName.toUpperCase())
+}
+
+/**
+ * Expected datatypes for a property *within a specific property set*. Unlike
+ * getExpectedDataTypesForProperty (which unions a property name across every
+ * pset), this only speaks for the given standard pset:
+ *  - custom / unknown pset            → undefined (author owns the definition)
+ *  - standard pset, property present  → that property's template datatype(s)
+ *  - standard pset, property absent   → undefined (custom property added to a
+ *                                       standard pset; no template opinion)
+ */
+export function getExpectedDataTypesForPropertyInSet(
+  propertySetName: string,
+  propertyName: string,
+): string[] | undefined {
+  if (!isKnownPropertySet(propertySetName)) return undefined
+
+  const direct = propertySetScopedDataTypeCache.get(scopedKey(propertySetName, propertyName))
+  if (direct) return Array.from(direct)
+
+  const normalized = normalizePropertyName(propertyName)
+  if (normalized !== propertyName) {
+    const viaNormalized = propertySetScopedDataTypeCache.get(scopedKey(propertySetName, normalized))
+    if (viaNormalized) return Array.from(viaNormalized)
+  }
+
+  return undefined
+}
+
+/**
  * Compares a property's chosen datatype against the datatype(s) used for that
  * property name in the standard IFC property-set templates.
  *
@@ -566,9 +649,24 @@ export async function getExpectedDataTypesForPropertyAsync(propertyName: string,
  *     uses a measure) → `valid: false` + `expectedTypes`, surfaced by callers as
  *     a non-blocking recommendation.
  * Custom / unknown properties carry no template opinion and are always valid.
+ *
+ * When `propertySetName` is supplied the comparison is scoped to that property
+ * set: a property in a custom pset — or a custom property in a standard pset —
+ * carries no template opinion, so it's always valid. This prevents mis-hinting
+ * a project-specific property that merely shares a name with a standard one
+ * (e.g. NOBN_SurveyControlStation.Elevation vs the standard length Elevation).
  */
-export function isPropertyDataTypeValid(propertyName: string, dataType: string): { valid: boolean; expectedTypes?: string[] } {
-  const expectedTypes = getExpectedDataTypesForProperty(propertyName)
+export function isPropertyDataTypeValid(
+  propertyName: string,
+  dataType: string,
+  propertySetName?: string,
+): { valid: boolean; expectedTypes?: string[] } {
+  // Prefer the pset-scoped opinion when we know which pset this is; only fall
+  // back to the name-only union when no pset is given (backward compatible).
+  const expectedTypes =
+    propertySetName !== undefined
+      ? getExpectedDataTypesForPropertyInSet(propertySetName, propertyName)
+      : getExpectedDataTypesForProperty(propertyName)
 
   // If no expected types defined, any valid IFC data type is acceptable (custom property)
   if (!expectedTypes) {

@@ -37,6 +37,57 @@ const OUT_DIRS = [
   join(repoRoot, 'public', 'generated'),
 ]
 
+// Reference / object-value datatypes that the official DataTypes.md table does
+// NOT list, but which the buildingSMART IDS-Audit-Tool nonetheless accepts as a
+// property `dataType` — because standard IFC property-set templates declare
+// properties of these types (e.g. Pset_ManufacturerTypeInformation.
+// PerformanceCertificate is an IfcDocumentReference, OperationalDocument is an
+// IfcExternalReference). These are the entity/reference value types carried by
+// IfcPropertyReferenceValue et al., so they never appear in the "simple value"
+// DataTypes table, yet a valid IDS may legitimately use them (see issue #58 —
+// a BIMQ-exported, officially-valid IFC4X3 file was flagged with 81 false
+// "Invalid IFC data type" errors solely because these were missing here).
+//
+// The set below was derived from the authoritative pset templates embedded in
+// the IDS-Audit-Tool (ids-lib · SchemaInfo.Properties.g.cs): for each schema
+// version it is exactly the datatypes referenced by that version's standard
+// property templates that are absent from the general DataTypes.md list. They
+// have no xs restriction base type (you cannot xs:restrict a reference value),
+// so `baseType` is empty; `lib/ifc-schema.ts` classifies them in a dedicated
+// "reference" value category so they never trigger a datatype recommendation.
+const REFERENCE_DATA_TYPES = {
+  ifc2x3: [],
+  ifc4: [
+    'IFCCOMPLEXNUMBER',
+    'IFCEXTERNALREFERENCE',
+    'IFCMATERIALDEFINITION',
+    'IFCPERSON',
+    'IFCTIMESERIES',
+    'IFCVALUE',
+  ],
+  ifc4x3_add2: [
+    'IFCCOMPLEXNUMBER',
+    'IFCCOSTVALUE',
+    'IFCDOCUMENTREFERENCE',
+    'IFCEXTERNALREFERENCE',
+    'IFCMATERIALDEFINITION',
+    'IFCPERSON',
+    'IFCTIMESERIES',
+  ],
+}
+
+// Human descriptions for the reference datatypes above.
+const REFERENCE_DATA_TYPE_DESCRIPTIONS = {
+  IFCCOMPLEXNUMBER: 'Complex number (reference value)',
+  IFCCOSTVALUE: 'Cost value reference',
+  IFCDOCUMENTREFERENCE: 'Reference to an external document',
+  IFCEXTERNALREFERENCE: 'Reference to an external source (classification, document or library)',
+  IFCMATERIALDEFINITION: 'Reference to a material definition',
+  IFCPERSON: 'Reference to a person',
+  IFCTIMESERIES: 'Reference to a time series',
+  IFCVALUE: 'Any IFC value (measure, simple or derived value)',
+}
+
 /** Parse the markdown dataType table into rows. */
 function parseTable(md) {
   const rows = []
@@ -125,12 +176,38 @@ function main() {
         description: descriptions.get(r.name) || fallbackDescription(r.name, r.baseType),
       }))
 
+    // Union in the reference/object-value datatypes for this schema version
+    // (see REFERENCE_DATA_TYPES above). Skip any that the table already lists.
+    const existing = new Set(list.map((t) => t.name))
+    let refAdded = 0
+    for (const name of REFERENCE_DATA_TYPES[suffix] || []) {
+      if (existing.has(name)) continue
+      list.push({
+        name,
+        baseType: '',
+        description:
+          descriptions.get(name) ||
+          REFERENCE_DATA_TYPE_DESCRIPTIONS[name] ||
+          'Reference value',
+        // Marks a value carried by reference (IfcPropertyReferenceValue et al.),
+        // not a restrictable simple value. Consumed by lib/ifc-schema.ts to keep
+        // these out of the numeric/string/… compatibility categories.
+        category: 'reference',
+      })
+      existing.add(name)
+      refAdded++
+    }
+    // Keep the file stably sorted by name so diffs stay minimal on regen.
+    list.sort((a, b) => a.name.localeCompare(b.name))
+
     const json = JSON.stringify(list, null, 2) + '\n'
     for (const dir of OUT_DIRS) {
       writeFileSync(join(dir, `simple-types-${suffix}.json`), json)
     }
     const hasPos = list.some((t) => t.name === 'IFCPOSITIVELENGTHMEASURE')
-    console.log(`  ${suffix}: ${list.length} datatypes (IFCPOSITIVELENGTHMEASURE: ${hasPos ? 'yes' : 'NO'})`)
+    console.log(
+      `  ${suffix}: ${list.length} datatypes (${refAdded} reference types added; IFCPOSITIVELENGTHMEASURE: ${hasPos ? 'yes' : 'NO'})`,
+    )
   }
   console.log(`Done. Parsed ${rows.length} rows from ${SOURCE}`)
 }
