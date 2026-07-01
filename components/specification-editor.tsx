@@ -10,7 +10,7 @@ import { SchemaSwitcher } from "./schema-switcher"
 import { TemplatesDialog } from "./templates-dialog"
 import { IdsExportDialog } from "./ids-export-dialog"
 import { Button } from "./ui/button"
-import { Copy, Download, Upload, FileText, Layout, LayoutGrid, RotateCcw, RotateCw, HelpCircle, MoreVertical } from "lucide-react"
+import { Copy, Download, Upload, FileText, Layout, LayoutGrid, RotateCcw, RotateCw, HelpCircle, MoreVertical, Printer } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
@@ -22,6 +22,7 @@ import { initialNodes, initialEdges } from "@/lib/initial-data"
 import { loadProjectState, saveProjectState } from "@/lib/project-session-store"
 import { convertGraphToIdsXml } from "@/lib/ids-xml-converter"
 import { convertIdsXmlToGraph } from "@/lib/ids-xml-parser"
+import { generateIdsReportHtml } from "@/lib/ids-report"
 import { calculateSmartPositionForNewNode, findTemplateOffset, calculateNodePosition, DEFAULT_LAYOUT_CONFIG, relayoutNodes, findExistingNode, type ArrangeMode } from "@/lib/node-layout"
 import { useIdsValidation } from "@/lib/use-ids-validation"
 import { useUndoRedo } from "@/lib/use-undo-redo"
@@ -82,6 +83,10 @@ export function SpecificationEditor() {
   const [jsonFileInputRef, setJsonFileInputRef] = useState<HTMLInputElement | null>(null)
   const [idsFileInputRef, setIdsFileInputRef] = useState<HTMLInputElement | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  // IDS-level <info> metadata captured from the last imported file, so the
+  // human-readable report (#60) and re-export can show the real title / author
+  // / date instead of falling back to the first spec's name.
+  const [idsMetadata, setIdsMetadata] = useState<IdsMetadata | null>(null)
 
   // IDS Validation hook
   const {
@@ -479,6 +484,37 @@ export function SpecificationEditor() {
     setExportDialogOpen(true)
   }, [])
 
+  // Human-readable report (#60): render the current IDS as a print-ready HTML
+  // document (cover + one page per specification) and open it in a new tab, so
+  // it can be saved to PDF and attached to EIRs / BEPs. Built from the canonical
+  // exported XML so it always matches what gets validated.
+  const handleGenerateReport = useCallback(() => {
+    try {
+      const xml = convertGraphToIdsXml(nodes, edges, {
+        pretty: false,
+        ...(idsMetadata && { metadata: idsMetadata }),
+      })
+      const html = generateIdsReportHtml(xml, {
+        generatedAt: new Date().toISOString().split("T")[0],
+      })
+      const blob = new Blob([html], { type: "text/html" })
+      const url = URL.createObjectURL(blob)
+      const win = window.open(url, "_blank", "noopener,noreferrer")
+      if (!win) {
+        // Popup blocked — fall back to downloading the report file.
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "ids-report.html"
+        a.click()
+      }
+      // Give the new tab / download time to read the blob before revoking.
+      setTimeout(() => URL.revokeObjectURL(url), 15000)
+    } catch (error) {
+      console.error("Report generation failed:", error)
+      alert(`Report generation failed: ${error instanceof Error ? error.message : "Unknown error"}`)
+    }
+  }, [nodes, edges, idsMetadata])
+
   const handleJsonFileImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -535,12 +571,13 @@ export function SpecificationEditor() {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string
-        const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion } = convertIdsXmlToGraph(content)
+        const { nodes: importedNodes, edges: importedEdges, ifcVersion: importedIfcVersion, metadata: importedMetadata } = convertIdsXmlToGraph(content)
 
         takeSnapshot()
         setNodes(importedNodes)
         setEdges(importedEdges)
         setSelectedNode(null)
+        setIdsMetadata(importedMetadata ?? null)
 
         // Auto-select the first spec from the imported IDS — the user can
         // start reviewing/editing immediately without hunting for it.
@@ -845,6 +882,11 @@ export function SpecificationEditor() {
                   <Download className="h-4 w-4 mr-2" />
                   Export Canvas (.json)
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleGenerateReport}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Human-readable report
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
@@ -939,6 +981,10 @@ export function SpecificationEditor() {
                 <DropdownMenuItem onClick={exportCanvas}>
                   <Download className="h-4 w-4 mr-2" />
                   Export Canvas (.json)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleGenerateReport}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Human-readable report
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => idsFileInputRef?.click()}>
